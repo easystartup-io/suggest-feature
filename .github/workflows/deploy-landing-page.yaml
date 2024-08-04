@@ -1,0 +1,73 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    # Review gh actions docs if you want to further define triggers, paths, etc
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
+
+defaults:
+  run:
+    working-directory: ./docs
+
+jobs:
+  build:
+    name: Build Docusaurus
+    runs-on: ubuntu-latest
+    outputs:
+      job_successful: ${{ steps.job_successful.outputs.job_successful }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for changes in directory
+        id: check_changes
+        run: |
+          if git diff-tree --name-only --no-commit-id ${{ github.sha }} | grep -q "^docs"; then
+            echo "changes_made=yes" >> "$GITHUB_ENV"
+          else
+            echo "changes_made=no" >> "$GITHUB_ENV"
+          fi
+      - uses: actions/setup-node@v4
+        if: ${{env.changes_made == 'yes'}}
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install dependencies
+        if: ${{env.changes_made == 'yes'}}
+        run: npm ci
+      - name: Build website
+        if: ${{env.changes_made == 'yes'}}
+        run: npm run build
+
+      - name: Upload Build Artifact
+        if: ${{env.changes_made == 'yes'}}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build
+      - id: job_successful
+        if: ${{env.changes_made == 'yes'}}
+        run: echo "job_successful=yes" >> "$GITHUB_OUTPUT"
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: [build]
+    if: ${{needs.build.outputs.job_successful == 'yes'}}
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
