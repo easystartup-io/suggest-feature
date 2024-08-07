@@ -39,7 +39,7 @@
 }]]></component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="io.easystartup.Main" />
+      <option name="MAIN_CLASS_NAME" value="io.easystartup.suggestfeature.Main" />
       <module name="suggest-feature.main" />
       <method v="2">
         <option name="Make" enabled="true" />
