@@ -1,9 +1,11 @@
-import { Button } from "@/components/ui/button"
+"use client"
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+  router.push('/dashboard');
   return (
     <div>
-      <Button>Click me</Button>
     </div>
   );
 }

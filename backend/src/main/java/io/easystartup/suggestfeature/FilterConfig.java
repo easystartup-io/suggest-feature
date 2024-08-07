@@ -1,5 +1,6 @@
 package io.easystartup.suggestfeature;
 
+import io.easystartup.suggestfeature.filters.AuthFilter;
 import io.easystartup.suggestfeature.filters.CorsFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -30,15 +31,15 @@ public class FilterConfig {
 //        return registrationBean;
 //    }
 //
-//    @Bean
-//    public FilterRegistrationBean<AuthFilter> authFilter() {
-//        FilterRegistrationBean<AuthFilter> registrationBean = new FilterRegistrationBean<>();
-//        registrationBean.setFilter(new AuthFilter());
-//        String includedPaths = "/api/auth/;/api/restricted";
-//        registrationBean.addInitParameter(AUTH_FILTER_INCLUDED_INIT_PARAM_KEY, includedPaths);
-//        registrationBean.setOrder(1);
-//        return registrationBean;
-//    }
+    @Bean
+    public FilterRegistrationBean<AuthFilter> authFilter() {
+        FilterRegistrationBean<AuthFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new AuthFilter());
+        String includedPaths = "/api/auth/;/api/restricted";
+        registrationBean.addInitParameter(AUTH_FILTER_INCLUDED_INIT_PARAM_KEY, includedPaths);
+        registrationBean.setOrder(1);
+        return registrationBean;
+    }
 //
 //    @Bean
 //    public FilterRegistrationBean<KrishnaAuthFilter> krishnaAuthFilter() {
