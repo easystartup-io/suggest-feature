@@ -20,10 +20,14 @@ jobs:
           node-version: 18
           cache: npm
 
+      - name: Navigate to docs directory
+        run: cd docs
       - name: Install dependencies
-        run: cd docs && npm ci
+        run: npm ci
+        working-directory: ./docs
       - name: Build website
-        run: cd docs && npm run build
+        run: npm run build
+        working-directory: ./docs
 
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
