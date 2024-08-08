@@ -24,16 +24,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setIsLoading(true)
 
     if (step === 'email') {
-      await login(username, '');
+      await login(username);
       setStep('verification');
     } else {
       await verifyCode(username, verificationCode);
     }
 
-
     setTimeout(() => {
       setIsLoading(false)
-    }, 3000)
+    }, 1000)
   }
   return (
     <div className={cn("grid gap-6", className)} {...props}>
