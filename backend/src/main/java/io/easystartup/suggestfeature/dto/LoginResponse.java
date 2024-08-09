@@ -12,11 +12,6 @@ public class LoginResponse {
     private String organizationSlug;
     private Member.Role role;
 
-    public LoginResponse(String token, User user) {
-        this.token = token;
-        this.user = user;
-    }
-
     public LoginResponse(String token, User user, String organizationSlug, Member.Role role) {
         this.token = token;
         this.user = user;

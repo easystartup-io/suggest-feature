@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { token, user, organizationSlug } = await response.json();
       Cookies.set('token', token);
       setUser(user);
-      if (organizationSlug && organization.length > 0) {
+      if (organizationSlug && organizationSlug.length > 0) {
         router.push(`/${organizationSlug}/dashboard`);
       } else {
         router.push(`/create-org`);

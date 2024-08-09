@@ -17,6 +17,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -98,8 +99,13 @@ public class AuthService {
         user.setPassword(null);
 
         List<Member> orgsForUser = getOrgsForUser(user.getId());
+        if (CollectionUtils.isNotEmpty(orgsForUser)) {
+            Member member = orgsForUser.get(0);
+            Organization org = getOrganizationForId(member.getOrganizationId());
+            return new LoginResponse("Bearer " + jwtToken, safeUser, org.getSlug(), member.getRole());
+        }
 
-        return new LoginResponse("Bearer " + jwtToken, safeUser);
+        return new LoginResponse("Bearer " + jwtToken, safeUser, null, null);
     }
 
     /**
@@ -145,6 +151,7 @@ public class AuthService {
                 + "<h1 style=\"color: #333333;\">Your Verification Code</h1>"
                 + "<p style=\"font-size: 16px; color: #666666;\">Use the following verification code to complete your sign-in process:</p>"
                 + "<p style=\"font-size: 32px; font-weight: bold; color: #007BFF; background-color: #e9ecef; padding: 10px; border-radius: 5px; display: inline-block; text-align: center; margin: 20px 0;\">" + linkCode + "</p>"
+                + "<p style=\"font-size: 16px; color: #666666;\">This code is only valid for 10 minutes.</p>"
                 + "<p style=\"font-size: 16px; color: #666666;\">If you didn't request this code, please ignore this email.</p>"
                 + "</div>"
                 + "</body>"
@@ -223,4 +230,10 @@ public class AuthService {
 
         return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(organization.getId())), Member.class);
     }
+
+    // Todo: add cache
+    private Organization getOrganizationForId(String organizationId) {
+        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Organization.FIELD_ID).is(organizationId)), Organization.class);
+    }
+
 }
