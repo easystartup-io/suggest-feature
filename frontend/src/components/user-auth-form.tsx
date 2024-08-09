@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from '../context/AuthContext';
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
@@ -64,21 +66,38 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
         ) : (
           <div className="grid gap-2">
-            <div className="grid gap-1">
+            <div className="flex justify-center items-center">
               <Label className="sr-only" htmlFor="verificationCode">
                 Verification Code
               </Label>
-              <Input
+              <InputOTP
                 id="verificationCode"
-                placeholder="Enter your verification code"
-                type="text"
+                maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                autoCapitalize="none"
-                autoComplete="off"
-                autoCorrect="off"
+                onChange={(value) => setVerificationCode(value)}
                 disabled={isLoading}
-              />
+              >
+                <InputOTPGroup >
+                  <InputOTPSlot index={0}
+                    className="h-14 w-14 text-lg text-medium"
+                  />
+                  <InputOTPSlot index={1}
+                    className="h-14 w-14 text-lg"
+                  />
+                  <InputOTPSlot index={2}
+                    className="h-14 w-14 text-lg"
+                  />
+                  <InputOTPSlot index={3}
+                    className="h-14 w-14 text-lg"
+                  />
+                  <InputOTPSlot index={4}
+                    className="h-14 w-14 text-lg"
+                  />
+                  <InputOTPSlot index={5}
+                    className="h-14 w-14 text-lg"
+                  />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
             <Button disabled={isLoading}>
               {isLoading && (
@@ -87,9 +106,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               Verify Code
             </Button>
           </div>
-        )}
-      </form>
-    </div>
+        )
+        }
+      </form >
+    </div >
   );
 
   // return (
