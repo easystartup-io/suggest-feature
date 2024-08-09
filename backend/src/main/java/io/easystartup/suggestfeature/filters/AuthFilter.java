@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.filters;
 
 import io.easystartup.suggestfeature.AuthService;
 import io.easystartup.suggestfeature.LazyService;
+import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.jsonwebtoken.Claims;
@@ -81,15 +82,36 @@ public class AuthFilter implements Filter {
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
             return;
         }
+
         String userId = (String) claims.get("userId");
         Object userName = claims.get("userName");
+
+        // Get header value x-org-slug
+        // Validate in the database if the orgSlug is valid for this userId thn populate in context
+        // If not valid, return 401
+        // If valid, continue
+        String orgSlug = httpServletRequest.getHeader("x-org-slug");
+        String orgId = null;
+        Member.Role role = null;
+        if (StringUtils.isNotBlank(orgSlug)) {
+            Member member = authService.get().getMemberForSlug(userId, orgSlug);
+            if (member == null) {
+                // 401
+                ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid orgSlug");
+                return;
+            }
+            orgId = member.getOrganizationId();
+            role = member.getRole();
+        }
+
+
         UserContext previousUserContext = UserContext.current();
         String queryString = ((HttpServletRequest) request).getQueryString();
         try {
             MDC.put("userId", userId);
             MDC.put("userName", (String) userName);
             MDC.put("queryString", queryString);
-            previousUserContext = new UserContext(userId, (String) userName, null).start();
+            previousUserContext = new UserContext(userId, (String) userName, orgId, role).start();
             chain.doFilter(request, response);
         } catch (Throwable throwable) {
             LOGGER.error("[authFilter] ", throwable);

@@ -1,12 +1,11 @@
 package io.easystartup.suggestfeature.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.easystartup.suggestfeature.AuthService;
 import io.easystartup.suggestfeature.MongoTemplateFactory;
 import io.easystartup.suggestfeature.ValidationService;
 import io.easystartup.suggestfeature.beans.User;
+import io.easystartup.suggestfeature.dto.LoginRequest;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -77,7 +76,7 @@ public class AuthenticationRestApi {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Magic token expired").build();
         }
 
-        return Response.ok(JacksonMapper.toJson(authService.getLoginSignUpResponseJson(user))).build();
+        return Response.status(Response.Status.UNAUTHORIZED).entity("Magic token not valid").build();
     }
 
     @POST
@@ -120,34 +119,7 @@ public class AuthenticationRestApi {
 
         authService.sendMagicLink(req.getEmail(), linkCode);
 
-        return Response.ok(JacksonMapper.toJson(authService.getLoginSignUpResponseJson(user))).build();
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class LoginRequest {
-
-        @NotBlank
-        private String email;
-        private String magicToken;
-
-        public LoginRequest() {
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getMagicToken() {
-            return magicToken;
-        }
-
-        public void setMagicToken(String magicToken) {
-            this.magicToken = magicToken;
-        }
+        return Response.ok().build();
     }
 
     public static String generateMagicLinkCode() {

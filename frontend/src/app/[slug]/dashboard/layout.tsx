@@ -40,10 +40,11 @@ export const SidebarContext = createContext();
 const Dashboard: React.FC = ({ children }) => {
   const { logout } = useAuth();
   const [currentSection, setCurrentSection] = useState('dashboard');
-  const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
-
 
   const router = useRouter();
+
+  const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -62,14 +63,16 @@ const Dashboard: React.FC = ({ children }) => {
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Link
                 href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('dashboard')}`}
+                onClick={() => setCurrentSection('dashboard')}
               >
                 <Home className="h-4 w-4" />
                 Dashboard
               </Link>
               <Link
                 href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('orders')}`}
+                onClick={() => setCurrentSection('orders')}
               >
                 <ShoppingCart className="h-4 w-4" />
                 Orders
@@ -79,21 +82,24 @@ const Dashboard: React.FC = ({ children }) => {
               </Link>
               <Link
                 href="#"
-                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('products')}`}
+                onClick={() => setCurrentSection('products')}
               >
                 <Package className="h-4 w-4" />
-                Products{" "}
+                Products
               </Link>
               <Link
                 href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('customers')}`}
+                onClick={() => setCurrentSection('customers')}
               >
                 <Users className="h-4 w-4" />
                 Customers
               </Link>
               <Link
                 href="#"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('analytics')}`}
+                onClick={() => setCurrentSection('analytics')}
               >
                 <LineChart className="h-4 w-4" />
                 Analytics
@@ -105,8 +111,7 @@ const Dashboard: React.FC = ({ children }) => {
               <CardHeader className="p-2 pt-0 md:p-4">
                 <CardTitle>Upgrade to Pro</CardTitle>
                 <CardDescription>
-                  Unlock all features and get unlimited access to our support
-                  team.
+                  Unlock all features and get unlimited access to our support team.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
@@ -142,14 +147,16 @@ const Dashboard: React.FC = ({ children }) => {
                 </Link>
                 <Link
                   href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('dashboard')}`}
+                  onClick={() => setCurrentSection('dashboard')}
                 >
                   <Home className="h-5 w-5" />
                   Dashboard
                 </Link>
                 <Link
                   href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('orders')}`}
+                  onClick={() => setCurrentSection('orders')}
                 >
                   <ShoppingCart className="h-5 w-5" />
                   Orders
@@ -159,21 +166,24 @@ const Dashboard: React.FC = ({ children }) => {
                 </Link>
                 <Link
                   href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('products')}`}
+                  onClick={() => setCurrentSection('products')}
                 >
                   <Package className="h-5 w-5" />
                   Products
                 </Link>
                 <Link
                   href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('customers')}`}
+                  onClick={() => setCurrentSection('customers')}
                 >
                   <Users className="h-5 w-5" />
                   Customers
                 </Link>
                 <Link
                   href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('analytics')}`}
+                  onClick={() => setCurrentSection('analytics')}
                 >
                   <LineChart className="h-5 w-5" />
                   Analytics

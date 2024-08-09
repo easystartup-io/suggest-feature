@@ -18,7 +18,7 @@ public class User {
     public static final String FIELD_INCORRECT_ATTEMPT_COUNT = "incorrectAttemptCount";
     public static final String FIELD_MAGIC_LINK_SENT_COUNT = "magicLinkSentCount";
     public static final String FIELD_MAGIC_LINK_CODE = "magicLinkCode";
-    public static final String FIELD_MAGIC_LINK_VALID_TILL = "magicCodeValidTill";
+    public static final String FIELD_MAGIC_LINK_VALID_TILL = "magicLinkValidTill";
 
     @Id
     private String id;

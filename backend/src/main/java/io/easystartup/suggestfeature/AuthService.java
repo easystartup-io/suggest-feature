@@ -5,11 +5,13 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.easystartup.suggestfeature.beans.Member;
+import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.RateLimit;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
+import io.easystartup.suggestfeature.dto.LoginResponse;
 import io.easystartup.suggestfeature.utils.Util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -94,6 +96,9 @@ public class AuthService {
         String jwtToken = createJWTToken("suggestFeature", "user", TimeUnit.DAYS.toMillis(15), safeUser);
         stopWatch.stop();
         user.setPassword(null);
+
+        List<Member> orgsForUser = getOrgsForUser(user.getId());
+
         return new LoginResponse("Bearer " + jwtToken, safeUser);
     }
 
@@ -195,57 +200,27 @@ public class AuthService {
                 .build();
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class LoginResponse {
-
-        private String token;
-        private User user;
-        private String organizationSlug;
-        private String projectSlug;
-
-        public LoginResponse(String token, User user) {
-            this.token = token;
-            this.user = user;
-        }
-
-        public LoginResponse() {
-        }
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public void setUser(User user) {
-            this.user = user;
-        }
-
-        public String getOrganizationSlug() {
-            return organizationSlug;
-        }
-
-        public void setOrganizationSlug(String organizationSlug) {
-            this.organizationSlug = organizationSlug;
-        }
-
-        public String getProjectSlug() {
-            return projectSlug;
-        }
-
-        public void setProjectSlug(String projectSlug) {
-            this.projectSlug = projectSlug;
-        }
-    }
-
     private SecretKey getJWTSecretKey() {
         return Keys.hmacShaKeyFor(Util.getEnvVariable("JWT_KEY", UUID.randomUUID().toString()).getBytes(StandardCharsets.UTF_8));
     }
 
+    // Todo: add cache
+    public List<Member> getOrgsForUser(String userId) {
+        return mongoTemplateFactory.getDefaultMongoTemplate().find(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId)), Member.class);
+    }
+
+    // Todo: add cache
+    public Member getMemberForOrgId(String userId, String orgId) {
+        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(orgId)), Member.class);
+    }
+
+    // Todo: add cache
+    public Member getMemberForSlug(String userId, String orgSlug) {
+        Organization organization = mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Organization.FIELD_SLUG).is(orgSlug)), Organization.class);
+        if (organization == null) {
+            return null;
+        }
+
+        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(organization.getId())), Member.class);
+    }
 }

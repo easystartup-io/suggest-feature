@@ -1,6 +1,8 @@
 package io.easystartup.suggestfeature.rest;
 
+import io.easystartup.suggestfeature.AuthService;
 import io.easystartup.suggestfeature.MongoTemplateFactory;
+import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
@@ -9,6 +11,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -22,10 +25,12 @@ import org.springframework.stereotype.Component;
 public class UserRestApi {
 
     private final MongoTemplateFactory mongoConnection;
+    private final AuthService authService;
 
     @Autowired
-    public UserRestApi(MongoTemplateFactory mongoConnection) {
+    public UserRestApi(MongoTemplateFactory mongoConnection, AuthService authService) {
         this.mongoConnection = mongoConnection;
+        this.authService = authService;
     }
 
     @GET
