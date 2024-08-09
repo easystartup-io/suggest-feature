@@ -1,23 +1,107 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f4f4f4;
+  color: #333;
+}
 
-.heroBanner {
-  padding: 4rem 0;
+.header {
+  background: #3b82f6;
+  color: #fff;
+  padding: 20px;
   text-align: center;
-  position: relative;
-  overflow: hidden;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+.navbar ul {
+  list-style: none;
+  padding: 0;
 }
 
-.buttons {
+.navbar ul li {
+  display: inline;
+  margin: 0 15px;
+}
+
+.navbar ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.hero {
+  margin-top: 50px;
+}
+
+.hero h2 {
+  font-size: 2.5em;
+}
+
+.hero p {
+  font-size: 1.2em;
+  margin: 20px 0;
+}
+
+.cta-button {
+  background: #ff7e1b;
+  color: #fff;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.features {
+  padding: 50px 20px;
+  background: #fff;
+  text-align: center;
+}
+
+.features h2 {
+  font-size: 2em;
+}
+
+.feature-list {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-around;
+  margin-top: 30px;
 }
+
+.feature-item {
+  max-width: 300px;
+}
+
+.feature-item i {
+  font-size: 3em;
+  color: #3b82f6;
+}
+
+.cta {
+  padding: 50px 20px;
+  background: #3b82f6;
+  color: #fff;
+  text-align: center;
+}
+
+.footer {
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.footer ul li {
+  display: inline;
+  margin: 0 10px;
+}
+
+.footer ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
