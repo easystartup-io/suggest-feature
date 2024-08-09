@@ -11,7 +11,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string) => Promise<void>;
   verifyCode: (username: string, code: string) => Promise<void>;
   logout: () => void;
 }
@@ -52,23 +52,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUserLoggedIn();
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string) => {
     const response = await fetch(`${API_BASE_URL}/api/unauth/magic-link-generator`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: username, password }),
+      body: JSON.stringify({ email: username }),
     });
 
     if (response.ok) {
-      console.log('Login successful');
-      // const { token, user } = await response.json();
-      // Cookies.set('token', token);
-      // setUser(user);
-      // router.push('/dashboard');
+      console.log('Magic link generation successful');
     } else {
-      console.error('Login failed');
+      console.error('Magic link generation failed');
     }
   };
 
