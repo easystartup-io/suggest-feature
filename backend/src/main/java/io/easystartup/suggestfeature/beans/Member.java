@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document
 @JsonIgnoreProperties(ignoreUnknown = true)
+@CompoundIndex(name = "userId_1_organizationId_1", def = "{'userId': 1, 'organizationId': 1}", unique = true)
 public class Member {
 
     public enum Role {

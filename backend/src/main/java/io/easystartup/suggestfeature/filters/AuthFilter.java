@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import static io.easystartup.suggestfeature.FilterConfig.AUTH_FILTER_INCLUDED_INIT_PARAM_KEY;
@@ -59,9 +61,9 @@ public class AuthFilter implements Filter {
             Cookie[] cookies = httpServletRequest.getCookies();
             for (Cookie cookie : cookies) {
                 if ("token".equals(cookie.getName())) {
-                    token = cookie.getValue();
+                    token = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                    break;
                 }
-                break;
             }
         }
 

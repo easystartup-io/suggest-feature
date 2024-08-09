@@ -19,7 +19,7 @@ public class Organization {
     @Id
     private String id;
     private String name;
-    @Indexed
+    @Indexed(unique = true)
     private String slug;
     private Long createdAt;
 
