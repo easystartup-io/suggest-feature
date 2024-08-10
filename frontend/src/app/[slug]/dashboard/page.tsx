@@ -5,7 +5,7 @@ import withAuth from '@/hoc/withAuth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from "next/navigation"
 import { useContext, useEffect } from "react";
-import { SidebarContext } from "./layout";
+import { SidebarContext } from "../layout";
 
 
 const Dashboard: React.FC = ({ }) => {

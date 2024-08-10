@@ -1,90 +1,124 @@
-import clsx from 'clsx';
-import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
-
-import Heading from '@theme/Heading';
 import styles from './index.module.css';
 
+const CallToAction = () => {
+  return (
+    <section className="cta">
+      <div className="container">
+        <h2>Ready to get started?</h2>
+        <a href="#signup" className="button">Sign Up Now</a>
+      </div>
+    </section>
+  );
+};
+const Testimonials = () => {
+  const testimonials = [
+    { name: "John Doe", feedback: "This is an amazing product!" },
+    { name: "Jane Smith", feedback: "I love using this service." },
+  ];
 
-function Header() {
+  return (
+    <section className="testimonials">
+      <div className="container">
+        <h2>Testimonials</h2>
+        <div className="testimonials-grid">
+          {testimonials.map((testimonial, index) => (
+            <div key={index} className="testimonial-item">
+              <p>{testimonial.feedback}</p>
+              <h3>{testimonial.name}</h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+const Features = () => {
+  const features = [
+    { title: "Fully Responsive", description: "Looks great on all devices." },
+    { title: "Customizable", description: "Easy to modify for your needs." },
+    { title: "High Performance", description: "Fast and optimized." },
+  ];
+
+  return (
+    <section className="features">
+      <div className="container">
+        <h2>Features</h2>
+        <div className="features-grid">
+          {features.map((feature, index) => (
+            <div key={index} className="feature-item">
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+const Hero = () => {
+  return (
+    <section className="hero">
+      <div className="container">
+        <div className="hero-content">
+          <h1>Build your website the right way</h1>
+          <p>Create and grow your business with a modern landing page.</p>
+          <a href="#cta" className="button">Get Started</a>
+        </div>
+        <div className="hero-image">
+          <img src="your-hero-image-url" alt="Hero" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Header = () => {
   return (
     <header className="header">
-      <nav className="navbar">
-        <h1 className="logo">Suggest Feature</h1>
-        <ul>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-          <li><a href="#cta">Get Started</a></li>
-        </ul>
-      </nav>
-      <div className="hero">
-        <h2>Streamline Your Feedback Process</h2>
-        <p>Effortlessly manage and prioritize suggestions for your product's future roadmap.</p>
-        <a href="#cta" className="cta-button">Get Started for Free</a>
+      <div className="container bg-blue-700">
+        <div className="logo">Gray</div>
+        <nav className="nav">
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+          </ul>
+        </nav>
+        <a href="#cta" className="button">Sign Up</a>
       </div>
     </header>
   );
-}
+};
 
-function Features() {
-  return (
-    <section id="features" className="features">
-      <h2>Features</h2>
-      <div className="feature-list">
-        <div className="feature-item">
-          <i className="fas fa-check-circle"></i>
-          <h3>Easy Feedback Collection</h3>
-          <p>Collect user feedback with minimal effort and without any hassle.</p>
-        </div>
-        <div className="feature-item">
-          <i className="fas fa-road"></i>
-          <h3>Roadmap Integration</h3>
-          <p>Integrate feedback directly into your product's roadmap.</p>
-        </div>
-        <div className="feature-item">
-          <i className="fas fa-cloud-upload-alt"></i>
-          <h3>Hosted and Open Source</h3>
-          <p>Use the hosted version or self-host with our open-source solution.</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CTA() {
-  return (
-    <section id="cta" className="cta">
-      <h2>Ready to Streamline Your Feedback?</h2>
-      <p>Sign up now and start managing your feedback with ease.</p>
-      <a href="#" className="cta-button">Get Started for Free</a>
-    </section>
-  );
-}
-
-function Footer() {
+const Footer = () => {
   return (
     <footer className="footer">
-      <p>&copy; 2024 Suggest Feature. All rights reserved.</p>
-      <ul>
-        <li><a href="/privacy">Privacy Policy</a></li>
-        <li><a href="/terms">Terms of Service</a></li>
-        <li><a href="/contact-us">Contact Us</a></li>
-      </ul>
+      <div className="container">
+        <ul className="footer-nav">
+          <li><a href="#privacy">Privacy Policy</a></li>
+          <li><a href="#terms">Terms of Service</a></li>
+        </ul>
+        <div className="social-icons">
+          <a href="#facebook">Facebook</a>
+          <a href="#twitter">Twitter</a>
+        </div>
+      </div>
     </footer>
   );
-}
+};
 
 
-export default function Home() {
-  const { siteConfig } = useDocusaurusContext();
+function App() {
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Suggest feature is an amazing tool to Collect user pain points">
+    <div className="App">
       <Header />
+      <Hero />
       <Features />
-      <CTA />
-    </Layout>
+      <Testimonials />
+      <CallToAction />
+      <Footer />
+    </div>
   );
 }
+export default App;
+

@@ -60,6 +60,19 @@ const config = {
       }),
     ],
   ],
+  plugins: [
+    async function myPlugin(context, options) {
+      return {
+        name: "docusaurus-tailwindcss",
+        configurePostCss(postcssOptions) {
+          // Appends TailwindCSS and AutoPrefixer.
+          postcssOptions.plugins.push(require("tailwindcss"));
+          postcssOptions.plugins.push(require("autoprefixer"));
+          return postcssOptions;
+        },
+      };
+    },
+  ],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -112,8 +125,9 @@ const config = {
           //   to: '/blog',
           // },
           {
-            label: 'GitHub',
-            href: 'https://github.com/easystartup-io/suggest-feature',
+            'href': 'https://github.com/easystartup-io/suggest-feature',
+            'label': 'GitHub',
+            'className': 'header-github-link',
           },
         ],
         copyright: `© ${new Date().getFullYear()} Suggest Feature. All rights reserved.`,

@@ -8,6 +8,7 @@ import {
   Package,
   Package2,
   ShoppingCart,
+  UserRoundCog,
   Users
 } from "lucide-react"
 import Link from "next/link"
@@ -37,7 +38,7 @@ import { createContext, useState } from "react"
 
 export const SidebarContext = createContext();
 
-const Dashboard: React.FC = ({ children }) => {
+const Dashboard: React.FC = ({ children, params }) => {
   const { logout } = useAuth();
   const [currentSection, setCurrentSection] = useState('dashboard');
 
@@ -50,7 +51,7 @@ const Dashboard: React.FC = ({ children }) => {
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
+            <Link href={`/${params.slug}/dashboard`} className="flex items-center gap-2 font-semibold">
               <Package2 className="h-6 w-6" />
               <span className="">Suggest Feature</span>
             </Link>
@@ -62,7 +63,7 @@ const Dashboard: React.FC = ({ children }) => {
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Link
-                href="#"
+                href={`/${params.slug}/dashboard`}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('dashboard')}`}
                 onClick={() => setCurrentSection('dashboard')}
               >
@@ -70,7 +71,7 @@ const Dashboard: React.FC = ({ children }) => {
                 Dashboard
               </Link>
               <Link
-                href="#"
+                href={`/${params.slug}/orders`}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('orders')}`}
                 onClick={() => setCurrentSection('orders')}
               >
@@ -81,12 +82,12 @@ const Dashboard: React.FC = ({ children }) => {
                 </Badge>
               </Link>
               <Link
-                href="#"
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('products')}`}
-                onClick={() => setCurrentSection('products')}
+                href={`/${params.slug}/members`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('members')}`}
+                onClick={() => setCurrentSection('members')}
               >
-                <Package className="h-4 w-4" />
-                Products
+                <UserRoundCog className="h-4 w-4" />
+                Members
               </Link>
               <Link
                 href="#"
@@ -146,7 +147,7 @@ const Dashboard: React.FC = ({ children }) => {
                   <span className="sr-only">Acme Inc</span>
                 </Link>
                 <Link
-                  href="#"
+                  href={`/${params.slug}/dashboard`}
                   className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('dashboard')}`}
                   onClick={() => setCurrentSection('dashboard')}
                 >
@@ -165,12 +166,12 @@ const Dashboard: React.FC = ({ children }) => {
                   </Badge>
                 </Link>
                 <Link
-                  href="#"
-                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('products')}`}
-                  onClick={() => setCurrentSection('products')}
+                  href={`/${params.slug}/members`}
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('members')}`}
+                  onClick={() => setCurrentSection('members')}
                 >
-                  <Package className="h-5 w-5" />
-                  Products
+                  <UserRoundCog className="h-5 w-5" />
+                  Members
                 </Link>
                 <Link
                   href="#"

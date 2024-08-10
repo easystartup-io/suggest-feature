@@ -11,10 +11,13 @@ import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /*
  * @author indianBond
@@ -94,6 +97,30 @@ public class UserRestApi {
             return Response.status(Response.Status.BAD_REQUEST).entity("Organization Slug already exists").build();
         }
         return Response.ok(JacksonMapper.toJson(organization)).build();
+    }
+
+    @GET
+    @Path("/fetch-members")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response fetchMembers() {
+        String orgId = UserContext.current().getOrgId();
+        if (StringUtils.isBlank(orgId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid org").build();
+        }
+        Criteria criteria = Criteria.where(Member.FIELD_ORGANIZATION_ID).is(orgId);
+        Query query = new Query(criteria);
+        List<Member> members = mongoConnection.getDefaultMongoTemplate().find(query, Member.class);
+        members.forEach(member -> {
+            Criteria userCriteria = Criteria.where(User.FIELD_ID).is(member.getUserId());
+            User dangerousUser = mongoConnection.getDefaultMongoTemplate().findOne(new Query(userCriteria), User.class);
+            User user = new User();
+            user.setId(dangerousUser.getId());
+            user.setEmail(dangerousUser.getEmail());
+            user.setName(dangerousUser.getName());
+            member.setUser(user);
+        });
+        return Response.ok(JacksonMapper.toJson(members)).build();
     }
 
 }
