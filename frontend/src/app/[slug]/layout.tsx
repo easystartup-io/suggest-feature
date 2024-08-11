@@ -1,6 +1,7 @@
 "use client"
 import {
   Bell,
+  BookOpenText,
   CircleUser,
   Home,
   LineChart,
@@ -71,15 +72,15 @@ const Dashboard: React.FC = ({ children, params }) => {
                 Dashboard
               </Link>
               <Link
-                href={`/${params.slug}/orders`}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('orders')}`}
-                onClick={() => setCurrentSection('orders')}
+                href={`/${params.slug}/pages`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('pages')}`}
+                onClick={() => setCurrentSection('pages')}
               >
-                <ShoppingCart className="h-4 w-4" />
-                Orders
-                <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  6
-                </Badge>
+                <BookOpenText className="h-4 w-4" />
+                Pages
+                {/* <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full"> */}
+                {/*   6 */}
+                {/* </Badge> */}
               </Link>
               <Link
                 href={`/${params.slug}/members`}
@@ -156,14 +157,14 @@ const Dashboard: React.FC = ({ children, params }) => {
                 </Link>
                 <Link
                   href="#"
-                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('orders')}`}
-                  onClick={() => setCurrentSection('orders')}
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('pages')}`}
+                  onClick={() => setCurrentSection('pages')}
                 >
-                  <ShoppingCart className="h-5 w-5" />
-                  Orders
-                  <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                    6
-                  </Badge>
+                  <BookOpenText className="h-5 w-5" />
+                  Pages
+                  {/* <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full"> */}
+                  {/*   6 */}
+                  {/* </Badge> */}
                 </Link>
                 <Link
                   href={`/${params.slug}/members`}
