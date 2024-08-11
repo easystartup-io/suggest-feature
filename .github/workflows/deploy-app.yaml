@@ -65,7 +65,7 @@ jobs:
       - name: Check for changes in directory
         id: check_changes
         run: |
-          if git diff-tree --name-only --no-commit-id ${{ github.sha }} | grep -q "^ui"; then
+          if git diff-tree --name-only --no-commit-id ${{ github.sha }} | grep -q "^frontend"; then
             echo "changes_made=yes" >> "$GITHUB_ENV"
           else
             echo "changes_made=no" >> "$GITHUB_ENV"
@@ -89,7 +89,7 @@ jobs:
         if: ${{env.changes_made == 'yes'}}
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:ui"
+          context: "{{defaultContext}}:frontend"
           platforms: "linux/arm64"
           push: true
           tags: |
@@ -131,7 +131,7 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN_GITHUB }}
       - name: Update values.yaml
         run: |
-          cd charts/ui
+          cd charts/suggest-feature-ui
           sed -i 's|tag: "suggest-feature-ui-.*|tag: "suggest-feature-ui-'${{ github.sha }}'-arm"|' values.yaml
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
