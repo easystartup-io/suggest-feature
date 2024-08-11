@@ -87,7 +87,7 @@ const Dashboard: React.FC = ({ children, params }) => {
                 onClick={() => setCurrentSection('members')}
               >
                 <UserRoundCog className="h-4 w-4" />
-                Members
+                Team Members
               </Link>
               <Link
                 href="#"
@@ -171,7 +171,7 @@ const Dashboard: React.FC = ({ children, params }) => {
                   onClick={() => setCurrentSection('members')}
                 >
                   <UserRoundCog className="h-5 w-5" />
-                  Members
+                  Team Members
                 </Link>
                 <Link
                   href="#"
