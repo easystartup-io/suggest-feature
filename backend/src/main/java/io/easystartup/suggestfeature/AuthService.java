@@ -47,7 +47,7 @@ public class AuthService {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
 
-        //We will sign our JWT with our ApiKey secret
+        // We will sign our JWT with our ApiKey secret
         Map<String, Object> claims = new HashMap<>();
         claims.put("userName", user.getEmail());
         claims.put("userId", user.getId());
@@ -55,7 +55,7 @@ public class AuthService {
         long expMillis = nowMillis + ttlMillis;
         Date exp = new Date(expMillis);
 
-        //Let's set the JWT Claims
+        // Let's set the JWT Claims
         JwtBuilder builder = Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .issuedAt(now)
@@ -66,8 +66,7 @@ public class AuthService {
                 .expiration(exp)
                 .signWith(getJWTSecretKey());
 
-
-        //Builds the JWT and serializes it to a compact, URL-safe string
+        // Builds the JWT and serializes it to a compact, URL-safe string
         return builder.compact();
     }
 
@@ -76,7 +75,7 @@ public class AuthService {
             if (jwt.startsWith("Bearer ")) {
                 jwt = jwt.substring(7);
             }
-            //This line will throw an exception if it is not a signed JWS (as expected)
+            // This line will throw an exception if it is not a signed JWS (as expected)
             return Jwts.parser()
                     .clockSkewSeconds(TimeUnit.MINUTES.toSeconds(15))
                     .verifyWith(getJWTSecretKey())
@@ -150,7 +149,8 @@ public class AuthService {
                 + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: auto;\">"
                 + "<h1 style=\"color: #333333;\">Your Verification Code</h1>"
                 + "<p style=\"font-size: 16px; color: #666666;\">Use the following verification code to complete your sign-in process:</p>"
-                + "<p style=\"font-size: 32px; font-weight: bold; color: #007BFF; background-color: #e9ecef; padding: 10px; border-radius: 5px; display: inline-block; text-align: center; margin: 20px 0;\">" + linkCode + "</p>"
+                + "<p style=\"font-size: 32px; font-weight: bold; color: #007BFF; background-color: #e9ecef; padding: 10px; border-radius: 5px; display: inline-block; text-align: center; margin: 20px 0;\">"
+                + linkCode + "</p>"
                 + "<p style=\"font-size: 16px; color: #666666;\">This code is only valid for 10 minutes.</p>"
                 + "<p style=\"font-size: 16px; color: #666666;\">If you didn't request this code, please ignore this email.</p>"
                 + "</div>"
@@ -170,7 +170,8 @@ public class AuthService {
         Query query = new Query(criteriaDefinition);
         Update update = new Update().inc(RateLimit.FIELD_LIMIT, 1)
                 .setOnInsert(RateLimit.FIELD_ID, "rateLimit:" + year + ":" + month);
-        RateLimit rateLimit = mongoTemplateFactory.getDefaultMongoTemplate().findAndModify(query, update, FindAndModifyOptions.options().returnNew(true).upsert(true), RateLimit.class);
+        RateLimit rateLimit = mongoTemplateFactory.getDefaultMongoTemplate().findAndModify(query, update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true), RateLimit.class);
         if (rateLimit.getCount() > Util.getEnvVariable("EMAIL_RATE_LIMIT", 1_000_000L)) {
             LOGGER.error("Rate limit exceeded for sending magic link email");
             throw new RuntimeException("Rate limit exceeded for sending magic link email! Please try again later.");
@@ -192,7 +193,7 @@ public class AuthService {
             client.sendEmail(request);
             LOGGER.error("Magic link email sent! " + to);
         } catch (Exception ex) {
-            System.out.println("The email was not sent. Error message: " + ex.getMessage());
+            LOGGER.error("The email was not sent. Error message: " + ex.getMessage(), ex);
         }
     }
 
@@ -208,32 +209,41 @@ public class AuthService {
     }
 
     private SecretKey getJWTSecretKey() {
-        return Keys.hmacShaKeyFor(Util.getEnvVariable("JWT_KEY", UUID.randomUUID().toString()).getBytes(StandardCharsets.UTF_8));
+        return Keys
+                .hmacShaKeyFor(Util.getEnvVariable("JWT_KEY", UUID.randomUUID().toString()).getBytes(StandardCharsets.UTF_8));
     }
 
     // Todo: add cache
     public List<Member> getOrgsForUser(String userId) {
-        return mongoTemplateFactory.getDefaultMongoTemplate().find(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId)), Member.class);
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .find(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId)), Member.class);
     }
 
     // Todo: add cache
     public Member getMemberForOrgId(String userId, String orgId) {
-        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(orgId)), Member.class);
+        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(
+                new Query(Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(orgId)),
+                Member.class);
     }
 
     // Todo: add cache
     public Member getMemberForSlug(String userId, String orgSlug) {
-        Organization organization = mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Organization.FIELD_SLUG).is(orgSlug)), Organization.class);
+        Organization organization = mongoTemplateFactory.getDefaultMongoTemplate()
+                .findOne(new Query(Criteria.where(Organization.FIELD_SLUG).is(orgSlug)), Organization.class);
         if (organization == null) {
             return null;
         }
 
-        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(organization.getId())), Member.class);
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .findOne(new Query(
+                                Criteria.where(Member.FIELD_USER_ID).is(userId).and(Member.FIELD_ORGANIZATION_ID).is(organization.getId())),
+                        Member.class);
     }
 
     // Todo: add cache
     private Organization getOrganizationForId(String organizationId) {
-        return mongoTemplateFactory.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Organization.FIELD_ID).is(organizationId)), Organization.class);
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .findOne(new Query(Criteria.where(Organization.FIELD_ID).is(organizationId)), Organization.class);
     }
 
 }
