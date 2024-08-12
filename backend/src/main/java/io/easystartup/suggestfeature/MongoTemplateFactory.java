@@ -64,9 +64,9 @@ public class MongoTemplateFactory {
         if (mongoTemplate == null) {
             synchronized (this) {
                 if (mongoTemplate == null) {
+                    String mongoUrl = Util.getEnvVariable("MONGO_URL", "mongodb://localhost:27017");
                     String databaseName = "easyStartup_db";
-                    String url = "mongodb://localhost:27017";
-                    MongoTemplate template = new MongoTemplate(createMongoClient(url), databaseName);
+                    MongoTemplate template = new MongoTemplate(createMongoClient(mongoUrl), databaseName);
                     mongoTemplate = template;
                 }
             }
