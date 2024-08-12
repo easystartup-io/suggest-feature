@@ -89,10 +89,11 @@ public class AuthenticationRestApi {
 
         Criteria criteria = Criteria.where(User.FIELD_EMAIL).is(req.getEmail());
         String linkCode = generateMagicLinkCode();
+        long magicLinkValidTill = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
         Update update = new Update()
                 .inc(User.FIELD_MAGIC_LINK_SENT_COUNT, 1)
                 .set(User.FIELD_MAGIC_LINK_CODE, linkCode)
-                .set(User.FIELD_MAGIC_LINK_VALID_TILL, System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10));
+                .set(User.FIELD_MAGIC_LINK_VALID_TILL, magicLinkValidTill);
         User user = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(criteria),
                 update, FindAndModifyOptions.options().returnNew(true).upsert(false), User.class);
 
@@ -101,6 +102,8 @@ public class AuthenticationRestApi {
             user1.setEmail(req.getEmail());
             user1.setCreatedAt(System.currentTimeMillis());
             user1.setMagicLinkSentCount(1L);
+            user1.setMagicLinkCode(linkCode);
+            user1.setMagicLinkValidTill(magicLinkValidTill);
             user = mongoConnection.getDefaultMongoTemplate().insert(user1);
         } else {
             authService.incMagicLinkSentCount(req.getEmail());
@@ -110,10 +113,10 @@ public class AuthenticationRestApi {
         if (user.getUserBlockedUntil() != null && user.getUserBlockedUntil() > System.currentTimeMillis()) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("User blocked, try after sometime!").build();
         } else if (user.getIncorrectAttemptCount() != null && user.getIncorrectAttemptCount() > 10) {
-            authService.blockUserUntil(req.getEmail(), System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10));
+            authService.blockUserUntil(req.getEmail(), magicLinkValidTill);
             return Response.status(Response.Status.UNAUTHORIZED).entity("Too many attempts, try after sometime").build();
         } else if (user.getIncorrectAttemptCount() != null && user.getMagicLinkSentCount() > 10) {
-            authService.blockUserUntil(req.getEmail(), System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10));
+            authService.blockUserUntil(req.getEmail(), magicLinkValidTill);
             return Response.status(Response.Status.UNAUTHORIZED).entity("Too many attempts, try after sometime").build();
         }
 
