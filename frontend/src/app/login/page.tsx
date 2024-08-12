@@ -60,7 +60,7 @@ export default function AuthenticationPage() {
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">
-                Best suggestion tool I've used. I love how easy it is to use and how it integrates with my workflow.
+                Best suggestion tool I&apos;ve used. I love how easy it is to use and how it integrates with my workflow.
               </p>
               <footer className="text-sm">Sofia Davis</footer>
             </blockquote>
