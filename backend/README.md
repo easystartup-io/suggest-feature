@@ -10,3 +10,6 @@ Create table in markdown
 | AWS_REGION | AWS region to send email                                     | us-east-1                       |
 | JWT_KEY | JWT key to sign auth tokens                                  | <randomly_generated_on_restart> |
 | EMAIL_RATE_LIMIT | Rate limit for sending emails per month to prevent spam cost | 100000                          |
+
+# Backend database MonogoDB
+
