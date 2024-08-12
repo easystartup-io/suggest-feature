@@ -72,14 +72,16 @@ export default function AuthenticationPage() {
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}
               <Link
-                href="/terms"
+                href="https://suggestfeature.com/terms"
+                target="_blank"
                 className="underline underline-offset-4 hover:text-primary"
               >
                 Terms of Service
               </Link>{" "}
               and{" "}
               <Link
-                href="/privacy"
+                href="https://suggestfeature.com/privacy"
+                target="_blank"
                 className="underline underline-offset-4 hover:text-primary"
               >
                 Privacy Policy
