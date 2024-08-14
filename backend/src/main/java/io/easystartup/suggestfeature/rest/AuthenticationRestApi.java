@@ -11,6 +11,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /*
  * @author indianBond
@@ -34,6 +36,9 @@ public class AuthenticationRestApi {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int CODE_LENGTH = 6;
 
+    //  RFC 5322 Official Standard. DOes not support non unicode characters in email
+    private static final Pattern EMAIL_VALIDATION_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+
     @Autowired
     public AuthenticationRestApi(ValidationService validationService, MongoTemplateFactory mongoConnection, AuthService authService) {
         this.validationService = validationService;
@@ -47,6 +52,11 @@ public class AuthenticationRestApi {
     @Produces("application/json")
     public Response login(LoginRequest req) {
         validationService.validate(req);
+        EmailValidator emailValidator = EmailValidator.getInstance();
+        boolean valid = emailValidator.isValid(req.getEmail());
+        if (!valid) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid email").build();
+        }
         req.setEmail(req.getEmail().trim());
         req.setMagicToken(req.getMagicToken().trim());
 
@@ -86,6 +96,11 @@ public class AuthenticationRestApi {
     public Response magicLinkGenerator(LoginRequest req) {
         validationService.validate(req);
         req.setEmail(req.getEmail().trim());
+        EmailValidator emailValidator = EmailValidator.getInstance();
+        boolean valid = emailValidator.isValid(req.getEmail());
+        if (!valid) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid email").build();
+        }
 
         Criteria criteria = Criteria.where(User.FIELD_EMAIL).is(req.getEmail());
         String linkCode = generateMagicLinkCode();

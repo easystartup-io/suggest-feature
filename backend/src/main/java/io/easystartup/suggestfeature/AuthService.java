@@ -190,8 +190,8 @@ public class AuthService {
                     .withSource(from);
 
             // Send the email
-            client.sendEmail(request);
-            LOGGER.error("Magic link email sent! " + to);
+            SendEmailResult sendEmailResult = client.sendEmail(request);
+            LOGGER.error("Magic link email sent! " + to + " Message ID: " + sendEmailResult.getMessageId());
         } catch (Exception ex) {
             LOGGER.error("The email was not sent. Error message: " + ex.getMessage(), ex);
         }

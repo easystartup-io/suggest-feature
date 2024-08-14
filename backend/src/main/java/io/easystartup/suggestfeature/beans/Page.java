@@ -1,7 +1,9 @@
 package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -13,17 +15,22 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Page {
     public static final String FIELD_ID = "_id";
+    public static final String FIELD_ORGANIZATION_ID = "organizationId";
 
     @Id
     private String id;
+    @Indexed(unique = true)
+    @NotBlank
     private String slug;
     private List<String> boards;
     private String customDomain;
+    @Indexed
     private String organizationId;
     private String createdByUserId;
 
     private Long createdAt;
 
+    @NotBlank
     private String name;
 
     public Page() {

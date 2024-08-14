@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Board {
     public static final String FIELD_ID = "_id";
+    public static final String FIELD_ORGANIZATION_ID = "organizationId";
 
     @Id
     private String id;

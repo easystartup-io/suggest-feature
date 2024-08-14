@@ -9,7 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.easystartup.suggestfeature.utils.Util.WHITE_SPACE;
 
@@ -42,13 +45,13 @@ public class ValidationService {
                 stringBuilder.append(Util.convertFieldNameToReadableString(s1));
                 stringBuilder.append(WHITE_SPACE).append(val.getMessage());
             });
-            throw new BadRequestException(stringBuilder.toString());
+            throw new UserVisibleException(stringBuilder.toString());
         }
     }
 
     public void notBlank(String val) {
         if (StringUtils.isBlank(val)) {
-            throw new BadRequestException("Can't be blank");
+            throw new UserVisibleException("Can't be blank");
         }
     }
 
