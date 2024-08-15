@@ -33,6 +33,7 @@ public class Member {
     private Long createdAt;
     private String organizationId;
     private Role role;
+    private String addedByUserId;
 
     @Transient
     @Reference // Alternative to skip index
@@ -87,5 +88,13 @@ public class Member {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getAddedByUserId() {
+        return addedByUserId;
+    }
+
+    public void setAddedByUserId(String addedByUserId) {
+        this.addedByUserId = addedByUserId;
     }
 }

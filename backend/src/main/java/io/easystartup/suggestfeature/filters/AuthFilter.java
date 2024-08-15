@@ -1,7 +1,7 @@
 package io.easystartup.suggestfeature.filters;
 
-import io.easystartup.suggestfeature.AuthService;
-import io.easystartup.suggestfeature.LazyService;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.utils.LazyService;
 import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;

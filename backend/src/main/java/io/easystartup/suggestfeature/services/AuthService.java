@@ -1,10 +1,11 @@
-package io.easystartup.suggestfeature;
+package io.easystartup.suggestfeature.services;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.RateLimit;
@@ -162,6 +163,28 @@ public class AuthService {
         sendEmail(to, bodyHtml, subject, from);
     }
 
+
+    public void sendAddedToOrgEmail(String to, String orgId, String userId) {
+        String from = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
+        Organization orgById = getOrgById(orgId);
+        User addedByUser = getUserByUserId(userId);
+        String subject = "You have been added to " + orgById.getName() + " - Suggest Feature";
+
+        String bodyHtml = "<html>"
+                + "<head></head>"
+                + "<body style=\"font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px;\">"
+                + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: auto;\">"
+                + "<h1 style=\"color: #333333;\">You have been added to the org "+ orgById.getName() + " by "  + addedByUser.getName() + "<"+addedByUser.getEmail()+">" +"</h1>"
+                + "<p style=\"font-size: 16px; color: #666666;\">Please visit https://app.suggestfeature.com to accept the invitation</p>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+
+        validateRateLimit();
+
+        sendEmail(to, bodyHtml, subject, from);
+    }
+
     private void validateRateLimit() {
         int month = Calendar.getInstance().get(Calendar.MONTH);
         int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -217,6 +240,16 @@ public class AuthService {
     public List<Member> getOrgsForUser(String userId) {
         return mongoTemplateFactory.getDefaultMongoTemplate()
                 .find(new Query(Criteria.where(Member.FIELD_USER_ID).is(userId)), Member.class);
+    }
+
+    public Organization getOrgById(String orgId) {
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .findOne(new Query(Criteria.where(Organization.FIELD_ID).is(orgId)), Organization.class);
+    }
+
+    public User getUserByUserId(String userId) {
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .findOne(new Query(Criteria.where(User.FIELD_ID).is(userId)), User.class);
     }
 
     // Todo: add cache

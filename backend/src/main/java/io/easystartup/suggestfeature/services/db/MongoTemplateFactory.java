@@ -1,4 +1,4 @@
-package io.easystartup.suggestfeature;
+package io.easystartup.suggestfeature.services.db;
 
 import com.google.common.collect.Lists;
 import com.mongodb.ConnectionString;
@@ -6,6 +6,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCompressor;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import io.easystartup.suggestfeature.Main;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.utils.Util;

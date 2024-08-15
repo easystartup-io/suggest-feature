@@ -1,8 +1,8 @@
-package io.easystartup.suggestfeature.rest;
+package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.AuthService;
-import io.easystartup.suggestfeature.MongoTemplateFactory;
-import io.easystartup.suggestfeature.ValidationService;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
+import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.LoginRequest;
 import io.easystartup.suggestfeature.utils.JacksonMapper;

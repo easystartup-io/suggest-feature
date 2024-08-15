@@ -1,8 +1,8 @@
-package io.easystartup.suggestfeature.rest;
+package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.AuthService;
-import io.easystartup.suggestfeature.MongoTemplateFactory;
-import io.easystartup.suggestfeature.ValidationService;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
+import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.beans.Page;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;

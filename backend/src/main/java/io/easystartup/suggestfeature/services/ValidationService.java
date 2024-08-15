@@ -1,18 +1,14 @@
-package io.easystartup.suggestfeature;
+package io.easystartup.suggestfeature.services;
 
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import jakarta.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Set;
-import java.util.TreeSet;
 
 import static io.easystartup.suggestfeature.utils.Util.WHITE_SPACE;
 

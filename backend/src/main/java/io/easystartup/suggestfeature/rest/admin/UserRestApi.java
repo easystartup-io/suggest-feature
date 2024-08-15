@@ -1,17 +1,20 @@
-package io.easystartup.suggestfeature.rest;
+package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.AuthService;
-import io.easystartup.suggestfeature.MongoTemplateFactory;
-import io.easystartup.suggestfeature.ValidationService;
 import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.User;
+import io.easystartup.suggestfeature.dto.CreateMemberRequest;
 import io.easystartup.suggestfeature.dto.OrganizationRequest;
 import io.easystartup.suggestfeature.filters.UserContext;
+import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.ValidationService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -108,6 +111,44 @@ public class UserRestApi {
         if (StringUtils.isBlank(orgId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid org").build();
         }
+        List<Member> members = getMembers(orgId);
+        return Response.ok(JacksonMapper.toJson(members)).build();
+    }
+
+
+    @POST
+    @Path("/create-member")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response createMember(CreateMemberRequest req) {
+        String orgId = UserContext.current().getOrgId();
+        if (StringUtils.isBlank(orgId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid org").build();
+        }
+        User userToAdd = validateEmailAndFetchUser(req);
+        if (userToAdd == null){
+            User user = new User();
+            user.setEmail(req.getEmail());
+            user.setName(req.getName());
+            user.setCreatedAt(System.currentTimeMillis());
+            mongoConnection.getDefaultMongoTemplate().insert(user);
+            userToAdd = user;
+        }
+        authService.sendAddedToOrgEmail(userToAdd.getEmail(), orgId, UserContext.current().getUserId());
+
+        Member member1 = new Member();
+        member1.setOrganizationId(orgId);
+        member1.setUserId(userToAdd.getId());
+        member1.setRole(req.getRole());
+        member1.setAddedByUserId(UserContext.current().getUserId());
+        member1.setCreatedAt(System.currentTimeMillis());
+        mongoConnection.getDefaultMongoTemplate().insert(member1);
+
+        List<Member> members = getMembers(orgId);
+        return Response.ok(JacksonMapper.toJson(members)).build();
+    }
+
+    private List<Member> getMembers(String orgId) {
         Criteria criteria = Criteria.where(Member.FIELD_ORGANIZATION_ID).is(orgId);
         Query query = new Query(criteria);
         List<Member> members = mongoConnection.getDefaultMongoTemplate().find(query, Member.class);
@@ -120,7 +161,17 @@ public class UserRestApi {
             user.setName(dangerousUser.getName());
             member.setUser(user);
         });
-        return Response.ok(JacksonMapper.toJson(members)).build();
+        return members;
+    }
+
+    private User validateEmailAndFetchUser(CreateMemberRequest req) {
+        EmailValidator emailValidator = EmailValidator.getInstance();
+        boolean valid = emailValidator.isValid(req.getEmail());
+        if (!valid) {
+            throw new UserVisibleException("Invalid email");
+        }
+        Criteria criteria = Criteria.where(User.FIELD_EMAIL).is(req.getEmail());
+        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), User.class);
     }
 
 }

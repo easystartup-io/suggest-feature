@@ -1,4 +1,6 @@
-package io.easystartup.suggestfeature;
+package io.easystartup.suggestfeature.utils;
+
+import io.easystartup.suggestfeature.ApplicationContextSpring;
 
 /*
  * @author indianBond
@@ -15,9 +17,6 @@ public class LazyService<T> {
     }
 
     public T get() {
-        if (test) {
-            return ServiceLocatorFactory.getBean(clazz);
-        } else {
             if (service == null) {
                 synchronized (this) {
                     if (service == null) {
@@ -26,6 +25,5 @@ public class LazyService<T> {
                 }
             }
             return service;
-        }
     }
 }
