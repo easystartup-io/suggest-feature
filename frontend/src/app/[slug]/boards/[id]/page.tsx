@@ -23,7 +23,7 @@ const Dashboard: React.FC = ({ params }) => {
   const { reset } = form; // Get reset function from useForm
 
   useEffect(() => {
-    fetch(`/api/auth/pages/fetch-page?pageId=${params.id}`, {
+    fetch(`/api/auth/boards/fetch-board?boardId=${params.id}`, {
       headers: {
         "x-org-slug": params.slug
       }
@@ -40,7 +40,7 @@ const Dashboard: React.FC = ({ params }) => {
     setLoading(true)
     try {
 
-      const resp = await fetch(`/api/auth/pages/create-page`, {
+      const resp = await fetch(`/api/auth/boards/create-board`, {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
@@ -53,7 +53,7 @@ const Dashboard: React.FC = ({ params }) => {
         setData(respData)
         reset(respData)
         toast({
-          title: 'Page updated successfully',
+          title: 'Board updated successfully',
         })
       } else {
         toast({
@@ -66,7 +66,7 @@ const Dashboard: React.FC = ({ params }) => {
       console.log(err)
       toast({
         title: 'Something went wrong',
-        description: 'Please try again by reloading the page, if the problem persists contact support',
+        description: 'Please try again by reloading the board, if the problem persists contact support',
         variant: 'destructive'
       })
     }
@@ -81,7 +81,7 @@ const Dashboard: React.FC = ({ params }) => {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-2xl">Page - {data && data.name}</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Board - {data && data.name}</h1>
       </div>
       <div
         className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm"
@@ -99,7 +99,7 @@ const Dashboard: React.FC = ({ params }) => {
                       <Input disabled={isLoading} placeholder="name" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This is the page name. It will be displayed for you to identify here
+                      This is the board name. It will be displayed for you to identify here
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -107,15 +107,15 @@ const Dashboard: React.FC = ({ params }) => {
               />
               <FormField
                 control={form.control}
-                name="slug"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Input disabled={isLoading} placeholder="slug" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This is the webpage slug. It should be unique and can only contain letters, numbers, and hyphens.
+                      This is the board description.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +131,7 @@ const Dashboard: React.FC = ({ params }) => {
                       <Input disabled={isLoading} placeholder="feature-request.yourdomain.com" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This is the custom domain for the page. You have to setup a CNAME mapping in your DNS server to our domain widget.suggestfeature.com .
+                      This is the custom domain for the board. You have to setup a CNAME mapping in your DNS server to our domain widget.suggestfeature.com .
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -141,7 +141,7 @@ const Dashboard: React.FC = ({ params }) => {
                 {isLoading &&
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 }
-                Update page
+                Update board
               </Button>
             </form>
           </Form>

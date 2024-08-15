@@ -73,10 +73,10 @@ public class BoardRestApi {
     @Path("/fetch-board")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response fetchBoard(@QueryParam("BoardId") String BoardId) {
+    public Response fetchBoard(@QueryParam("boardId") String boardId) {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
-        Board one = getBoard(BoardId, orgId);
+        Board one = getBoard(boardId, orgId);
         return Response.ok(JacksonMapper.toJson(one)).build();
     }
 
