@@ -3,6 +3,7 @@ import {
   Bell,
   BookOpenText,
   CircleUser,
+  Clipboard,
   Home,
   LineChart,
   Menu,
@@ -34,16 +35,33 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from '@/context/AuthContext'
 import withAuth from '@/hoc/withAuth'
-import { useRouter } from "next/navigation"
-import { createContext, useState } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import { createContext, useEffect, useState } from "react"
 
 export const SidebarContext = createContext();
 
 const Dashboard: React.FC = ({ children, params }) => {
   const { logout } = useAuth();
   const [currentSection, setCurrentSection] = useState('dashboard');
-
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!params.slug || !pathname)
+      return;
+    console.log(pathname)
+
+    // Removing the slug part to identify the section
+    const sections = pathname.replace(`/${params.slug}`, '').split('/').filter(Boolean);
+    console.log(sections)
+
+    if (sections.length > 0) {
+      setCurrentSection(sections[0]); // Set the section based on the first segment after the slug
+    } else {
+      setCurrentSection('dashboard'); // Default section if nothing else matches
+    }
+  }, [params.slug, pathname])
+
 
   const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
 
@@ -78,9 +96,14 @@ const Dashboard: React.FC = ({ children, params }) => {
               >
                 <BookOpenText className="h-4 w-4" />
                 Pages
-                {/* <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full"> */}
-                {/*   6 */}
-                {/* </Badge> */}
+              </Link>
+              <Link
+                href={`/${params.slug}/boards`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('boards')}`}
+                onClick={() => setCurrentSection('boards')}
+              >
+                <Clipboard className="h-4 w-4" />
+                Boards
               </Link>
               <Link
                 href={`/${params.slug}/members`}
@@ -156,7 +179,7 @@ const Dashboard: React.FC = ({ children, params }) => {
                   Dashboard
                 </Link>
                 <Link
-                  href="#"
+                  href={`/${params.slug}/pages`}
                   className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('pages')}`}
                   onClick={() => setCurrentSection('pages')}
                 >
@@ -165,6 +188,14 @@ const Dashboard: React.FC = ({ children, params }) => {
                   {/* <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full"> */}
                   {/*   6 */}
                   {/* </Badge> */}
+                </Link>
+                <Link
+                  href={`/${params.slug}/boards`}
+                  className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('boards')}`}
+                  onClick={() => setCurrentSection('boards')}
+                >
+                  <Clipboard className="h-5 w-5" />
+                  Boards
                 </Link>
                 <Link
                   href={`/${params.slug}/members`}
@@ -241,7 +272,7 @@ const Dashboard: React.FC = ({ children, params }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <SidebarContext.Provider value={{ setCurrentSection }}>
+        <SidebarContext.Provider value={{ setCurrentSection: () => { } }}>
           {children}
         </SidebarContext.Provider>
       </div>

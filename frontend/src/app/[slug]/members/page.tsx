@@ -13,11 +13,7 @@ import { Badge } from "lucide-react";
 const Dashboard: React.FC = ({ params }) => {
   const { logout } = useAuth();
   const router = useRouter();
-  let { setCurrentSection } = useContext(SidebarContext);
 
-  useEffect(() => {
-    setCurrentSection('members')
-  }, [])
 
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
@@ -33,7 +29,7 @@ const Dashboard: React.FC = ({ params }) => {
         setData(data)
         setLoading(false)
       })
-  }, [])
+  }, [params.slug])
 
   if (isLoading) return <p>Loading...</p>
   if (!data) return <p>No profile data</p>

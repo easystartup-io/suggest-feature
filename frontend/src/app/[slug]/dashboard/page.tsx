@@ -11,11 +11,6 @@ import { SidebarContext } from "../layout";
 const Dashboard: React.FC = ({ }) => {
   const { logout } = useAuth();
   const router = useRouter();
-  let { setCurrentSection } = useContext(SidebarContext);
-
-  useEffect(() => {
-    setCurrentSection('dashboard')
-  }, [])
 
 
   return (

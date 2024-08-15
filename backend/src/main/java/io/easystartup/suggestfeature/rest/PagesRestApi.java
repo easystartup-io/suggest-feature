@@ -6,6 +6,7 @@ import io.easystartup.suggestfeature.ValidationService;
 import io.easystartup.suggestfeature.beans.Page;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.services.CustomDomainMappingService;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -30,12 +31,14 @@ public class PagesRestApi {
     private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
     private final ValidationService validationService;
+    private final CustomDomainMappingService customDomainMappingService;
 
     @Autowired
-    public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService) {
+    public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, CustomDomainMappingService customDomainMappingService) {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
         this.validationService = validationService;
+        this.customDomainMappingService = customDomainMappingService;
     }
 
     @POST
@@ -51,9 +54,19 @@ public class PagesRestApi {
             page.setId(new ObjectId().toString());
             page.setCreatedAt(System.currentTimeMillis());
             page.setCreatedByUserId(userId);
+            // Only show custom domain option later on
+            page.setCustomDomain(null);
             isNew = true;
         } else {
-
+            page.setCreatedByUserId(existingPage.getCreatedByUserId());
+            page.setCreatedAt(existingPage.getCreatedAt());
+            if (page.getCustomDomain() != null && !page.getCustomDomain().equals(existingPage.getCustomDomain())) {
+                customDomainMappingService.updateCustomDomainMapping(page.getCustomDomain(), page.getId());
+            } else if (page.getCustomDomain() == null && existingPage.getCustomDomain() != null) {
+                customDomainMappingService.deleteCustomDomainMapping(existingPage.getCustomDomain());
+            } else if (page.getCustomDomain() != null && existingPage.getCustomDomain() == null) {
+                customDomainMappingService.createCustomDomainMapping(page.getCustomDomain(), page.getId());
+            }
         }
         page.setOrganizationId(UserContext.current().getOrgId());
         try {

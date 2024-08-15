@@ -43,6 +43,12 @@ public class Util {
         return System.getenv("ENV") != null && "PROD".equals(System.getenv("ENV"));
     }
 
+    public static boolean isSelfHosted() {
+        // By default, assume self-hosted if the environment variable is not set or not equal to "false"
+        String selfHosted = System.getenv("SELF_HOSTED");
+        return selfHosted == null || !"false".equalsIgnoreCase(selfHosted);
+    }
+
     public static Integer getEnvVariable(String key, Integer defaultVal) {
         return StringUtils.isBlank(System.getenv(key)) ? defaultVal : Integer.parseInt(System.getenv(key));
     }

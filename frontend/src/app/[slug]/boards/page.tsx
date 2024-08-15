@@ -31,7 +31,7 @@ function DialogDemo({ params }) {
     e.preventDefault();
     setLoading(true)
     try {
-      const response = await fetch('/api/auth/pages/create-page', {
+      const response = await fetch('/api/auth/boards/create-board', {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
@@ -43,9 +43,9 @@ function DialogDemo({ params }) {
 
       if (response.ok) {
         setIsOpen(false)
-        router.push(`/${params.slug}/pages/${respData.id}`)
+        router.push(`/${params.slug}/boards/${respData.id}`)
         toast({
-          title: 'Page created',
+          title: 'Board created',
         })
       } else {
         toast({
@@ -66,14 +66,14 @@ function DialogDemo({ params }) {
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen} >
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)}>Add Page</Button>
+        <Button onClick={() => setIsOpen(true)}>Add Board</Button>
 
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add page</DialogTitle>
+          <DialogTitle>Add board</DialogTitle>
           <DialogDescription>
-            Add page to your organization
+            Add board to your organization
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -109,7 +109,7 @@ function DialogDemo({ params }) {
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Create page
+            Create board
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -126,7 +126,7 @@ const Dashboard: React.FC = ({ params }) => {
 
 
   useEffect(() => {
-    fetch('/api/auth/pages/fetch-pages', {
+    fetch('/api/auth/boards/fetch-boards', {
       headers: {
         "x-org-slug": params.slug
       }
@@ -145,7 +145,7 @@ const Dashboard: React.FC = ({ params }) => {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-2xl">Pages</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Boards</h1>
         <DialogDemo params={params} />
       </div>
       <div
@@ -162,23 +162,23 @@ const Dashboard: React.FC = ({ params }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data && data.map((page) => {
+            {data && data.map((board) => {
               return (
-                <TableRow key={page.id} className="cursor-pointer">
-                  <TableCell>{page.name}</TableCell>
+                <TableRow key={board.id} className="cursor-pointer">
+                  <TableCell>{board.name}</TableCell>
                   <TableCell className="">
                     <Link
                       href={`https://google.com`}
                       target="_blank"
                       className={`flex items-center gap-4 hover:text-indigo-700`}
                     >
-                      {page.slug}
+                      {board.slug}
                       <ExternalLink className="w-5 h-5" />
                     </Link>
                   </TableCell>
                   <TableCell className="font-medium">
                     <Link
-                      href={`/${params.slug}/pages/${page.id}`}
+                      href={`/${params.slug}/boards/${board.id}`}
                       className="flex items-center gap-4 hover:text-indigo-700"
                     >
                       <Settings className="w-5 h-5" />

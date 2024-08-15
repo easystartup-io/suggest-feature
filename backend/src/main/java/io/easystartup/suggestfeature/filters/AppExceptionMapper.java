@@ -1,24 +1,40 @@
 package io.easystartup.suggestfeature.filters;
 
+import io.easystartup.suggestfeature.dto.ErrorResponseDTO;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
+import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+
+import java.util.UUID;
+
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 /*
  * @author indianBond
  */
 @Provider
 public class AppExceptionMapper implements ExceptionMapper<Throwable> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AppExceptionMapper.class);
 
     @Override
     public Response toResponse(Throwable exception) {
+        String errorId = UUID.randomUUID().toString();
+        ErrorResponseDTO errorResponseDTO;
+
         if (exception instanceof UserVisibleException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(exception.getMessage()).build();
+            errorResponseDTO = new ErrorResponseDTO(BAD_REQUEST.getStatusCode(), exception.getMessage());
+        } else {
+            errorResponseDTO = new ErrorResponseDTO(INTERNAL_SERVER_ERROR.getStatusCode(), "An error occurred " + errorId);
+            LOGGER.error("An error occurred " + errorId, exception);
         }
-        LOGGER.error("An error occurred", exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An error occurred").build();
+
+        errorResponseDTO.setErrorId(errorId);
+        return Response.status(errorResponseDTO.getCode()).entity(JacksonMapper.toJson(errorResponseDTO)).build();
     }
+
 }
