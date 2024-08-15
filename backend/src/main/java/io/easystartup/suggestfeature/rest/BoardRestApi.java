@@ -5,11 +5,13 @@ import io.easystartup.suggestfeature.MongoTemplateFactory;
 import io.easystartup.suggestfeature.ValidationService;
 import io.easystartup.suggestfeature.beans.Board;
 import io.easystartup.suggestfeature.filters.UserContext;
+import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -43,13 +45,27 @@ public class BoardRestApi {
     public Response createBoard(Board board) {
         String userId = UserContext.current().getUserId();
         validationService.validate(board);
-        Board existingPage = getBoard(board.getId(), UserContext.current().getOrgId());
-        if (existingPage == null) {
-           board.setId(new ObjectId().toString());
-           board.setCreatedAt(System.currentTimeMillis());
-           board.setCreatedByUserId(userId);
+        Board existingBoard = getBoard(board.getId(), UserContext.current().getOrgId());
+        boolean isNew = false;
+        if (existingBoard == null) {
+            board.setId(new ObjectId().toString());
+            board.setCreatedAt(System.currentTimeMillis());
+            board.setCreatedByUserId(userId);
+            isNew = true;
+        } else {
+            board.setCreatedByUserId(existingBoard.getCreatedByUserId());
+            board.setCreatedAt(existingBoard.getCreatedAt());
         }
         board.setOrganizationId(UserContext.current().getOrgId());
+        try {
+            if (isNew) {
+                mongoConnection.getDefaultMongoTemplate().insert(board);
+            } else {
+                mongoConnection.getDefaultMongoTemplate().save(board);
+            }
+        } catch (DuplicateKeyException e) {
+            throw new UserVisibleException("Board with this slug already exists");
+        }
         return Response.ok(JacksonMapper.toJson(board)).build();
     }
 
@@ -57,10 +73,10 @@ public class BoardRestApi {
     @Path("/fetch-board")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response fetchPage(@QueryParam("pageId") String pageId) {
+    public Response fetchBoard(@QueryParam("BoardId") String BoardId) {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
-        Board one = getBoard(pageId, orgId);
+        Board one = getBoard(BoardId, orgId);
         return Response.ok(JacksonMapper.toJson(one)).build();
     }
 
@@ -68,7 +84,7 @@ public class BoardRestApi {
     @Path("/fetch-boards")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response fetchPages() {
+    public Response fetchBoards() {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         List<Board> boards = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);

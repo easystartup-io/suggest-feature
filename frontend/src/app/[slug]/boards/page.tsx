@@ -20,7 +20,7 @@ import { Icons } from "@/components/icons";
 function DialogDemo({ params }) {
   const [isLoading, setLoading] = useState(false)
   const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [description, setDescription] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
@@ -37,7 +37,7 @@ function DialogDemo({ params }) {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, slug })
+        body: JSON.stringify({ name, description })
       })
       const respData = await response.json();
 
@@ -92,13 +92,13 @@ function DialogDemo({ params }) {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
-              Slug
+              Description
             </Label>
             <Input
-              id="slug"
-              value={slug}
-              placeholder="org-name"
-              onChange={(e) => setSlug(e.target.value)}
+              id="description"
+              value={description}
+              placeholder="Features which you want"
+              onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading}
               className="col-span-3"
             />
@@ -155,7 +155,6 @@ const Dashboard: React.FC = ({ params }) => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead className="flex items-center gap-4">Url<ExternalLink2 className="w-5 h-5"></ExternalLink2></TableHead>
               <TableHead>
 
               </TableHead>
@@ -166,16 +165,6 @@ const Dashboard: React.FC = ({ params }) => {
               return (
                 <TableRow key={board.id} className="cursor-pointer">
                   <TableCell>{board.name}</TableCell>
-                  <TableCell className="">
-                    <Link
-                      href={`https://google.com`}
-                      target="_blank"
-                      className={`flex items-center gap-4 hover:text-indigo-700`}
-                    >
-                      {board.slug}
-                      <ExternalLink className="w-5 h-5" />
-                    </Link>
-                  </TableCell>
                   <TableCell className="font-medium">
                     <Link
                       href={`/${params.slug}/boards/${board.id}`}

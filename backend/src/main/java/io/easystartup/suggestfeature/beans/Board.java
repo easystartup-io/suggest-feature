@@ -16,6 +16,7 @@ public class Board {
     @Id
     private String id;
     private String name;
+    private String description;
     private String pageId;
     private String organizationId;
     private String createdByUserId;
@@ -71,5 +72,13 @@ public class Board {
 
     public void setPageId(String pageId) {
         this.pageId = pageId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
