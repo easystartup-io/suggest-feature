@@ -11,6 +11,7 @@ import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -117,10 +118,36 @@ public class UserRestApi {
 
 
     @POST
+    @Path("/delete-member")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response deleteMember(@QueryParam("memberId")@NotBlank String memberId) {
+        String orgId = UserContext.current().getOrgId();
+        if (StringUtils.isBlank(orgId)) {
+            throw new UserVisibleException("Invalid org");
+        }
+        if (UserContext.current().getRole()!= Member.Role.ADMIN){
+            throw new UserVisibleException("Only admin can delete members");
+        }
+        Criteria criteria = Criteria.where(Member.FIELD_ID).is(memberId).and(Member.FIELD_ORGANIZATION_ID).is(orgId);
+        Member member = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), Member.class);
+        if (member == null){
+            throw new UserVisibleException("Invalid member");
+        }
+        if (member.getUserId().equals(UserContext.current().getUserId())){
+            throw new UserVisibleException("Cannot delete self");
+        }
+        mongoConnection.getDefaultMongoTemplate().remove(member);
+        List<Member> members = getMembers(orgId);
+        return Response.ok(JacksonMapper.toJson(members)).build();
+    }
+
+    @POST
     @Path("/create-member")
     @Consumes("application/json")
     @Produces("application/json")
     public Response createMember(CreateMemberRequest req) {
+        validationService.validate(req);
         String orgId = UserContext.current().getOrgId();
         if (StringUtils.isBlank(orgId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid org").build();

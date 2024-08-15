@@ -5,20 +5,21 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
-import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.RateLimit;
 import io.easystartup.suggestfeature.beans.User;
+import io.easystartup.suggestfeature.dto.LoginResponse;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
-import io.easystartup.suggestfeature.dto.LoginResponse;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.Util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -164,27 +165,32 @@ public class AuthService {
     }
 
 
-    public void sendAddedToOrgEmail(String to, String orgId, String userId) {
-        String from = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
-        Organization orgById = getOrgById(orgId);
-        User addedByUser = getUserByUserId(userId);
-        String subject = "You have been added to " + orgById.getName() + " - Suggest Feature";
+    public void sendAddedToOrgEmail(String recipientEmail, String organizationId, String addedByUserId) {
+        String senderEmail = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
+        Organization organization = getOrgById(organizationId);
+        User addedByUser = getUserByUserId(addedByUserId);
 
+        // Subject
+        String subject = "You have been added to " + organization.getName() + " - Suggest Feature";
+
+        // Email Body
         String bodyHtml = "<html>"
                 + "<head></head>"
                 + "<body style=\"font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px;\">"
                 + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: auto;\">"
-                + "<h1 style=\"color: #333333;\">You have been added to the org "+ orgById.getName() + " by "  + addedByUser.getName() + "<"+addedByUser.getEmail()+">" +"</h1>"
-                + "<p style=\"font-size: 16px; color: #666666;\">Please visit https://app.suggestfeature.com to accept the invitation</p>"
+                + "<h1 style=\"color: #333333;\">You have been added to the organization " + escapeHtml(organization.getName())
+                + " by " + escapeHtml(addedByUser.getName()) + " &lt;" + escapeHtml(addedByUser.getEmail()) + "&gt;</h1>"
+                + "<p style=\"font-size: 16px; color: #666666;\">Please visit <a href=\"https://app.suggestfeature.com\" style=\"color: #1a73e8; text-decoration: none;\">Suggest Feature</a> to accept the invitation.</p>"
                 + "</div>"
                 + "</body>"
                 + "</html>";
 
+        // Validate rate limit before sending the email
         validateRateLimit();
 
-        sendEmail(to, bodyHtml, subject, from);
+        // Send the email
+        sendEmail(recipientEmail, bodyHtml, subject, senderEmail);
     }
-
     private void validateRateLimit() {
         int month = Calendar.getInstance().get(Calendar.MONTH);
         int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -279,4 +285,7 @@ public class AuthService {
                 .findOne(new Query(Criteria.where(Organization.FIELD_ID).is(organizationId)), Organization.class);
     }
 
+    private String escapeHtml(String input) {
+        return StringEscapeUtils.escapeHtml4(input);
+    }
 }

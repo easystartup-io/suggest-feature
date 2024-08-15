@@ -41,7 +41,7 @@ import { createContext, useEffect, useState } from "react"
 export const SidebarContext = createContext();
 
 const Dashboard: React.FC = ({ children, params }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [currentSection, setCurrentSection] = useState('dashboard');
   const router = useRouter();
   const pathname = usePathname();
@@ -260,7 +260,8 @@ const Dashboard: React.FC = ({ children, params }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-center" >My Account</DropdownMenuLabel>
+              <DropdownMenuItem>{user && user.email}</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>

@@ -2,8 +2,12 @@ package io.easystartup.suggestfeature.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.easystartup.suggestfeature.beans.Member;
+import io.easystartup.suggestfeature.beans.Member.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import static io.easystartup.suggestfeature.beans.Member.Role.ADMIN;
+import static io.easystartup.suggestfeature.beans.Member.Role.USER;
 
 /*
  * @author indianBond
@@ -16,7 +20,7 @@ public class CreateMemberRequest {
     @NotBlank
     private String email;
     @NotNull
-    private Member.Role role;
+    private Role role = USER;
 
     public CreateMemberRequest() {
     }
@@ -37,11 +41,11 @@ public class CreateMemberRequest {
         this.email = email;
     }
 
-    public Member.Role getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(Member.Role role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }
