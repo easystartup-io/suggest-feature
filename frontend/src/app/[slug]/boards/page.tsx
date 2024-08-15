@@ -155,6 +155,7 @@ const Dashboard: React.FC = ({ params }) => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead></TableHead>
               <TableHead>
 
               </TableHead>
@@ -165,6 +166,14 @@ const Dashboard: React.FC = ({ params }) => {
               return (
                 <TableRow key={board.id} className="cursor-pointer">
                   <TableCell>{board.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/${params.slug}/boards/${board.id}/posts`}
+                      className="flex items-center gap-4 hover:text-indigo-700"
+                    >
+                      View Posts
+                    </Link>
+                  </TableCell>
                   <TableCell className="font-medium">
                     <Link
                       href={`/${params.slug}/boards/${board.id}`}
