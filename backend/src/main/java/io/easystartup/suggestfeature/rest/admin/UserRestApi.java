@@ -185,6 +185,7 @@ public class UserRestApi {
             User user = new User();
             user.setId(dangerousUser.getId());
             user.setEmail(dangerousUser.getEmail());
+            user.setProfilePic(dangerousUser.getProfilePic());
             user.setName(dangerousUser.getName());
             member.setUser(user);
         });

@@ -7,7 +7,6 @@ import {
   Home,
   LineChart,
   Menu,
-  Package,
   Package2,
   ShoppingCart,
   UserRoundCog,
@@ -37,6 +36,7 @@ import { useAuth } from '@/context/AuthContext'
 import withAuth from '@/hoc/withAuth'
 import { useRouter, usePathname } from "next/navigation"
 import { createContext, useEffect, useState } from "react"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export const SidebarContext = createContext();
 
@@ -49,11 +49,9 @@ const Dashboard: React.FC = ({ children, params }) => {
   useEffect(() => {
     if (!params.slug || !pathname)
       return;
-    console.log(pathname)
 
     // Removing the slug part to identify the section
     const sections = pathname.replace(`/${params.slug}`, '').split('/').filter(Boolean);
-    console.log(sections)
 
     if (sections.length > 0) {
       setCurrentSection(sections[0]); // Set the section based on the first segment after the slug
@@ -71,13 +69,16 @@ const Dashboard: React.FC = ({ children, params }) => {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href={`/${params.slug}/dashboard`} className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
+              <Avatar>
+                <AvatarImage src="/logo.svg" alt="suggest-feature" />
+                <AvatarFallback>SF</AvatarFallback>
+              </Avatar>
               <span className="">Suggest Feature</span>
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button>
+            {/* <Button variant="outline" size="icon" className="ml-auto h-8 w-8"> */}
+            {/*   <Bell className="h-4 w-4" /> */}
+            {/*   <span className="sr-only">Toggle notifications</span> */}
+            {/* </Button> */}
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">

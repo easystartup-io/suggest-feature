@@ -35,6 +35,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { MoreHorizontal, Trash2 } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 
 function DialogDemo({ params, setData }) {
@@ -250,8 +251,8 @@ const Dashboard: React.FC = ({ params }) => {
           <TableCaption>Members of your organization</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Name</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead className="w-[100px]">Avatar</TableHead>
+              <TableHead className="w-[100px]">Details</TableHead>
               <TableHead>Role</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -259,8 +260,35 @@ const Dashboard: React.FC = ({ params }) => {
           <TableBody>
             {data && data.length && data.map((item, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium">{item.user.name}</TableCell>
-                <TableCell>{item.user.email}</TableCell>
+                <TableCell className="font-medium">
+                  <Avatar>
+                    <AvatarImage src={`${item.user.profilePic}`} />
+                    <AvatarFallback>
+                      {(() => {
+                        const name = item.user.name || item.user.email.split('@')[0];
+                        const words = name.split(' ');
+
+                        let initials;
+
+                        if (words.length > 1) {
+                          // If the name has multiple words, take the first letter of each word
+                          initials = words.map(word => word[0]).join('').toUpperCase();
+                        } else {
+                          // If it's a single word, take the first two characters
+                          initials = name.slice(0, 2).toUpperCase();
+                        }
+
+                        // Ensure it returns exactly 2 characters
+                        return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+                      })()}
+                    </AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                <TableCell>
+                  {/* if name is blank use the first part of email  */}
+                  <p className="text-sm font-medium leading-none">{item.user.name || item.user.email.split('@')[0]}</p>
+                  <p className="text-sm text-muted-foreground">{item.user.email}</p>
+                </TableCell>
                 <TableCell>{item.role}</TableCell>
                 <TableCell className="text-right ">
                   {user && user.id !== item.userId && <AlertDialogDemo onConfirm={() => onDeleteMember(item.id)} />}

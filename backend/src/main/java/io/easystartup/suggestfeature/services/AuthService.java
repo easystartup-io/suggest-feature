@@ -93,6 +93,7 @@ public class AuthService {
         StopWatch stopWatch = StopWatch.createStarted();
         User safeUser = new User();
         safeUser.setEmail(user.getEmail());
+        safeUser.setProfilePic(user.getProfilePic());
         safeUser.setId(user.getId());
         safeUser.setName(user.getName());
         String jwtToken = createJWTToken("suggestFeature", "user", TimeUnit.DAYS.toMillis(15), safeUser);

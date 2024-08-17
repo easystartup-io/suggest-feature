@@ -1,21 +1,18 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import withAuth from '@/hoc/withAuth';
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from "next/navigation"
-import { useContext, useEffect, useState } from "react";
-import { SidebarContext } from "../layout";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption, Table } from "@/components/ui/table";
-// Import Link from lucide-react as ExternalLink
-import { Link as ExternalLink2, ExternalLink, Settings } from "lucide-react"
-import Link from "next/link"
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import withAuth from '@/hoc/withAuth';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Icons } from "@/components/icons";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { Eye, Settings, Telescope } from "lucide-react";
+import Link from "next/link";
 
 function DialogDemo({ params }) {
   const [isLoading, setLoading] = useState(false)
@@ -155,10 +152,7 @@ const Dashboard: React.FC = ({ params }) => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead></TableHead>
-              <TableHead>
-
-              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -166,21 +160,25 @@ const Dashboard: React.FC = ({ params }) => {
               return (
                 <TableRow key={board.id} className="cursor-pointer">
                   <TableCell>{board.name}</TableCell>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/${params.slug}/boards/${board.id}/posts`}
-                      className="flex items-center gap-4 hover:text-indigo-700"
-                    >
-                      View Posts
-                    </Link>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/${params.slug}/boards/${board.id}`}
-                      className="flex items-center gap-4 hover:text-indigo-700"
-                    >
-                      <Settings className="w-5 h-5" />
-                    </Link>
+                  <TableCell className="text-right items-center">
+                    <div className="flex items-center justify-end gap-4">
+                      <Button
+                        onClick={() => router.push(`/${params.slug}/boards/${board.id}/posts`)}
+                        variant="outline"
+                        className="flex items-center gap-2"
+                      >
+                        <Telescope className="" />
+                        View Posts
+                      </Button>
+                      <Button
+                        onClick={() => router.push(`/${params.slug}/boards/${board.id}`)}
+                        variant="destructive"
+                        className="flex items-center gap-2"
+                        size="icon"
+                      >
+                        <Settings className="" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               )
