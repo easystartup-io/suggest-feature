@@ -7,6 +7,7 @@ import {
   Home,
   LineChart,
   Menu,
+  MessageCircleMore,
   Package2,
   ShoppingCart,
   UserRoundCog,
@@ -37,6 +38,8 @@ import withAuth from '@/hoc/withAuth'
 import { useRouter, usePathname } from "next/navigation"
 import { createContext, useEffect, useState } from "react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import dynamic from "next/dynamic"
+import { Crisp } from "crisp-sdk-web";
 
 export const SidebarContext = createContext();
 
@@ -47,6 +50,9 @@ const Dashboard: React.FC = ({ children, params }) => {
   const pathname = usePathname();
 
 
+  const CrispWithNoSSR = dynamic(
+    () => import('../../components/crisp')
+  )
   useEffect(() => {
     if (!params.slug || !pathname)
       return;
@@ -242,7 +248,17 @@ const Dashboard: React.FC = ({ children, params }) => {
               </div>
             </SheetContent>
           </Sheet>
-          <div className="w-full flex-1">
+          <div className="w-full flex flex-1 items-center justify-end">
+            <div className="text-right">
+              <Button className="flex gap-2 items-center" variant="secondary" onClick={() => {
+                Crisp.user.setEmail(user.email);
+                Crisp.user.setNickname(user.name);
+                Crisp.chat.open()
+              }}>
+                <MessageCircleMore />
+                Start Chat
+              </Button>
+            </div>
             <form>
               <div className="relative">
                 {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /> */}
@@ -257,7 +273,28 @@ const Dashboard: React.FC = ({ children, params }) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
+                <Avatar>
+                  <AvatarImage src={`${user.profilePic}`} />
+                  <AvatarFallback>
+                    {(() => {
+                      const name = user.name || user.email.split('@')[0];
+                      const words = name.split(' ');
+
+                      let initials;
+
+                      if (words.length > 1) {
+                        // If the name has multiple words, take the first letter of each word
+                        initials = words.map(word => word[0]).join('').toUpperCase();
+                      } else {
+                        // If it's a single word, take the first two characters
+                        initials = name.slice(0, 2).toUpperCase();
+                      }
+
+                      // Ensure it returns exactly 2 characters
+                      return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+                    })()}
+                  </AvatarFallback>
+                </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
@@ -266,11 +303,17 @@ const Dashboard: React.FC = ({ children, params }) => {
               <DropdownMenuItem>{user && user.email}</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => {
-                router.push(`/${params.slug}/settings`);
+                router.push(`/${params.slug}/profile`);
               }}>
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  Crisp.user.setEmail(user.email);
+                  Crisp.user.setNickname(user.name);
+                  Crisp.chat.open()
+                }}
+              >Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={async () => {
                 await logout();
@@ -283,6 +326,7 @@ const Dashboard: React.FC = ({ children, params }) => {
           {children}
         </SidebarContext.Provider>
       </div>
+      <CrispWithNoSSR />
     </div>
   )
 }

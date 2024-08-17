@@ -239,7 +239,7 @@ const Dashboard: React.FC = ({ params }) => {
         </div>
       </div>
       <div
-        className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm"
+        className="rounded-lg border border-dashed shadow-sm"
       >
         <ResizablePanelGroup
           direction="horizontal"
@@ -250,7 +250,7 @@ const Dashboard: React.FC = ({ params }) => {
           }}
           className="h-full max-h-[800px] items-stretch"
         >
-          <ResizablePanel defaultSize={40} minSize={30} >
+          <ResizablePanel defaultSize={35} minSize={30} >
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <form>
                 <div className="relative">
@@ -307,7 +307,7 @@ const Dashboard: React.FC = ({ params }) => {
             </ScrollArea>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={60} minSize={30}>
+          <ResizablePanel defaultSize={65} minSize={30}>
             <div className="flex h-full flex-col">
               <div className="p-4">
                 {currentPost && currentPost.title}
