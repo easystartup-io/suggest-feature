@@ -139,9 +139,8 @@ function DialogDemo({ params, setData }) {
   );
 }
 
-const Dashboard: React.FC = ({ params,
-  defaultLayout = [40, 60]
-}) => {
+
+const Dashboard: React.FC = ({ params }) => {
   const { toast } = useToast()
 
   const [data, setData] = useState(null)
@@ -251,7 +250,7 @@ const Dashboard: React.FC = ({ params,
           }}
           className="h-full max-h-[800px] items-stretch"
         >
-          <ResizablePanel defaultSize={defaultLayout[0]} minSize={30}>
+          <ResizablePanel defaultSize={40} minSize={30} >
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <form>
                 <div className="relative">
@@ -306,13 +305,14 @@ const Dashboard: React.FC = ({ params,
                 ))}
               </div>
             </ScrollArea>
-
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-            {/* <MailDisplay */}
-            {/*   mail={mails.find((item) => item.id === mail.selected) || null} */}
-            {/* /> */}
+          <ResizablePanel defaultSize={60} minSize={30}>
+            <div className="flex h-full flex-col">
+              <div className="p-4">
+                {currentPost && currentPost.title}
+              </div>
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
         <div className="w-full p-4">

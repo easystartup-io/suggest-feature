@@ -17,8 +17,10 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -52,6 +54,30 @@ public class UserRestApi {
         if (user == null) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("No such user").build();
         }
+        User safeUser = new User();
+        safeUser.setName(user.getName());
+        safeUser.setEmail(user.getEmail());
+        safeUser.setId(user.getId());
+        safeUser.setProfilePic(user.getProfilePic());
+        safeUser.setVerifiedEmail(true);
+        return Response.ok(JacksonMapper.toJson(safeUser)).build();
+    }
+
+    @POST
+    @Path("/update-user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response updateUser(User request) {
+        if (request.getName() == null || request.getName().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Name cannot be empty").build();
+        }
+        String userId = UserContext.current().getUserId();
+        Criteria criteria = Criteria.where(User.FIELD_ID).is(userId);
+        Update set = new Update()
+                .set(User.FIELD_NAME, request.getName())
+                .set(User.FIELD_PROFILE_PIC, request.getProfilePic());
+        User user = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(criteria), set, FindAndModifyOptions.options().returnNew(true).upsert(false), User.class);
+
         User safeUser = new User();
         safeUser.setName(user.getName());
         safeUser.setEmail(user.getEmail());

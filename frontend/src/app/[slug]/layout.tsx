@@ -46,6 +46,7 @@ const Dashboard: React.FC = ({ children, params }) => {
   const router = useRouter();
   const pathname = usePathname();
 
+
   useEffect(() => {
     if (!params.slug || !pathname)
       return;
@@ -261,10 +262,14 @@ const Dashboard: React.FC = ({ children, params }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="text-center" >My Account</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-center" >{user && user.name}</DropdownMenuLabel>
               <DropdownMenuItem>{user && user.email}</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                router.push(`/${params.slug}/settings`);
+              }}>
+                Settings
+              </DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={async () => {

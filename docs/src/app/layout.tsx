@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import dynamic from 'next/dynamic'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -20,8 +21,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const CrispWithNoSSR = dynamic(
+    () => import('../components/crisp')
+  )
   return (
     <html lang="en">
+      <CrispWithNoSSR />
+
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",

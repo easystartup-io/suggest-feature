@@ -14,6 +14,7 @@ public class User {
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_ID = "_id";
     public static final String FIELD_NAME = "name";
+    public static final String FIELD_PROFILE_PIC = "profilePic";
     public static final String FIELD_CREATED_AT = "createdAt";
 
     public static final String FIELD_USER_BLOCKED_UNTIL = "userBlockedUntil";
