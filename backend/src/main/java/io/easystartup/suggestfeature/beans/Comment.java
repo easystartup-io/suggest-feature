@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /*
@@ -11,18 +12,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Comment {
     public static final String FIELD_ID = "_id";
+    public static final String FIELD_CONTENT = "content";
+    public static final String FIELD_ORGANIZATION_ID = "organizationId";
+    public static final String FIELD_CREATED_BY_USER_ID = "createdByUserId";
+    public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_POST_ID = "postId";
+    public static final String FIELD_REPLY_TO_COMMENT_ID = "replyToCommentId";
 
     @Id
     private String id;
-    private String name;
+    private String content;
+    @Indexed
     private String postId;
     private String replyToCommentId;
-    private String description;
     private String organizationId;
     private String createdByUserId;
     private String boardId;
 
     private Long createdAt;
+    private Long modifiedAt;
 
     public Comment() {
     }
@@ -35,12 +43,12 @@ public class Comment {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getContent() {
+        return content;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getOrganizationId() {
@@ -67,14 +75,6 @@ public class Comment {
         this.createdAt = createdAt;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getBoardId() {
         return boardId;
     }
@@ -97,5 +97,13 @@ public class Comment {
 
     public void setReplyToCommentId(String replyToCommentId) {
         this.replyToCommentId = replyToCommentId;
+    }
+
+    public Long getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Long modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

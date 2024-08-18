@@ -3,10 +3,14 @@ package io.easystartup.suggestfeature.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 /*
  * @author indianBond
@@ -42,9 +46,26 @@ public class Post {
     private String boardId;
     private String status;
 
+    @Transient
+    private boolean selfVoted;
+
+    private long votes;
+
     private boolean approved;
 
     private Long createdAt;
+
+    @Reference
+    @Transient
+    private User user;
+
+    @Reference
+    @Transient
+    private List<Comment> comments;
+
+    @Reference
+    @Transient
+    private List<Voter> voters;
 
     public Post() {
     }
@@ -119,5 +140,45 @@ public class Post {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<Voter> getVoters() {
+        return voters;
+    }
+
+    public void setVoters(List<Voter> voters) {
+        this.voters = voters;
+    }
+
+    public long getVotes() {
+        return votes;
+    }
+
+    public void setVotes(long votes) {
+        this.votes = votes;
+    }
+
+    public boolean isSelfVoted() {
+        return selfVoted;
+    }
+
+    public void setSelfVoted(boolean selfVoted) {
+        this.selfVoted = selfVoted;
     }
 }
