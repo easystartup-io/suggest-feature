@@ -3,7 +3,6 @@ import { Icons } from '../icons';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { ChevronUp } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Textarea } from '../ui/textarea';
@@ -12,7 +11,6 @@ import { Button } from '../ui/button';
 function TitleHeader({ params, data, refetch }) {
   const user = data.user;
   if (!user) return null;
-  const { user: signedInUser } = useAuth();
 
   const upVote = (upvote) => {
     fetch(`/api/auth/posts/upvote-post?postId=${data.id}&upvote=${upvote}`, {
