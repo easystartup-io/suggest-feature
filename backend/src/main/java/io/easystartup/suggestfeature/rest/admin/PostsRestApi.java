@@ -141,7 +141,7 @@ public class PostsRestApi {
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Comment already exists");
         }
-        return Response.ok(JacksonMapper.toJson(post)).build();
+        return Response.ok(EMPTY_JSON_RESPONSE).build();
     }
 
 
