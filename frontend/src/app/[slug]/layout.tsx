@@ -341,8 +341,8 @@ const Dashboard: React.FC = ({ children, params }) => {
             <div className="flex h-full max-h-screen flex-col gap-2 w-full">
               <div
                 className={cn(
-                  "flex h-[52px] items-center justify-center",
-                  isCollapsed ? "h-[52px]" : "px-2"
+                  "flex h-[52px] items-center",
+                  isCollapsed ? "h-[52px] justify-center" : "px-2 justify-start"
                 )}
               >
                 <div className={cn("flex h-14 items-center px-4 lg:h-[60px] lg:px-6",
