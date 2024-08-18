@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
+import { PostCard } from "@/components/post/PostCard";
 
 
 function DialogDemo({ params, setData }) {
@@ -165,7 +166,10 @@ const Dashboard: React.FC = ({ params }) => {
       .then((data) => {
         setData(data)
         if (data && data.length) {
-          setCurrentPost(data[0])
+          setCurrentPost({
+            post: data[0],
+            id: data[0].id
+          })
         }
         reset(data)
         setLoading(false)
@@ -269,8 +273,10 @@ const Dashboard: React.FC = ({ params }) => {
                       currentPost && currentPost.id === item.id && "bg-muted"
                     )}
                     onClick={() =>
-                      setCurrentPost(item)
-                    }
+                      setCurrentPost({
+                        post: item,
+                        id: item.id
+                      })}
                   >
                     <div className="flex w-full flex-col gap-1">
                       <div className="flex items-center">
@@ -294,13 +300,13 @@ const Dashboard: React.FC = ({ params }) => {
                     <div className="line-clamp-2 text-xs text-muted-foreground">
                       {item.description.substring(0, 300)}
                     </div>
-                    {item.status ? (
-                      <div className="flex items-center gap-2">
-                        <Badge variant={getBadgeVariantFromLabel(item.status)}>
-                          {item.status.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
-                        </Badge>
-                      </div>
-                    ) : null}
+                    {/* {item.status ? ( */}
+                    {/*   <div className="flex items-center gap-2"> */}
+                    {/*     <Badge variant={getBadgeVariantFromLabel(item.status)}> */}
+                    {/*       {item.status.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')} */}
+                    {/*     </Badge> */}
+                    {/*   </div> */}
+                    {/* ) : null} */}
                   </button>
                 ))}
               </div>
@@ -308,9 +314,9 @@ const Dashboard: React.FC = ({ params }) => {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={65} minSize={30}>
+            <PostCard id={currentPost && currentPost.id} params={params} />
             <div className="flex h-full flex-col">
               <div className="p-4">
-                {currentPost && currentPost.title}
               </div>
             </div>
           </ResizablePanel>

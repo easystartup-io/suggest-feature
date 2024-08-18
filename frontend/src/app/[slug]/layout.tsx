@@ -253,6 +253,9 @@ const Dashboard: React.FC = ({ children, params }) => {
               <Button className="flex gap-2 items-center" variant="secondary" onClick={() => {
                 Crisp.user.setEmail(user.email);
                 Crisp.user.setNickname(user.name);
+                Crisp.session.setData({
+                  orgSlug: params.slug,
+                });
                 Crisp.chat.open()
               }}>
                 <MessageCircleMore />
@@ -311,6 +314,9 @@ const Dashboard: React.FC = ({ children, params }) => {
                 onClick={() => {
                   Crisp.user.setEmail(user.email);
                   Crisp.user.setNickname(user.name);
+                  Crisp.session.setData({
+                    orgSlug: params.slug
+                  });
                   Crisp.chat.open()
                 }}
               >Support</DropdownMenuItem>
