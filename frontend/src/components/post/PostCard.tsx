@@ -120,33 +120,47 @@ function PostContent({ data }) {
   )
 }
 
-function NewCommentInput({ data, params }) {
+function NewCommentInput({ data, params, refetch }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const submitComment = (e) => {
+  const submitComment = async (e) => {
+    if (loading) {
+      return;
+    }
     setLoading(true)
-    fetch(`/api/auth/posts/create-comment`, {
-      method: "POST",
-      headers: {
-        "x-org-slug": params.slug,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        postId: data.id,
-        content: content
+    try {
+      const resp = await fetch(`/api/auth/posts/create-comment`, {
+        method: "POST",
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: data.id,
+          content: content
+        })
       })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
-      })
+      const outputData = resp.json()
+      refetch()
+      console.log(outputData)
+    } catch (e) {
+      console.log(e)
+    }
+
+    setTimeout(() => {
+      setContent('');
+      setLoading(false);
+    }, 1000)
   }
 
   return (<div className='mx-14 mt-2 flex flex-col'>
-    <Textarea placeholder="Add a comment" value={content} onChange={(e) => setContent(e.target.value)} />
+    <Textarea placeholder="Add a comment" value={content}
+      disabled={loading}
+      onChange={(e) => setContent(e.target.value)} />
     <div className='mt-2 flex justify-end'>
-      <Button onClick={submitComment}>
+      <Button onClick={submitComment} disabled={loading}>
+        {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
         Submit
       </Button>
     </div>
@@ -190,7 +204,7 @@ export const PostCard = ({ id, params }) => {
       <div>
         <UserHeader data={data} />
         <PostContent data={data} />
-        <NewCommentInput data={data} params={params} />
+        <NewCommentInput data={data} params={params} refetch={refetch} />
         <Separator className='my-6' />
         {/* <ActionButtons data={data} /> */}
         <CommentSection comments={data.comments} refetch={refetch} params={params} />
