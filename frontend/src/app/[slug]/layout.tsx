@@ -134,7 +134,7 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
 }
 
 
-function ProfileDropdownMenu({ logout, router, user }) {
+function ProfileDropdownMenu({ params, logout, router, user }) {
   return (
     <>
       <DropdownMenu>
@@ -380,7 +380,7 @@ const Dashboard: React.FC = ({ children, params }) => {
                   </div>
                 </form>
               </div>
-              <ProfileDropdownMenu logout={logout} router={router} user={user} />
+              <ProfileDropdownMenu logout={logout} router={router} user={user} params={params} />
             </header>
             <Separator />
             <SidebarContext.Provider value={{ setCurrentSection: () => { } }}>

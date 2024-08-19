@@ -1,26 +1,23 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import withAuth from '@/hoc/withAuth';
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from "next/navigation"
-import { useContext, useEffect, useState } from "react";
-import { SidebarContext } from "../layout";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption, Table } from "@/components/ui/table";
-// Import Link from lucide-react as ExternalLink
-import { Link as ExternalLink2, ExternalLink, Settings } from "lucide-react"
-import Link from "next/link"
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+import withAuth from '@/hoc/withAuth';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Icons } from "@/components/icons";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { Eye, Settings, Telescope } from "lucide-react";
+import Link from "next/link";
 
 function DialogDemo({ params }) {
   const [isLoading, setLoading] = useState(false)
   const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [description, setDescription] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
@@ -31,21 +28,21 @@ function DialogDemo({ params }) {
     e.preventDefault();
     setLoading(true)
     try {
-      const response = await fetch('/api/auth/pages/create-page', {
+      const response = await fetch('/api/auth/boards/create-board', {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, slug })
+        body: JSON.stringify({ name, description })
       })
       const respData = await response.json();
 
       if (response.ok) {
         setIsOpen(false)
-        router.push(`/${params.slug}/pages/${respData.id}`)
+        router.push(`/${params.slug}/boards/${respData.id}`)
         toast({
-          title: 'Page created',
+          title: 'Board created',
         })
       } else {
         toast({
@@ -66,14 +63,14 @@ function DialogDemo({ params }) {
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen} >
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)}>Add Page</Button>
+        <Button onClick={() => setIsOpen(true)}>Add Board</Button>
 
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add page</DialogTitle>
+          <DialogTitle>Add board</DialogTitle>
           <DialogDescription>
-            Add page to your organization
+            Add board to your organization
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -84,7 +81,7 @@ function DialogDemo({ params }) {
             <Input
               id="name"
               value={name}
-              placeholder="Features"
+              placeholder="Feature requests"
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               className="col-span-3"
@@ -92,13 +89,13 @@ function DialogDemo({ params }) {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
-              Slug
+              Description
             </Label>
             <Input
-              id="slug"
-              value={slug}
-              placeholder="org-name"
-              onChange={(e) => setSlug(e.target.value)}
+              id="description"
+              value={description}
+              placeholder="Features which you want"
+              onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading}
               className="col-span-3"
             />
@@ -109,7 +106,7 @@ function DialogDemo({ params }) {
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Create page
+            Create board
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -126,7 +123,7 @@ const Dashboard: React.FC = ({ params }) => {
 
 
   useEffect(() => {
-    fetch('/api/auth/pages/fetch-pages', {
+    fetch('/api/auth/boards/fetch-boards', {
       headers: {
         "x-org-slug": params.slug
       }
@@ -145,7 +142,7 @@ const Dashboard: React.FC = ({ params }) => {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-2xl">Pages</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Boards</h1>
         <DialogDemo params={params} />
       </div>
       <div
@@ -155,34 +152,33 @@ const Dashboard: React.FC = ({ params }) => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead className="flex items-center gap-4">Url<ExternalLink2 className="w-5 h-5"></ExternalLink2></TableHead>
-              <TableHead>
-
-              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data && data.map((page) => {
+            {data && data.map((board) => {
               return (
-                <TableRow key={page.id} className="cursor-pointer">
-                  <TableCell>{page.name}</TableCell>
-                  <TableCell className="">
-                    <Link
-                      href={`https://${page.customDomain || `widget.suggestfeature.com/${page.slug}`}`}
-                      target="_blank"
-                      className={`flex items-center gap-4 hover:text-indigo-700`}
-                    >
-                      {page.customDomain || `widget.suggestfeature.com/${page.slug}`}
-                      <ExternalLink className="w-5 h-5" />
-                    </Link>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/${params.slug}/pages/${page.id}`}
-                      className="flex items-center gap-4 hover:text-indigo-700"
-                    >
-                      <Settings className="w-5 h-5" />
-                    </Link>
+                <TableRow key={board.id} className="cursor-pointer">
+                  <TableCell>{board.name}</TableCell>
+                  <TableCell className="text-right items-center">
+                    <div className="flex items-center justify-end gap-4">
+                      <Button
+                        onClick={() => router.push(`/${params.slug}/boards/${board.id}/posts`)}
+                        variant="outline"
+                        className="flex items-center gap-2"
+                      >
+                        <Telescope className="" />
+                        View Posts
+                      </Button>
+                      <Button
+                        onClick={() => router.push(`/${params.slug}/boards/${board.id}`)}
+                        variant="destructive"
+                        className="flex items-center gap-2"
+                        size="icon"
+                      >
+                        <Settings className="" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               )

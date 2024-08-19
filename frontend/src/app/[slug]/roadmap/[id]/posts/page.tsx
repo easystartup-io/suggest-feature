@@ -289,14 +289,7 @@ const Dashboard: React.FC = ({ params }) => {
                     <div className="flex w-full flex-col gap-1">
                       <div className="flex items-center">
                         <div className="flex items-center gap-2">
-                          <div className="font-semibold">
-                            {(() => {
-                              const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                              return st.icon
-                            })()
-                            }
-                            {item.title}
-                          </div>
+                          <div className="font-semibold">{item.title}</div>
                         </div>
                         <div
                           className={cn(

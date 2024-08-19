@@ -1,6 +1,7 @@
 package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.annotation.Transient;
@@ -25,6 +26,7 @@ public class Comment {
 
     @Id
     private String id;
+    @NotBlank
     private String content;
     @Indexed
     private String postId;

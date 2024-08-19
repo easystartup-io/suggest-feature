@@ -52,6 +52,9 @@ public class PostsRestApi {
         String userId = UserContext.current().getUserId();
         validationService.validate(req);
 
+        validateStatus(req.getStatus());
+        validatePriority(req.getPriority());
+
         Post existingPost = getPost(req.getPostId(), UserContext.current().getOrgId());
         if (existingPost == null) {
             throw new UserVisibleException("Post not found");
@@ -77,6 +80,10 @@ public class PostsRestApi {
     public Response createPost(Post post) {
         String userId = UserContext.current().getUserId();
         validationService.validate(post);
+
+        validateStatus(post.getStatus());
+        validatePriority(post.getPriority());
+
         String boardId = post.getBoardId();
         Board board = getBoard(boardId, UserContext.current().getOrgId());
         if (board == null){
@@ -118,6 +125,26 @@ public class PostsRestApi {
             throw new UserVisibleException("Post with this slug already exists");
         }
         return Response.ok(JacksonMapper.toJson(post)).build();
+    }
+
+    private void validatePriority(String priority) {
+        if (StringUtils.isBlank(priority)){
+            return;
+        }
+        Set<String> validPriority = Set.of("High", "Medium", "Low");
+        if (!validPriority.contains(priority)){
+            throw new UserVisibleException("Invalid priority");
+        }
+    }
+
+    private void validateStatus(String status) {
+        if (StringUtils.isBlank(status)){
+            return;
+        }
+        Set<String> validStatus = Set.of("OPEN", "UNDER REVIEW", "PLANNED", "IN PROGRESS", "LIVE", "COMPLETE", "CLOSED");
+        if (!validStatus.contains(status)){
+            throw new UserVisibleException("Invalid status");
+        }
     }
 
     @POST

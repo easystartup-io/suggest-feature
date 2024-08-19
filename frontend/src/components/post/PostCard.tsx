@@ -10,6 +10,8 @@ import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Textarea } from '../ui/textarea';
+import { statusConfig } from '@/app/[slug]/boards/[id]/posts/page';
+import { useToast } from "@/components/ui/use-toast"
 
 function FullScreenPostDialog({ id, params }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,13 +36,8 @@ function PostDetails({ params, data, refetch }) {
   const [status, setStatus] = useState(data.status || 'OPEN');
   const [priority, setPriority] = useState(data.priority || 'Medium');
 
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-    setStatus(data.status || 'OPEN')
-    setPriority(data.priority || 'Medium')
-  }, [data])
+  const { toast } = useToast()
+
 
   const updatePost = async ({ updatedStatus, updatedPriority }) => {
     fetch(`/api/auth/posts/update-post-details`, {
@@ -57,12 +54,15 @@ function PostDetails({ params, data, refetch }) {
     })
       .then((res) => res.json())
       .then((data) => {
+        toast({
+          title: 'Post updated successfully'
+        })
         refetch()
         console.log(data)
       })
   }
 
-  return (<div className='border-l px-4 my-4 w-full'>
+  return (<div className='border-l px-4 my-4 w-full' >
     <div className="my-4">
       <p className="text-sm font-medium my-2">Status</p>
       <Select onValueChange={
@@ -77,34 +77,16 @@ function PostDetails({ params, data, refetch }) {
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="OPEN">
-            <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />
-            OPEN
-          </SelectItem>
-          <SelectItem value="UNDER REVIEW">
-            <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />
-            UNDER REVIEW
-          </SelectItem>
-          <SelectItem value="PLANNED">
-            <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />
-            PLANNED
-          </SelectItem>
-          <SelectItem value="IN PROGRESS">
-            <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />
-            IN PROGRESS
-          </SelectItem>
-          <SelectItem value="LIVE">
-            <Play className="w-4 h-4 inline-block mr-2 text-green-500" />
-            LIVE
-          </SelectItem>
-          <SelectItem value="COMPLETE">
-            <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />
-            COMPLETE
-          </SelectItem>
-          <SelectItem value="CLOSED">
-            <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />
-            CLOSED
-          </SelectItem>
+          {Object.keys(statusConfig).map((key) => {
+            const status = statusConfig[key];
+            return (
+              <SelectItem key={key} value={key}>
+                {status.icon}
+                {status.label}
+              </SelectItem>
+            )
+          })
+          }
         </SelectContent>
       </Select>
     </div>
@@ -293,10 +275,12 @@ function NewCommentInput({ data, params, refetch }) {
       disabled={loading}
       onChange={(e) => setContent(e.target.value)} />
     <div className='mt-2 flex justify-end'>
-      <Button onClick={submitComment} disabled={loading}>
-        {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-        Submit
-      </Button>
+      {content.trim().length === 0 ? '' :
+        <Button onClick={submitComment} disabled={loading || content.trim().length === 0}>
+          {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+          Submit
+        </Button>
+      }
     </div>
   </div>)
 }
@@ -348,7 +332,7 @@ export const PostCard = ({ id, params, disableExpand = false }) => {
                 <CommentSection comments={data.comments} refetch={refetch} params={params} />
               </div>
               <div className='md:w-1/4 md:flex md:justify-center'>
-                <PostDetails data={data} params={params} refetch={refetch} />
+                <PostDetails data={data} params={params} refetch={refetch} key={data.id} />
               </div>
             </div>
           </div>
