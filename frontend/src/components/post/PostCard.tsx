@@ -2,13 +2,33 @@ import { useEffect, useState } from 'react';
 import { Icons } from '../icons';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp, Expand } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
+import { ScrollArea } from '../ui/scroll-area';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { DialogHeader, DialogFooter } from '../ui/dialog';
 
-function TitleHeader({ params, data, refetch }) {
+function FullScreenPostDialog({ id, params }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button onClick={() => setIsOpen(true)} variant="ghost" size="icon">
+          <Expand />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="h-[600px] max-w-screen-xl flex flex-col items-center justify-between">
+        <PostCard id={id} params={params} disableExpand={true} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TitleHeader({ params, data, refetch, id, disableExpand }) {
   const user = data.user;
   if (!user) return null;
 
@@ -27,15 +47,22 @@ function TitleHeader({ params, data, refetch }) {
   }
 
   return (
-    <div className="">
-      <div className="m-4 flex items-center">
-        <div className={(data.selfVoted ? "bg-indigo-600 text-white" : "") + " flex items-center flex-col justify-center border px-4 py-2  text-lg rounded-xl cursor-pointer font-bold"}
-          onClick={() => upVote(!data.selfVoted)}
-        >
-          <ChevronUp />
-          {data.votes}
+    <div className="h-full w-full">
+      <div className="flex items-center justify-between h-full w-full">
+        <div className="m-4 flex items-center h-full flex-1">
+          <div className={(data.selfVoted ? "bg-indigo-600 text-white" : "") + " flex items-center flex-col justify-center border px-4 py-2  text-lg rounded-xl cursor-pointer font-bold"}
+            onClick={() => upVote(!data.selfVoted)}
+          >
+            <ChevronUp />
+            {data.votes}
+          </div>
+          <h1 className="ml-4 text-lg font-semibold">{data.title}</h1>
         </div>
-        <h1 className="ml-4 text-lg font-semibold">{data.title}</h1>
+        {/* { */}
+        {/*   !disableExpand && <div className="m-4"> */}
+        {/*     <FullScreenPostDialog params={params} id={id} /> */}
+        {/*   </div> */}
+        {/* } */}
       </div>
       <Separator />
     </div>
@@ -72,7 +99,7 @@ function UserHeader({ user }) {
   return (
     <div className="">
       <div className="mt-4 mx-4 flex items-center">
-        <Avatar>
+        <Avatar className=''>
           <AvatarImage src={`${user.profilePic}`} />
           <AvatarFallback>
             {(() => {
@@ -94,7 +121,7 @@ function UserHeader({ user }) {
             })()}
           </AvatarFallback>
         </Avatar>
-        <h1 className="mx-2 text-lg font-semibold">{user.name}</h1>
+        <h1 className="mx-2 text-sm font-semibold">{user.name}</h1>
       </div>
     </div>
   )
@@ -164,7 +191,7 @@ function NewCommentInput({ data, params, refetch }) {
   </div>)
 }
 
-export const PostCard = ({ id, params }) => {
+export const PostCard = ({ id, params, disableExpand = false }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -196,15 +223,26 @@ export const PostCard = ({ id, params }) => {
     )
   }
   return (
-    <div className="flex h-full w-full flex-col">
-      <TitleHeader data={data} refetch={refetch} params={params} />
-      <div>
-        <UserHeader user={data.user} />
-        <PostContent data={data} />
-        <NewCommentInput data={data} params={params} refetch={refetch} />
-        <Separator className='my-6' />
-        {/* <ActionButtons data={data} /> */}
-        <CommentSection comments={data.comments} refetch={refetch} params={params} />
+    <div className="flex flex-1 w-full flex-col h-full">
+      <TitleHeader data={data} refetch={refetch} params={params} id={id} disableExpand={disableExpand} />
+      <div className="flex flex-1 w-full h-full">
+        <div className='w-4/5'>
+          <ScrollArea className="h-full overflow-y-auto">
+            <div className='h-full'>
+              <UserHeader user={data.user} />
+              <PostContent data={data} />
+              <NewCommentInput data={data} params={params} refetch={refetch} />
+              <Separator className='my-6' />
+              {/* <ActionButtons data={data} /> */}
+              <CommentSection comments={data.comments} refetch={refetch} params={params} />
+            </div>
+          </ScrollArea>
+        </div>
+        <div className='flex-1'>
+          <ScrollArea className="h-full overflow-y-auto">
+            Voters
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

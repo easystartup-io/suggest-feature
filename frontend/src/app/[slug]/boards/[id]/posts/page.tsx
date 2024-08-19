@@ -18,14 +18,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge, Search, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { PostCard } from "@/components/post/PostCard";
 import Cookies from 'js-cookie';
 
 
-function DialogDemo({ params, setData }) {
+function AddPostDialog({ params, refetch }) {
   const [isLoading, setLoading] = useState(false)
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -54,20 +54,20 @@ function DialogDemo({ params, setData }) {
         toast({
           title: 'Post created',
         })
-        setData(respData)
       } else {
         toast({
           title: respData.message,
           variant: 'destructive'
         })
       }
+      refetch();
 
     } catch (err) {
       console.log(err)
     }
 
     setTimeout(() => {
-      setLoading(false)
+      setLoading(false);
     }, 1000)
   }
 
@@ -157,7 +157,7 @@ const Dashboard: React.FC = ({ params }) => {
 
   const defaultLayout = layout ? JSON.parse(layout) : [35, 65]
 
-  useEffect(() => {
+  function refetchPosts() {
     fetch(`/api/auth/posts/fetch-posts`, {
       method: "POST",
       headers: {
@@ -169,7 +169,7 @@ const Dashboard: React.FC = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
-        if (data && data.length) {
+        if (data && data.length > 0) {
           setCurrentPost({
             post: data[0],
             id: data[0].id
@@ -178,6 +178,10 @@ const Dashboard: React.FC = ({ params }) => {
         reset(data)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    refetchPosts();
 
     fetch(`/api/auth/boards/fetch-board?boardId=${params.id}`, {
       headers: {
@@ -190,50 +194,12 @@ const Dashboard: React.FC = ({ params }) => {
       })
   }, [params.id, params.slug, reset])
 
-  async function onSubmit(data) {
-    setLoading(true)
-    try {
-
-      const resp = await fetch(`/api/auth/posts/create-post`, {
-        method: 'POST',
-        headers: {
-          "x-org-slug": params.slug,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      const respData = await resp.json();
-      if (resp.ok) {
-        setData(respData)
-        reset(respData)
-        toast({
-          title: 'Post updated successfully',
-        })
-      } else {
-        toast({
-          title: respData.message,
-          variant: 'destructive'
-        })
-      }
-      setLoading(false)
-    } catch (err) {
-      console.log(err)
-      toast({
-        title: 'Something went wrong',
-        description: 'Please try again by reloading the post, if the problem persists contact support',
-        variant: 'destructive'
-      })
-    }
-    setTimeout(() => { setLoading(false) }, 1000)
-  }
-
-
   // if (isLoading) return <p>Loading...</p>
-  if (!data) return <p>No profile data</p>
+  if (!data) return <p>No post data</p>
 
 
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 h-full">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">Board - {board && board.name}</h1>
         <div className="flex gap-2 items-center">
@@ -243,11 +209,11 @@ const Dashboard: React.FC = ({ params }) => {
           >
             <Settings />
           </Button>
-          <DialogDemo params={params} setData={setData} />
+          <AddPostDialog params={params} refetch={refetchPosts} />
         </div>
       </div>
       <div
-        className="rounded-lg border border-dashed shadow-sm"
+        className="rounded-lg border border-dashed shadow-sm h-[calc(100vh-10rem)] "
       >
         <ResizablePanelGroup
           direction="horizontal"
@@ -256,9 +222,9 @@ const Dashboard: React.FC = ({ params }) => {
               sizes
             )}; path=/`
           }}
-          className="h-full min-h-[700px] items-stretch"
+          className="h-full flex-1"
         >
-          <ResizablePanel defaultSize={defaultLayout[0]} minSize={30} >
+          <ResizablePanel defaultSize={defaultLayout[0]} minSize={30} className="">
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <form>
                 <div className="relative">
@@ -267,9 +233,9 @@ const Dashboard: React.FC = ({ params }) => {
                 </div>
               </form>
             </div>
-            <ScrollArea className="h-screen">
-              <div className="flex flex-col gap-2 p-4 pt-0">
-                {data && data.length && data.map((item) => (
+            <ScrollArea className="h-full overflow-y-auto">
+              <div className="flex flex-col gap-2 px-4 pt-0">
+                {data && data.length > 0 && data.map((item) => (
                   <button
                     key={item.id}
                     className={cn(
@@ -304,13 +270,6 @@ const Dashboard: React.FC = ({ params }) => {
                     <div className="line-clamp-2 text-xs text-muted-foreground">
                       {item.description.substring(0, 300)}
                     </div>
-                    {/* {item.status ? ( */}
-                    {/*   <div className="flex items-center gap-2"> */}
-                    {/*     <Badge variant={getBadgeVariantFromLabel(item.status)}> */}
-                    {/*       {item.status.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')} */}
-                    {/*     </Badge> */}
-                    {/*   </div> */}
-                    {/* ) : null} */}
                   </button>
                 ))}
               </div>
@@ -318,15 +277,12 @@ const Dashboard: React.FC = ({ params }) => {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-            <PostCard id={currentPost && currentPost.id} params={params} />
-            <div className="flex h-full flex-col">
-              <div className="p-4">
-              </div>
-            </div>
+            {
+              currentPost && currentPost.id &&
+              <PostCard id={currentPost && currentPost.id} params={params} />
+            }
           </ResizablePanel>
         </ResizablePanelGroup>
-        <div className="w-full p-4">
-        </div>
       </div>
     </main>
   )

@@ -102,9 +102,6 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
           >
             <BookOpenText className="h-5 w-5" />
             Pages
-            {/* <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full"> */}
-            {/*   6 */}
-            {/* </Badge> */}
           </Link>
           <Link
             href={`/${params.slug}/boards`}
@@ -292,7 +289,7 @@ const Dashboard: React.FC = ({ children, params }) => {
   const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
 
   return (
-    <div className="min-h-screen w-full grid">
+    <div className="h-screen w-full">
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {
@@ -300,7 +297,7 @@ const Dashboard: React.FC = ({ children, params }) => {
             sizes
           )}; path=/`
         }}
-        className="h-full items-stretch hidden md:flex"
+        className="h-full items-stretch hidden md:flex flex-1"
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -354,7 +351,7 @@ const Dashboard: React.FC = ({ children, params }) => {
         </ResizablePanel>
         <ResizableHandle withHandle className="hidden md:flex" />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col w-full flex-1">
             <header className="flex h-14 items-center gap-4 bg-muted/40 dark:bg-muted/20 px-4 lg:h-[60px] lg:px-6 w-full">
               <MobileNavigation isActive={isActive} setCurrentSection={setCurrentSection} params={params} />
               <div className="w-full flex flex-1 items-center justify-end gap-2">

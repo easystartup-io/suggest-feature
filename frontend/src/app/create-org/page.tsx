@@ -18,7 +18,6 @@ import { API_BASE_URL, useAuth } from "@/context/AuthContext"
 import { Icons } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
-import { ToastAction } from "@radix-ui/react-toast"
 
 const CreateOrgForm: React.FC = ({ }) => {
   const [orgName, setOrgName] = useState('')
