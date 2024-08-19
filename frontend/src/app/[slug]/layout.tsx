@@ -80,12 +80,12 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col">
         <nav className="grid gap-2 text-lg font-medium">
-          <Link
-            href="#"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <Package2 className="h-6 w-6" />
-            <span className="sr-only">Acme Inc</span>
+          <Link href={`/${params.slug}/dashboard`} className="flex items-center gap-2 font-semibold mb-2">
+            <Avatar className={"rounded-none h-6 w-6"}>
+              <AvatarImage className="" src="/logo.svg" alt="suggest-feature" />
+              <AvatarFallback>SF</AvatarFallback>
+            </Avatar>
+            <span className="text-lg font-semibold">Suggest Feature</span>
           </Link>
           <Link
             href={`/${params.slug}/dashboard`}
@@ -123,7 +123,7 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
             Team Members
           </Link>
           <Link
-            href="#"
+            href={`/${params.slug}/customers`}
             className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('customers')}`}
             onClick={() => setCurrentSection('customers')}
           >
@@ -241,7 +241,7 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
           {isCollapsed ? null : 'Team Members'}
         </Link>
         <Link
-          href="#"
+          href={`/${params.slug}/customers`}
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('customers')}`,
             isCollapsed && "justify-center lg:mx-2")}
           onClick={() => setCurrentSection('customers')}
@@ -300,7 +300,7 @@ const Dashboard: React.FC = ({ children, params }) => {
             sizes
           )}; path=/`
         }}
-        className="h-full items-stretch hidden md:block"
+        className="h-full items-stretch hidden md:flex"
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -323,7 +323,7 @@ const Dashboard: React.FC = ({ children, params }) => {
           className={cn(
             isCollapsed &&
             "min-w-[50px] transition-all duration-300 ease-in-out",
-            "hidden md:block"
+            "hidden md:flex"
           )}
         >
           <div className="hidden bg-muted/40 dark:bg-muted/20 md:block w-full md:min-h-screen">
@@ -352,7 +352,7 @@ const Dashboard: React.FC = ({ children, params }) => {
             </div>
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle className="hidden md:grid" />
+        <ResizableHandle withHandle className="hidden md:flex" />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
           <div className="flex flex-col w-full">
             <header className="flex h-14 items-center gap-4 bg-muted/40 dark:bg-muted/20 px-4 lg:h-[60px] lg:px-6 w-full">
