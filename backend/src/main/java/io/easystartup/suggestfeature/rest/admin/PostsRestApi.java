@@ -1,10 +1,8 @@
 package io.easystartup.suggestfeature.rest.admin;
 
 import io.easystartup.suggestfeature.beans.*;
-import io.easystartup.suggestfeature.dto.FetchPostsRequestDTO;
-import io.easystartup.suggestfeature.dto.Order;
+import io.easystartup.suggestfeature.dto.*;
 import io.easystartup.suggestfeature.dto.Page;
-import io.easystartup.suggestfeature.dto.Sort;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
@@ -43,6 +41,33 @@ public class PostsRestApi {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
         this.validationService = validationService;
+    }
+
+
+    @POST
+    @Path("/update-post-details")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response updatePostDetails(PostDetailsUpdateDTO req) {
+        String userId = UserContext.current().getUserId();
+        validationService.validate(req);
+
+        Post existingPost = getPost(req.getPostId(), UserContext.current().getOrgId());
+        if (existingPost == null) {
+            throw new UserVisibleException("Post not found");
+        }
+        if (StringUtils.isNotBlank(req.getStatus())){
+            existingPost.setStatus(req.getStatus());
+        }
+        if (req.getApproved() != null){
+            existingPost.setApproved(req.getApproved());
+        }
+        if (StringUtils.isNotBlank(req.getPriority())){
+            existingPost.setPriority(req.getPriority());
+        }
+
+        mongoConnection.getDefaultMongoTemplate().save(existingPost);
+        return Response.ok(EMPTY_JSON_RESPONSE).build();
     }
 
     @POST

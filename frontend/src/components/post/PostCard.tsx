@@ -1,14 +1,15 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
+import { Calendar, CheckCircle, ChevronUp, Circle, Expand, Eye, Flag, Loader, Play, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Icons } from '../icons';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { ChevronUp, Expand } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Textarea } from '../ui/textarea';
 
 function FullScreenPostDialog({ id, params }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +28,114 @@ function FullScreenPostDialog({ id, params }) {
       </DialogContent>
     </Dialog>
   );
+}
+
+function PostDetails({ params, data, refetch }) {
+  const [status, setStatus] = useState(data.status || 'OPEN');
+  const [priority, setPriority] = useState(data.priority || 'Medium');
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+    setStatus(data.status || 'OPEN')
+    setPriority(data.priority || 'Medium')
+  }, [data])
+
+  const updatePost = async ({ updatedStatus, updatedPriority }) => {
+    fetch(`/api/auth/posts/update-post-details`, {
+      method: "POST",
+      headers: {
+        "x-org-slug": params.slug,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        postId: data.id,
+        status: updatedStatus || status,
+        priority: updatedPriority || priority
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        refetch()
+        console.log(data)
+      })
+  }
+
+  return (<div className='border-l px-4 my-4 w-full'>
+    <div className="my-4">
+      <p className="text-sm font-medium my-2">Status</p>
+      <Select onValueChange={
+        val => {
+          setStatus(val)
+          updatePost({ updatedStatus: val })
+        }} value={status}>
+        <SelectTrigger
+          id="status"
+          aria-label="Select status"
+        >
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="OPEN">
+            <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />
+            OPEN
+          </SelectItem>
+          <SelectItem value="UNDER REVIEW">
+            <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />
+            UNDER REVIEW
+          </SelectItem>
+          <SelectItem value="PLANNED">
+            <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />
+            PLANNED
+          </SelectItem>
+          <SelectItem value="IN PROGRESS">
+            <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />
+            IN PROGRESS
+          </SelectItem>
+          <SelectItem value="LIVE">
+            <Play className="w-4 h-4 inline-block mr-2 text-green-500" />
+            LIVE
+          </SelectItem>
+          <SelectItem value="COMPLETE">
+            <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />
+            COMPLETE
+          </SelectItem>
+          <SelectItem value="CLOSED">
+            <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />
+            CLOSED
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+    <div className="my-4">
+      <p className="text-sm font-medium my-2"><Flag className='w-4 h-4 inline-block mr-2' />Priority</p>
+      <Select onValueChange={val => {
+        setPriority(val);
+        updatePost({ updatedPriority: val })
+      }} value={priority} >
+        <SelectTrigger
+          id="priority"
+          aria-label="Select priority"
+        >
+          <SelectValue placeholder="Priority" >
+            <div className={cn("flex items-center",
+              priority === "High" && "text-red-500",
+              priority === "Medium" && "text-yellow-500",
+              priority === "Low" && "text-green-500"
+            )}>
+              <Flag className='w-4 h-4 inline-block mr-2' /> {priority}
+            </div>
+          </ SelectValue >
+        </SelectTrigger>
+        <SelectContent className="w-full">
+          <SelectItem value="High" className='text-red-500'><Flag className='w-4 h-4 inline-block mr-2 text-red-500' />High</SelectItem>
+          <SelectItem value="Medium" className='text-yellow-500'><Flag className='w-4 h-4 inline-block mr-2 text-yellow-500' />Medium</SelectItem>
+          <SelectItem value="Low" className='text-green-500'><Flag className='w-4 h-4 inline-block mr-2 text-green-500' />Low</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  </div>)
 }
 
 function TitleHeader({ params, data, refetch, id, disableExpand }) {
@@ -48,7 +157,7 @@ function TitleHeader({ params, data, refetch, id, disableExpand }) {
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="w-full">
       <div className="flex items-center justify-between h-full w-full">
         <div className="m-4 flex items-center h-full flex-1">
           <div className={(data.selfVoted ? "bg-indigo-600 text-white" : "") + " flex items-center flex-col justify-center border px-4 py-2  text-lg rounded-xl cursor-pointer font-bold"}
@@ -229,12 +338,19 @@ export const PostCard = ({ id, params, disableExpand = false }) => {
       <div className="flex flex-1 w-full h-full">
         <ScrollArea className="h-full overflow-y-auto w-full">
           <div className='h-full'>
-            <UserHeader user={data.user} />
-            <PostContent data={data} />
-            <NewCommentInput data={data} params={params} refetch={refetch} />
-            <Separator className='my-6' />
-            {/* <ActionButtons data={data} /> */}
-            <CommentSection comments={data.comments} refetch={refetch} params={params} />
+            <div className='flex gap-2 flex-col md:flex-row'>
+              <div className='flex-1'>
+                <UserHeader user={data.user} />
+                <PostContent data={data} />
+                <NewCommentInput data={data} params={params} refetch={refetch} />
+                <Separator className='my-6' />
+                {/* <ActionButtons data={data} /> */}
+                <CommentSection comments={data.comments} refetch={refetch} params={params} />
+              </div>
+              <div className='md:w-1/4 md:flex md:justify-center'>
+                <PostDetails data={data} params={params} refetch={refetch} />
+              </div>
+            </div>
           </div>
         </ScrollArea>
       </div>

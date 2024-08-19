@@ -3,20 +3,17 @@
 import { Button } from "@/components/ui/button"
 import withAuth from '@/hoc/withAuth';
 import { ComponentProps, useContext, useEffect, useState } from "react";
-import { SidebarContext } from "@/app/[slug]/layout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input"
-import { useFieldArray, useForm } from "react-hook-form"
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form"
 import { Icons } from "@/components/icons";
 import { useToast } from "@/components/ui/use-toast"
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Badge, Search, Settings } from "lucide-react";
+import { Badge, Calendar, CheckCircle, Circle, Eye, Loader, Play, Search, Settings, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
@@ -24,13 +21,12 @@ import { useRouter } from "next/navigation";
 import { PostCard } from "@/components/post/PostCard";
 import Cookies from 'js-cookie';
 
-
 function AddPostDialog({ params, refetch }) {
   const [isLoading, setLoading] = useState(false)
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [status, setStatus] = useState('UNDER_REVIEW');
+  const [status, setStatus] = useState('OPEN');
 
   const { toast } = useToast()
 
@@ -114,16 +110,45 @@ function AddPostDialog({ params, refetch }) {
             <Label htmlFor="status" >
               Status
             </Label>
-            <Select
-              value={status}
-              onValueChange={(value) => setStatus(value)}
-            >
-              <SelectTrigger className="col-span-3 w-full">
-                {status.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+            <Select onValueChange={
+              val => {
+                setStatus(val)
+              }} value={status}>
+              <SelectTrigger
+                id="status"
+                aria-label="Select status"
+              >
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="IN_PROGRESS">In progress</SelectItem>
-                <SelectItem value="UNDER_REVIEW">Under review</SelectItem>
+                <SelectItem value="OPEN">
+                  <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />
+                  OPEN
+                </SelectItem>
+                <SelectItem value="UNDER REVIEW">
+                  <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />
+                  UNDER REVIEW
+                </SelectItem>
+                <SelectItem value="PLANNED">
+                  <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />
+                  PLANNED
+                </SelectItem>
+                <SelectItem value="IN PROGRESS">
+                  <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />
+                  IN PROGRESS
+                </SelectItem>
+                <SelectItem value="LIVE">
+                  <Play className="w-4 h-4 inline-block mr-2 text-green-500" />
+                  LIVE
+                </SelectItem>
+                <SelectItem value="COMPLETE">
+                  <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />
+                  COMPLETE
+                </SelectItem>
+                <SelectItem value="CLOSED">
+                  <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />
+                  CLOSED
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>

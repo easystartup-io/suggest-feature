@@ -44,7 +44,8 @@ public class Post {
     @Indexed
     @NotBlank
     private String boardId;
-    private String status;
+    private String status = "OPEN";
+    private String priority;
 
     @Transient
     private boolean selfVoted;
@@ -180,5 +181,13 @@ public class Post {
 
     public void setSelfVoted(boolean selfVoted) {
         this.selfVoted = selfVoted;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 }
