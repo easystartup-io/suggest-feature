@@ -9,7 +9,6 @@ import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { DialogHeader, DialogFooter } from '../ui/dialog';
 
 function FullScreenPostDialog({ id, params }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +21,9 @@ function FullScreenPostDialog({ id, params }) {
         </Button>
       </DialogTrigger>
       <DialogContent className="h-[600px] max-w-screen-xl flex flex-col items-center justify-between">
-        <PostCard id={id} params={params} disableExpand={true} />
+        <ScrollArea className="w-full h-full">
+          <PostCard id={id} params={params} disableExpand={true} />
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
@@ -58,11 +59,11 @@ function TitleHeader({ params, data, refetch, id, disableExpand }) {
           </div>
           <h1 className="ml-4 text-lg font-semibold">{data.title}</h1>
         </div>
-        {/* { */}
-        {/*   !disableExpand && <div className="m-4"> */}
-        {/*     <FullScreenPostDialog params={params} id={id} /> */}
-        {/*   </div> */}
-        {/* } */}
+        {
+          !disableExpand && <div className="m-4">
+            <FullScreenPostDialog params={params} id={id} />
+          </div>
+        }
       </div>
       <Separator />
     </div>
@@ -226,23 +227,16 @@ export const PostCard = ({ id, params, disableExpand = false }) => {
     <div className="flex flex-1 w-full flex-col h-full">
       <TitleHeader data={data} refetch={refetch} params={params} id={id} disableExpand={disableExpand} />
       <div className="flex flex-1 w-full h-full">
-        <div className='w-4/5'>
-          <ScrollArea className="h-full overflow-y-auto">
-            <div className='h-full'>
-              <UserHeader user={data.user} />
-              <PostContent data={data} />
-              <NewCommentInput data={data} params={params} refetch={refetch} />
-              <Separator className='my-6' />
-              {/* <ActionButtons data={data} /> */}
-              <CommentSection comments={data.comments} refetch={refetch} params={params} />
-            </div>
-          </ScrollArea>
-        </div>
-        <div className='flex-1'>
-          <ScrollArea className="h-full overflow-y-auto">
-            Voters
-          </ScrollArea>
-        </div>
+        <ScrollArea className="h-full overflow-y-auto w-full">
+          <div className='h-full'>
+            <UserHeader user={data.user} />
+            <PostContent data={data} />
+            <NewCommentInput data={data} params={params} refetch={refetch} />
+            <Separator className='my-6' />
+            {/* <ActionButtons data={data} /> */}
+            <CommentSection comments={data.comments} refetch={refetch} params={params} />
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );
