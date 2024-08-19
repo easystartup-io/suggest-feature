@@ -81,7 +81,7 @@ function DialogDemo({ params }) {
             <Input
               id="name"
               value={name}
-              placeholder="Features"
+              placeholder="Feature requests"
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               className="col-span-3"

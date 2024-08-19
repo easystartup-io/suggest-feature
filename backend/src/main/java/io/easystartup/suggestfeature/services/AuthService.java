@@ -254,11 +254,6 @@ public class AuthService {
                 .findOne(new Query(Criteria.where(Organization.FIELD_ID).is(orgId)), Organization.class);
     }
 
-    public User getUsersByUserId(List<String> userId) {
-        return mongoTemplateFactory.getDefaultMongoTemplate()
-                .findOne(new Query(Criteria.where(User.FIELD_ID).in(userId)), User.class);
-    }
-
     public User getUserByUserId(String userId) {
         return mongoTemplateFactory.getDefaultMongoTemplate()
                 .findOne(new Query(Criteria.where(User.FIELD_ID).is(userId)), User.class);
@@ -293,5 +288,10 @@ public class AuthService {
 
     private String escapeHtml(String input) {
         return StringEscapeUtils.escapeHtml4(input);
+    }
+
+    public List<User> getUsersByUserIds(Set<String> userIds) {
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .find(new Query(Criteria.where(User.FIELD_ID).in(userIds)), User.class);
     }
 }

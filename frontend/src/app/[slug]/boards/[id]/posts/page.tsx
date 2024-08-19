@@ -22,6 +22,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { PostCard } from "@/components/post/PostCard";
+import Cookies from 'js-cookie';
 
 
 function DialogDemo({ params, setData }) {
@@ -152,6 +153,9 @@ const Dashboard: React.FC = ({ params }) => {
   const [currentPost, setCurrentPost] = useState(null)
   const [board, setBoard] = useState(null)
   const router = useRouter()
+  const layout = Cookies.get('react-resizable-panels:layout:sf:boards');
+
+  const defaultLayout = layout ? JSON.parse(layout) : [35, 65]
 
   useEffect(() => {
     fetch(`/api/auth/posts/fetch-posts`, {
@@ -252,9 +256,9 @@ const Dashboard: React.FC = ({ params }) => {
               sizes
             )}; path=/`
           }}
-          className="h-full max-h-[800px] items-stretch"
+          className="h-full min-h-[700px] items-stretch"
         >
-          <ResizablePanel defaultSize={35} minSize={30} >
+          <ResizablePanel defaultSize={defaultLayout[0]} minSize={30} >
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <form>
                 <div className="relative">
@@ -313,7 +317,7 @@ const Dashboard: React.FC = ({ params }) => {
             </ScrollArea>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={65} minSize={30}>
+          <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
             <PostCard id={currentPost && currentPost.id} params={params} />
             <div className="flex h-full flex-col">
               <div className="p-4">

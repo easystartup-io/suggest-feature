@@ -2,8 +2,12 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 /*
  * @author indianBond
@@ -28,6 +32,14 @@ public class Comment {
     private String organizationId;
     private String createdByUserId;
     private String boardId;
+
+    @Reference
+    @Transient
+    private List<Comment> comments;
+
+    @Reference
+    @Transient
+    private User user;
 
     private Long createdAt;
     private Long modifiedAt;
@@ -105,5 +117,21 @@ public class Comment {
 
     public void setModifiedAt(Long modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

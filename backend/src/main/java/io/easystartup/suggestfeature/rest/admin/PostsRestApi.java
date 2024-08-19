@@ -21,10 +21,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /*
  * @author indianBond
@@ -217,6 +216,10 @@ public class PostsRestApi {
         Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
         List<Comment> comments = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition1), Comment.class);
         post.setComments(comments);
+
+        populateUserInCommentAndPopulateNestedCommentsStructure(comments);
+
+
         User userByUserId = authService.getUserByUserId(post.getCreatedByUserId());
 
         User safeUser = new User();
@@ -225,6 +228,41 @@ public class PostsRestApi {
         safeUser.setEmail(userByUserId.getEmail());
         safeUser.setProfilePic(userByUserId.getProfilePic());
         post.setUser(safeUser);
+    }
+
+    private void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments) {
+        // All comments are already fetched. Now populate user in each comment by making single db call
+        // And also populate nested comments structure. Based on replyToCommentId and comments list
+        Set<String> userIds = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toSet());
+
+        Map<String, User> userIdVsUser = authService.getUsersByUserIds(userIds).stream().map(user -> {
+            User safeUser = new User();
+            safeUser.setId(user.getId());
+            safeUser.setName(user.getName());
+            safeUser.setEmail(user.getEmail());
+            safeUser.setProfilePic(user.getProfilePic());
+            return safeUser;
+        }).collect(Collectors.toMap(User::getId, Function.identity()));
+
+        for (Comment comment : comments) {
+            comment.setUser(userIdVsUser.get(comment.getCreatedByUserId()));
+        }
+
+        // Desc sort by created at
+        Collections.sort(comments, Comparator.comparing(Comment::getCreatedAt).reversed());
+
+        Map<String, Comment> commentIdVsComment = comments.stream().collect(Collectors.toMap(Comment::getId, Function.identity()));
+        for (Comment comment : comments) {
+            if (StringUtils.isNotBlank(comment.getReplyToCommentId())) {
+                Comment parentComment = commentIdVsComment.get(comment.getReplyToCommentId());
+                if (parentComment != null) {
+                    if (parentComment.getComments() == null) {
+                        parentComment.setComments(new ArrayList<>());
+                    }
+                    parentComment.getComments().add(comment);
+                }
+            }
+        }
     }
 
     @POST

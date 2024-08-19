@@ -112,7 +112,7 @@ const Dashboard: React.FC = ({ params }) => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input disabled={isLoading} placeholder="slug" {...field} />
+                      <Input disabled={isLoading} placeholder="Please input all your feature requests" {...field} />
                     </FormControl>
                     <FormDescription>
                       This is the board description.

@@ -56,9 +56,9 @@ function CommentSection({ params, refetch, comments }) {
 
 function CommentCard({ comment, refetch, params }) {
   return (
-    <div className="">
-      {comment.content}
-      {/* <UserHeader user={comment.user} timestamp={comment.timestamp} /> */}
+    <div className="ml-16">
+      <UserHeader user={comment.user} />
+      <PostContent data={comment} />
       {/* <CommentContent content={comment.content} /> */}
       {/* <CommentActions commentId={comment.id} /> */}
       {comment.comments && comment.comments.length > 0 &&
@@ -67,8 +67,7 @@ function CommentCard({ comment, refetch, params }) {
   )
 }
 
-function UserHeader({ data }) {
-  const user = data.user;
+function UserHeader({ user }) {
   if (!user) return null;
   return (
     <div className="">
@@ -104,7 +103,7 @@ function UserHeader({ data }) {
 function PostContent({ data }) {
   return (
     <div className="ml-16">
-      <p className=''>{data.description}</p>
+      <p className=''>{data.description || data.content}</p>
       <div
         className={cn(
           "mt-2 text-xs text-muted-foreground"
@@ -200,7 +199,7 @@ export const PostCard = ({ id, params }) => {
     <div className="flex h-full w-full flex-col">
       <TitleHeader data={data} refetch={refetch} params={params} />
       <div>
-        <UserHeader data={data} />
+        <UserHeader user={data.user} />
         <PostContent data={data} />
         <NewCommentInput data={data} params={params} refetch={refetch} />
         <Separator className='my-6' />

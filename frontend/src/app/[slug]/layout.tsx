@@ -254,7 +254,6 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
   )
 }
 
-
 const Dashboard: React.FC = ({ children, params }) => {
 
   const { logout, user } = useAuth();
@@ -301,7 +300,7 @@ const Dashboard: React.FC = ({ children, params }) => {
             sizes
           )}; path=/`
         }}
-        className="h-full max-h-[800px] items-stretch hidden md:block"
+        className="h-full items-stretch hidden md:block"
       >
         <ResizablePanel
           defaultSize={defaultLayout[0]}
@@ -361,7 +360,7 @@ const Dashboard: React.FC = ({ children, params }) => {
               <div className="w-full flex flex-1 items-center justify-end gap-2">
                 <ModeToggle />
                 <div className="text-right">
-                  <Button className="flex items-center" variant="secondary" onClick={() => {
+                  <Button className="flex items-center" variant="outline" onClick={() => {
                     Crisp.user.setEmail(user.email);
                     Crisp.user.setNickname(user.name);
                     Crisp.session.setData({
