@@ -248,9 +248,9 @@ const Dashboard: React.FC = ({ params }) => {
         <ResizablePanelGroup
           direction="horizontal"
           onLayout={(sizes: number[]) => {
-            document.cookie = `react-resizable-panels:layout:mail=${JSON.stringify(
+            document.cookie = `react-resizable-panels:layout:sf:boards=${JSON.stringify(
               sizes
-            )}`
+            )}; path=/`
           }}
           className="h-full max-h-[800px] items-stretch"
         >

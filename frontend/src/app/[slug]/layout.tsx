@@ -207,7 +207,7 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
         <Link
           href={`/${params.slug}/dashboard`}
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('dashboard')}`,
-            isCollapsed && "justify-center")}
+            isCollapsed && "justify-center lg:mx-2")}
           onClick={() => setCurrentSection('dashboard')}
         >
           <Home className="h-4 w-4" />
@@ -216,7 +216,7 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
         <Link
           href={`/${params.slug}/pages`}
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('pages')}`,
-            isCollapsed && "justify-center")}
+            isCollapsed && "justify-center lg:mx-2")}
           onClick={() => setCurrentSection('pages')}
         >
           <BookOpenText className="h-4 w-4" />
@@ -225,7 +225,7 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
         <Link
           href={`/${params.slug}/boards`}
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('boards')}`,
-            isCollapsed && "justify-center")}
+            isCollapsed && "justify-center lg:mx-2")}
           onClick={() => setCurrentSection('boards')}
         >
           <Clipboard className="h-4 w-4" />
@@ -234,7 +234,7 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
         <Link
           href={`/${params.slug}/members`}
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('members')}`,
-            isCollapsed && "justify-center")}
+            isCollapsed && "justify-center lg:mx-2")}
           onClick={() => setCurrentSection('members')}
         >
           <UserRoundCog className="h-4 w-4" />
@@ -243,7 +243,7 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
         <Link
           href="#"
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('customers')}`,
-            isCollapsed && "justify-center")}
+            isCollapsed && "justify-center lg:mx-2")}
           onClick={() => setCurrentSection('customers')}
         >
           <Users className="h-4 w-4" />
@@ -257,11 +257,6 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
 
 const Dashboard: React.FC = ({ children, params }) => {
 
-  const browser = typeof window !== 'undefined' && window;
-  if (!browser) {
-    return null;
-  }
-
   const { logout, user } = useAuth();
   const [currentSection, setCurrentSection] = useState('dashboard');
   const router = useRouter();
@@ -271,8 +266,8 @@ const Dashboard: React.FC = ({ children, params }) => {
   const layout = Cookies.get("react-resizable-panels:layout:sf")
   const collapsed = Cookies.get("react-resizable-panels:sf:collapsed")
 
-  const defaultLayout = layout && layout.value ? JSON.parse(layout.value) : [20, 80]
-  const defaultCollapsed = collapsed && collapsed.value ? JSON.parse(collapsed.value) : undefined
+  const defaultLayout = layout ? JSON.parse(layout) : [18, 82]
+  const defaultCollapsed = collapsed ? JSON.parse(collapsed) : undefined
 
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed || false)
 
@@ -298,14 +293,13 @@ const Dashboard: React.FC = ({ children, params }) => {
   const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
 
   return (
-    // <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
     <div className="min-h-screen w-full grid">
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {
           document.cookie = `react-resizable-panels:layout:sf=${JSON.stringify(
             sizes
-          )}`
+          )}; path=/`
         }}
         className="h-full max-h-[800px] items-stretch hidden md:block"
       >
@@ -314,18 +308,18 @@ const Dashboard: React.FC = ({ children, params }) => {
           collapsedSize={4}
           collapsible={true}
           minSize={15}
-          maxSize={20}
+          maxSize={18}
           onCollapse={() => {
             setIsCollapsed(true)
             document.cookie = `react-resizable-panels:sf:collapsed=${JSON.stringify(
               true
-            )}`
+            )}; path=/`
           }}
           onResize={() => {
             setIsCollapsed(false)
             document.cookie = `react-resizable-panels:sf:collapsed=${JSON.stringify(
               false
-            )}`
+            )}; path=/`
           }}
           className={cn(
             isCollapsed &&
@@ -333,7 +327,7 @@ const Dashboard: React.FC = ({ children, params }) => {
             "hidden md:block"
           )}
         >
-          <div className="hidden bg-muted/40 dark:bg-muted/0 md:block w-full">
+          <div className="hidden bg-muted/40 dark:bg-muted/20 md:block w-full md:min-h-screen">
             <div className="flex h-full max-h-screen flex-col gap-2 w-full">
               <div
                 className={cn(
@@ -344,8 +338,8 @@ const Dashboard: React.FC = ({ children, params }) => {
                 <div className={cn("flex h-14 items-center px-4 lg:h-[60px] lg:px-6",
                   isCollapsed && "px-0 lg:px-0")}>
                   <Link href={`/${params.slug}/dashboard`} className="flex items-center gap-2 font-semibold">
-                    <Avatar className={cn(isCollapsed && "px-0 lg:px-0")}>
-                      <AvatarImage src="/logo.svg" alt="suggest-feature" />
+                    <Avatar className={cn(isCollapsed && "px-0 lg:px-0", "rounded-none")}>
+                      <AvatarImage className="" src="/logo.svg" alt="suggest-feature" />
                       <AvatarFallback>SF</AvatarFallback>
                     </Avatar>
                     {!isCollapsed && <span className="text-lg font-semibold">Suggest Feature</span>}
@@ -362,7 +356,7 @@ const Dashboard: React.FC = ({ children, params }) => {
         <ResizableHandle withHandle className="hidden md:grid" />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
           <div className="flex flex-col w-full">
-            <header className="flex h-14 items-center gap-4 bg-muted/40 dark:bg-muted/0 px-4 lg:h-[60px] lg:px-6 w-full">
+            <header className="flex h-14 items-center gap-4 bg-muted/40 dark:bg-muted/20 px-4 lg:h-[60px] lg:px-6 w-full">
               <MobileNavigation isActive={isActive} setCurrentSection={setCurrentSection} params={params} />
               <div className="w-full flex flex-1 items-center justify-end gap-2">
                 <ModeToggle />
