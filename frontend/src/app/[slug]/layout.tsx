@@ -1,29 +1,21 @@
 "use client"
 import {
-  Bell,
   BookOpenText,
-  CircleUser,
   Clipboard,
   Home,
   LineChart,
   Menu,
   MessageCircleMore,
   Package2,
-  ShoppingCart,
   UserRoundCog,
   Users
 } from "lucide-react"
 import Link from "next/link"
 
-import { Badge } from "@/components/ui/badge"
+import Cookies from 'js-cookie';
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,20 +24,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from '@/context/AuthContext'
 import withAuth from '@/hoc/withAuth'
-import { useRouter, usePathname } from "next/navigation"
-import { createContext, useEffect, useState } from "react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import dynamic from "next/dynamic"
-import { Crisp } from "crisp-sdk-web";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
+import { Crisp } from "crisp-sdk-web"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Separator } from "@/components/ui/separator"
-
+import dynamic from "next/dynamic"
+import { usePathname, useRouter } from "next/navigation"
+import { createContext, useEffect, useState } from "react"
 
 export const SidebarContext = createContext();
 export function ModeToggle() {
@@ -139,14 +129,6 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
           >
             <Users className="h-5 w-5" />
             Customers
-          </Link>
-          <Link
-            href="#"
-            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('analytics')}`}
-            onClick={() => setCurrentSection('analytics')}
-          >
-            <LineChart className="h-5 w-5" />
-            Analytics
           </Link>
         </nav>
       </SheetContent>
@@ -274,11 +256,25 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
 
 
 const Dashboard: React.FC = ({ children, params }) => {
+
+  const browser = typeof window !== 'undefined' && window;
+  if (!browser) {
+    return null;
+  }
+
   const { logout, user } = useAuth();
   const [currentSection, setCurrentSection] = useState('dashboard');
   const router = useRouter();
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Collapsed state
+  const layout = Cookies.get("react-resizable-panels:layout:sf")
+  const collapsed = Cookies.get("react-resizable-panels:sf:collapsed")
+
+  const defaultLayout = layout && layout.value ? JSON.parse(layout.value) : [20, 80]
+  const defaultCollapsed = collapsed && collapsed.value ? JSON.parse(collapsed.value) : undefined
+
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed || false)
 
 
   const CrispWithNoSSR = dynamic(
@@ -307,27 +303,27 @@ const Dashboard: React.FC = ({ children, params }) => {
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {
-          document.cookie = `react-resizable-panels:layout:mail=${JSON.stringify(
+          document.cookie = `react-resizable-panels:layout:sf=${JSON.stringify(
             sizes
           )}`
         }}
         className="h-full max-h-[800px] items-stretch hidden md:block"
       >
         <ResizablePanel
-          defaultSize={20}
+          defaultSize={defaultLayout[0]}
           collapsedSize={4}
           collapsible={true}
           minSize={15}
           maxSize={20}
           onCollapse={() => {
             setIsCollapsed(true)
-            document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
+            document.cookie = `react-resizable-panels:sf:collapsed=${JSON.stringify(
               true
             )}`
           }}
           onResize={() => {
             setIsCollapsed(false)
-            document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
+            document.cookie = `react-resizable-panels:sf:collapsed=${JSON.stringify(
               false
             )}`
           }}
@@ -364,7 +360,7 @@ const Dashboard: React.FC = ({ children, params }) => {
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle className="hidden md:grid" />
-        <ResizablePanel defaultSize={80} minSize={30}>
+        <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
           <div className="flex flex-col w-full">
             <header className="flex h-14 items-center gap-4 bg-muted/40 dark:bg-muted/0 px-4 lg:h-[60px] lg:px-6 w-full">
               <MobileNavigation isActive={isActive} setCurrentSection={setCurrentSection} params={params} />
@@ -380,7 +376,7 @@ const Dashboard: React.FC = ({ children, params }) => {
                     Crisp.chat.open()
                   }}>
                     <MessageCircleMore />
-                    Start Chat
+                    <span className="ml-2 hidden md:block">Support</span>
                   </Button>
                 </div>
                 <form>
