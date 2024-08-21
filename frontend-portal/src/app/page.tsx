@@ -31,26 +31,41 @@ function Custom404() {
 }
 
 export default function Dashboard({ params }) {
-  const [data, setData] = useState({});
+  const [page, setPage] = useState({});
+  const [boards, setBoards] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
 
 
   useEffect(() => {
     const host = window.location.host
-    fetch(`http://${host}/api/portal/unauth/posts/get-page`)
+    const protocol = window.location.protocol // http: or https:
+    fetch(`${protocol}//${host}/api/portal/unauth/posts/init-page`)
       .then((res) => res.json())
       .then((data) => {
         if (Object.keys(data).length === 0) {
           setError(true)
         } else {
-          setData(data)
+          setPage(data)
+        }
+      }).catch((e) => {
+        console.log(e)
+      })
+
+    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-posts`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Object.keys(data).length === 0) {
+          setError(true)
+        } else {
+          setPosts(data)
         }
       }).catch((e) => {
         console.log(e)
       })
   }, [params]);
 
-  if (!data || error) {
+  if (!page || error) {
     return <Custom404 />
   }
 
@@ -85,7 +100,7 @@ export default function Dashboard({ params }) {
           <div className="w-full">
             <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
               <div className="grid gap-6">
-                <h1 className="text-2xl font-semibold">{data.name}</h1>
+                <h1 className="text-2xl font-semibold">{page.name}</h1>
               </div>
             </div>
           </div>

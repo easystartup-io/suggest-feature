@@ -1,7 +1,7 @@
 package io.easystartup.suggestfeature.rest.admin;
 
 import io.easystartup.suggestfeature.beans.Board;
-import io.easystartup.suggestfeature.beans.Page;
+import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
@@ -14,15 +14,14 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
+import org.apache.commons.validator.routines.DomainValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -55,8 +54,9 @@ public class PagesRestApi {
             "false", "administrator", "admin", "root", "terms", "privacy", "contact",
             "about", "team", "careers", "jobs", "faq", "legal", "tos", "eula", "pricing",
             "assets", "static", "public", "private", "uploads", "media", "resources",
-            "images", "css", "js", "fonts", "widget", "component", "module", "iframe", "fuck", "mofo", "fuck-it", "sign-in", "log-in", "cards", "credit-card", "payment", "payments", "fuck-off", "test", "cool","fuckoff", "fuckit"
+            "images", "css", "js", "fonts", "widget", "component", "module", "iframe", "fuck", "mofo", "fuck-it", "sign-in", "log-in", "cards", "credit-card", "payment", "payments", "fuck-off", "test", "cool", "fuckoff", "fuckit"
     );
+
     @Autowired
     public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, CustomDomainMappingService customDomainMappingService) {
         this.mongoConnection = mongoConnection;
@@ -66,103 +66,60 @@ public class PagesRestApi {
     }
 
     @POST
-    @Path("/create-page")
+    @Path("/edit-org")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response createPage(Page page) {
+    public Response editOrg(Organization organization) {
         String userId = UserContext.current().getUserId();
-        validationService.validate(page);
-        page.setSlug(validateAndFix(page.getSlug()));
-        Page existingPage = getPage(page.getId(), UserContext.current().getOrgId());
-        boolean isNew = false;
-        if (existingPage == null) {
-            page.setId(new ObjectId().toString());
-            page.setCreatedAt(System.currentTimeMillis());
-            page.setCreatedByUserId(userId);
-            // Only show custom domain option later on
-            page.setCustomDomain(null);
-            isNew = true;
-        } else {
-            page.setCreatedByUserId(existingPage.getCreatedByUserId());
-            page.setCreatedAt(existingPage.getCreatedAt());
-            if (page.getCustomDomain() != null && !page.getCustomDomain().equals(existingPage.getCustomDomain())) {
-                validateCustomDomainNotInUse(page.getCustomDomain());
-                customDomainMappingService.updateCustomDomainMapping(page.getCustomDomain(), page.getId());
-            } else if (page.getCustomDomain() == null && existingPage.getCustomDomain() != null) {
-                customDomainMappingService.deleteCustomDomainMapping(existingPage.getCustomDomain());
-            } else if (page.getCustomDomain() != null && existingPage.getCustomDomain() == null) {
-                validateCustomDomainNotInUse(page.getCustomDomain());
-                customDomainMappingService.createCustomDomainMapping(page.getCustomDomain(), page.getId());
+        validationService.validate(organization);
+        organization.setId(UserContext.current().getOrgId());
+        organization.setSlug(validateAndFix(organization.getSlug()));
+        Organization existingOrg = authService.getOrgById(organization.getId());
+        if (organization.getCustomDomain() != null && !organization.getCustomDomain().equals(existingOrg.getCustomDomain())) {
+            validateCustomDomainNotInUse(organization.getCustomDomain());
+            customDomainMappingService.updateCustomDomainMapping(organization.getCustomDomain(), organization.getId());
+        } else if (organization.getCustomDomain() == null && existingOrg.getCustomDomain() != null) {
+            customDomainMappingService.deleteCustomDomainMapping(existingOrg.getCustomDomain());
+        } else if (organization.getCustomDomain() != null && existingOrg.getCustomDomain() == null) {
+            validateCustomDomainNotInUse(organization.getCustomDomain());
+            customDomainMappingService.createCustomDomainMapping(organization.getCustomDomain(), organization.getId());
+        }
+        existingOrg.setName(organization.getName());
+        existingOrg.setSlug(organization.getSlug());
+        if (StringUtils.isNotBlank(organization.getCustomDomain())){
+            DomainValidator domainValidator = DomainValidator.getInstance();
+            boolean valid = domainValidator.isValid(organization.getCustomDomain());
+            if (!valid) {
+                throw new UserVisibleException("Invalid custom domain name");
             }
         }
-        List<String> boards = page.getBoards();
-        if (CollectionUtils.isNotEmpty(boards)) {
-            boards = boards.stream().filter(StringUtils::isNotBlank).distinct().toList();
-        }
-        if (CollectionUtils.isNotEmpty(boards)) {
-            Criteria in = Criteria.where(Board.FIELD_ID).in(boards).and(Board.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
-            List<String> boardIds = mongoConnection.getDefaultMongoTemplate().find(new Query(in), Board.class).stream().map(Board::getId).toList();
-            if (boardIds.size() != boards.size()) {
-                throw new UserVisibleException("Invalid board id");
-            }
-        }
-        page.setBoards(boards);
-        page.setOrganizationId(UserContext.current().getOrgId());
+        existingOrg.setCustomDomain(organization.getCustomDomain());
         try {
-            if (isNew) {
-                mongoConnection.getDefaultMongoTemplate().insert(page);
-            } else {
-                mongoConnection.getDefaultMongoTemplate().save(page);
-            }
+            mongoConnection.getDefaultMongoTemplate().save(existingOrg);
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Page with this slug already exists");
         }
 
-        long count = mongoConnection.getDefaultMongoTemplate().count(new Query(Criteria.where(Page.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId())), Page.class);
-        if (count > 500 && !Util.isSelfHosted()) {
-            // Limit present to prevent spam
-            throw new UserVisibleException("Too many pages. To increase please raise a support ticket");
-        }
-        return Response.ok(JacksonMapper.toJson(page)).build();
+        return Response.ok(JacksonMapper.toJson(existingOrg)).build();
     }
 
     private void validateCustomDomainNotInUse(String customDomain) {
         // Verify if a custom domain exists with same name, then throw exception
-        Page one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Page.FIELD_CUSTOM_DOMAIN).is(customDomain)), Page.class);
+        Organization one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Organization.FIELD_CUSTOM_DOMAIN).is(customDomain)), Organization.class);
         if (one != null) {
             throw new UserVisibleException("Custom domain already exists");
         }
     }
 
     @GET
-    @Path("/fetch-page")
+    @Path("/fetch-org")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response fetchPage(@QueryParam("pageId") String pageId) {
+    public Response fetchOrg() {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
-        Page one = getPage(pageId, orgId);
-        return Response.ok(JacksonMapper.toJson(one)).build();
-    }
-
-    @GET
-    @Path("/fetch-pages")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public Response fetchPages() {
-        String userId = UserContext.current().getUserId();
-        String orgId = UserContext.current().getOrgId();
-        List<Page> pages = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Page.FIELD_ORGANIZATION_ID).is(orgId)), Page.class);
-        Collections.sort(pages, Comparator.comparing(Page::getId));
-        return Response.ok(JacksonMapper.toJson(pages)).build();
-    }
-
-    private Page getPage(String pageId, String orgId) {
-        if (pageId == null) {
-            return null;
-        }
-        Criteria criteriaDefinition = Criteria.where(Page.FIELD_ID).is(pageId).and(Page.FIELD_ORGANIZATION_ID).is(orgId);
-        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Page.class);
+        Organization org = authService.getOrgById(orgId);
+        return Response.ok(JacksonMapper.toJson(org)).build();
     }
 
     private String validateAndFix(String slug) {
@@ -179,7 +136,7 @@ public class PagesRestApi {
         if (RESERVED_SLUGS.contains(slug)) {
             throw new UserVisibleException("Slug is already used");
         }
-        if (slug.length() < 3){
+        if (slug.length() < 3) {
             throw new UserVisibleException("Minimum 3 letters required");
         }
         return slug;

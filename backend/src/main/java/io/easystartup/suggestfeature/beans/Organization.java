@@ -1,9 +1,12 @@
 package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 /*
  * @author indianBond
@@ -15,12 +18,18 @@ public class Organization {
     public static final String FIELD_ID = "_id";
     public static final String FIELD_NAME = "name";
     public static final String FIELD_SLUG = "slug";
+    public static final String FIELD_CUSTOM_DOMAIN = "customDomain";
+
 
     @Id
     private String id;
+    @NotBlank
     private String name;
     @Indexed(unique = true)
+    @NotBlank
     private String slug;
+    @Indexed
+    private String customDomain;
     private Long createdAt;
 
     public Organization() {
@@ -57,4 +66,13 @@ public class Organization {
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getCustomDomain() {
+        return customDomain;
+    }
+
+    public void setCustomDomain(String customDomain) {
+        this.customDomain = customDomain;
+    }
+
 }

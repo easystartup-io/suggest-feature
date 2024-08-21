@@ -97,12 +97,12 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
             Dashboard
           </Link>
           <Link
-            href={`/${params.slug}/pages`}
-            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('pages')}`}
-            onClick={() => setCurrentSection('pages')}
+            href={`/${params.slug}/page`}
+            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('page')}`}
+            onClick={() => setCurrentSection('page')}
           >
             <BookOpenText className="h-5 w-5" />
-            Pages
+            Page Settings
           </Link>
           <Link
             href={`/${params.slug}/boards`}
@@ -212,13 +212,13 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
           {isCollapsed ? null : 'Dashboard'}
         </Link>
         <Link
-          href={`/${params.slug}/pages`}
-          className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('pages')}`,
+          href={`/${params.slug}/page`}
+          className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('page')}`,
             isCollapsed && "justify-center lg:mx-2")}
-          onClick={() => setCurrentSection('pages')}
+          onClick={() => setCurrentSection('page')}
         >
           <BookOpenText className="h-4 w-4" />
-          {isCollapsed ? null : 'Pages'}
+          {isCollapsed ? null : 'Page Setttings'}
         </Link>
         <Link
           href={`/${params.slug}/boards`}

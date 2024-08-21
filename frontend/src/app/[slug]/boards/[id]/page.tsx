@@ -130,22 +130,6 @@ const Dashboard: React.FC = ({ params }) => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="customDomain"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Custom Domain</FormLabel>
-                    <FormControl>
-                      <Input disabled={isLoading} placeholder="feature-request.yourdomain.com" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      This is the custom domain for the board. You have to setup a CNAME mapping in your DNS server to our domain widget.suggestfeature.com .
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <Button type="submit" disabled={isLoading}>
                 {isLoading &&
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

@@ -4,7 +4,7 @@ package io.easystartup.suggestfeature.rest.portal.unauth;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.easystartup.suggestfeature.beans.Board;
-import io.easystartup.suggestfeature.beans.Page;
+import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.Post;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
@@ -22,9 +22,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +36,7 @@ public class PublicPortalPostRestApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublicPortalPostRestApi.class);
     private final MongoTemplateFactory mongoConnection;
     // Loading cache of host vs page
-    private final Cache<String, String> hostPageCache = CacheBuilder.newBuilder()
+    private final Cache<String, String> hostOrgCache = CacheBuilder.newBuilder()
             .maximumSize(20_000)
             .expireAfterWrite(1, TimeUnit.MINUTES)
             .build();
@@ -49,16 +47,23 @@ public class PublicPortalPostRestApi {
     }
 
     @GET
-    @Path("/get-page")
+    @Path("/init-page")
     @Produces("application/json")
-    public Response getPage(@Context HttpServletRequest request) {
+    public Response initPage(@Context HttpServletRequest request) {
         // Find Page.java from request host
         String host = request.getHeader("host");
         String resp = null;
         try {
-            resp = hostPageCache.get(host, () -> {
-                Page page = getPage(host);
-                return JacksonMapper.toJson(Objects.requireNonNullElse(page, Collections.emptyMap()));
+            resp = hostOrgCache.get(host, () -> {
+                Organization org = getOrg(host);
+                List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
+                if (org == null) {
+                    return JacksonMapper.toJson(Collections.emptyMap());
+                }
+                Map<String, Object> rv = new HashMap<>();
+                rv.put("org", org);
+                rv.put("boards", boardList);
+                return JacksonMapper.toJson(rv);
             });
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
@@ -67,43 +72,32 @@ public class PublicPortalPostRestApi {
     }
 
     @GET
-    @Path("/get-boards")
-    @Produces("application/json")
-    public Response getBoards(@Context HttpServletRequest request) {
-        String host = request.getHeader("host");
-        Page page = getPage(host);
-        if (page == null) {
-            return Response.ok().entity(Collections.emptyList()).build();
-        }
-        List<String> boards = page.getBoards();
-        List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ID).in(boards)), Board.class);
-        return Response.ok().entity(JacksonMapper.toJson(boardList)).build();
-    }
-
-    @GET
     @Path("/get-posts")
     @Produces("application/json")
     public Response getPosts(@Context HttpServletRequest request, @QueryParam("boardId") String boardId) {
         String host = request.getHeader("host");
-        Page page = getPage(host);
+        Organization page = getOrg(host);
         if (page == null) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
-        List<String> boards = page.getBoards();
-        if (boardId != null && !boards.contains(boardId)) {
+        List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(page.getId())), Board.class);
+        if (boardId == null && boardList.size() > 0) {
+            boardId = boardList.get(0).getId();
+        }
+        if (boardId != null && !boardList.contains(boardId)) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Post.FIELD_BOARD_ID).is(boardId)), Post.class);
         return Response.ok().entity(JacksonMapper.toJson(posts)).build();
     }
 
-    private Page getPage(String host) {
+    private Organization getOrg(String host) {
         Criteria criteria;
         if (!host.endsWith(".suggestfeature.com")) {
-            criteria = Criteria.where(Page.FIELD_CUSTOM_DOMAIN).is(host);
+            criteria = Criteria.where(Organization.FIELD_CUSTOM_DOMAIN).is(host);
         } else {
-            criteria = Criteria.where(Page.FIELD_SLUG).is(host.split("\\.")[0]);
+            criteria = Criteria.where(Organization.FIELD_SLUG).is(host.split("\\.")[0]);
         }
-        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), Page.class);
+        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), Organization.class);
     }
 }
