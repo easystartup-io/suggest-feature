@@ -19,18 +19,30 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Check for changes in directory
+        id: check_changes
+        run: |
+          if git diff-tree --name-only --no-commit-id ${{ github.sha }} | grep -q "^docs"; then
+            echo "changes_made=yes" >> "$GITHUB_ENV"
+          else
+            echo "changes_made=no" >> "$GITHUB_ENV"
+          fi
       - uses: actions/setup-node@v4
+        if: ${{env.changes_made == 'yes'}}
         with:
           node-version: 18
           cache: npm
           cache-dependency-path: docs/package-lock.json
 
       - name: Install dependencies
+        if: ${{env.changes_made == 'yes'}}
         run: npm ci
       - name: Build website
+        if: ${{env.changes_made == 'yes'}}
         run: npm run build
 
       - name: Upload Build Artifact
+        if: ${{env.changes_made == 'yes'}}
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/build
