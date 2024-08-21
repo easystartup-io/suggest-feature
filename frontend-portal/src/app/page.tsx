@@ -190,6 +190,9 @@ export default function Dashboard({ params }) {
         <div className="w-full max-w-screen-xl">
           <div className="w-full">
             <div className="mx-auto grid w-full max-w-6xl items-start">
+              <div className="flex items-center font-semibold pb-4 text-lg">
+                Boards
+              </div>
               <div className="grid grid-cols-3 gap-6 w-full justify-between">
                 {boards && boards.map((board) => {
                   return (
@@ -199,12 +202,15 @@ export default function Dashboard({ params }) {
                   );
                 })}
               </div>
+              <div className="flex items-center font-semibold pt-8 text-lg">
+                Roadmap
+              </div>
               <div className="grid grid-cols-3 gap-6 w-full justify-between mt-6">
                 {
                   posts && Object.keys(posts).map((key) => {
-                    return (<div key={key} className="border rounded-lg p-4 flex flex-1 flex-col h-full">
+                    return (<div key={key} className="border rounded-lg p-4 flex flex-1 flex-col h-full h-[calc(100vh/2)]">
                       <div className="flex items-center justify-center font-semibold pb-4">
-                        {key}
+                        {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
                       </div>
                       {posts[key] && posts[key].length > 0 ? <PostList posts={posts[key]} /> : (
                         <div className="flex flex-col items-center justify-center h-full">
