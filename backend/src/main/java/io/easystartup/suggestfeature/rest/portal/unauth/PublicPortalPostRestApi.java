@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /*
  * @author indianBond
@@ -76,19 +77,28 @@ public class PublicPortalPostRestApi {
     @Produces("application/json")
     public Response getPosts(@Context HttpServletRequest request, @QueryParam("boardId") String boardId) {
         String host = request.getHeader("host");
-        Organization page = getOrg(host);
-        if (page == null) {
+        Organization org = getOrg(host);
+        if (org == null) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
-        List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(page.getId())), Board.class);
-        if (boardId == null && boardList.size() > 0) {
-            boardId = boardList.get(0).getId();
-        }
-        if (boardId != null && !boardList.contains(boardId)) {
+        List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId())), Board.class);
+        Set<String> boardIds = boardList.stream().map(Board::getId).collect(Collectors.toSet());
+        if (boardId != null && !boardIds.contains(boardId)) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
-        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Post.FIELD_BOARD_ID).is(boardId)), Post.class);
-        return Response.ok().entity(JacksonMapper.toJson(posts)).build();
+        Criteria criteriaDefinition;
+        if (boardId == null) {
+            criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds);
+        } else{
+            criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(boardId);
+        }
+        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
+        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+
+        // Group posts based on status
+        Map<String, List<Post>> postsByStatus = posts.stream().collect(Collectors.groupingBy(Post::getStatus));
+
+        return Response.ok().entity(JacksonMapper.toJson(postsByStatus)).build();
     }
 
     private Organization getOrg(String host) {
