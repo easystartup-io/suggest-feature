@@ -24,12 +24,20 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
+import { cookies, headers } from 'next/headers'
 
 const ModeToggle = dynamic(() => import('./ModeToggle'), { ssr: false });
 
-export default async function Dashboard() {
-  const res = await fetch('http://localhost:8081/api/portal/unauth/posts/get-page')
+async function getData() {
+  const host = headers().get('host');
+  const res = await fetch(`http://${host}/api/portal/unauth/posts/get-page`)
   const data = await res.json()
+
+  return data;
+}
+
+export default async function Dashboard() {
+  const data = await getData();
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center">
@@ -62,6 +70,7 @@ export default async function Dashboard() {
           <div className="w-full">
             <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
               <div className="grid gap-6">
+                {data.name}
               </div>
             </div>
           </div>

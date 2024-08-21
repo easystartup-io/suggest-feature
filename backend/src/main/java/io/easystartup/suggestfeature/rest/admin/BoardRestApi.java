@@ -7,6 +7,7 @@ import io.easystartup.suggestfeature.beans.Board;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
@@ -66,6 +67,13 @@ public class BoardRestApi {
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Board with this slug already exists");
         }
+
+        long count = mongoConnection.getDefaultMongoTemplate().count(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId())), Board.class);
+        if (count > 500 && !Util.isSelfHosted()) {
+            // Limit present to prevent spam
+            throw new UserVisibleException("Too many boards. To increase please raise a support ticket");
+        }
+
         return Response.ok(JacksonMapper.toJson(board)).build();
     }
 

@@ -4,6 +4,8 @@ package io.easystartup.suggestfeature.rest.portal.unauth;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.easystartup.suggestfeature.beans.Page;
+import io.easystartup.suggestfeature.loggers.Logger;
+import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PublicPortalPostRestApi {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PublicPortalPostRestApi.class);
     private final MongoTemplateFactory mongoConnection;
     // Loading cache of host vs page
     private final Cache<String, String> hostPageCache = CacheBuilder.newBuilder()
@@ -49,7 +52,7 @@ public class PublicPortalPostRestApi {
         try {
             resp = hostPageCache.get(host, () -> {
                 Criteria criteria;
-                if (host.endsWith(".suggestfeature.com")) {
+                if (!host.endsWith(".suggestfeature.com")) {
                     criteria = Criteria.where(Page.FIELD_CUSTOM_DOMAIN).is(host);
                 } else {
                     criteria = Criteria.where(Page.FIELD_SLUG).is(host.split("\\.")[0]);

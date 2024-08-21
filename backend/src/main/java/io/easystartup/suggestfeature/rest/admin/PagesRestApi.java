@@ -8,6 +8,7 @@ import io.easystartup.suggestfeature.services.CustomDomainMappingService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 /*
  * @author indianBond
@@ -32,7 +34,26 @@ public class PagesRestApi {
     private final AuthService authService;
     private final ValidationService validationService;
     private final CustomDomainMappingService customDomainMappingService;
-
+    private static final Set<String> RESERVED_SLUGS = Set.of(
+            "create-page", "fetch-page", "fetch-pages", "app", "docs", "blog", "feedback",
+            "login", "sign-up", "logout", "auth", "unauth", "portal", "api", "pages",
+            "posts", "users", "organizations", "custom-domains", "custom-domain-mappings",
+            "create-organization", "fetch", "fetch-organization", "fetch-organizations",
+            "fetch-user", "fetch-users", "fetch-custom-domain", "fetch-custom-domains",
+            "fetch-custom-domain-mapping", "fetch-custom-domain-mappings", "create-user",
+            "create-custom-domain", "create-custom-domain-mapping",
+            "", "system", "config", "error", "settings", "dashboard", "help",
+            "support", "status", "version", "monitoring", "graphql", "webhook", "callback",
+            "register", "signin", "token", "oauth", "profile", "security", "password",
+            "reset", "forgot", "verify", "mfa", "sso", "home", "notifications", "messages",
+            "activity", "reports", "analytics", "billing", "subscription", "checkout",
+            "cart", "robots.txt", "favicon.ico", "sitemap.xml", "manifest.json", "ads.txt",
+            ".well-known", "null", "undefined", "void", "unknown", "default", "true",
+            "false", "administrator", "admin", "root", "terms", "privacy", "contact",
+            "about", "team", "careers", "jobs", "faq", "legal", "tos", "eula", "pricing",
+            "assets", "static", "public", "private", "uploads", "media", "resources",
+            "images", "css", "js", "fonts", "widget", "component", "module", "iframe", "fuck", "mofo", "fuck-it", "sign-in", "log-in", "cards", "credit-card", "payment", "payments", "fuck-off"
+    );
     @Autowired
     public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, CustomDomainMappingService customDomainMappingService) {
         this.mongoConnection = mongoConnection;
@@ -80,6 +101,12 @@ public class PagesRestApi {
             }
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Page with this slug already exists");
+        }
+
+        long count = mongoConnection.getDefaultMongoTemplate().count(new Query(Criteria.where(Page.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId())), Page.class);
+        if (count > 500 && !Util.isSelfHosted()) {
+            // Limit present to prevent spam
+            throw new UserVisibleException("Too many pages. To increase please raise a support ticket");
         }
         return Response.ok(JacksonMapper.toJson(page)).build();
     }
@@ -134,6 +161,12 @@ public class PagesRestApi {
         slug = slug.trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
 
         slug = slug.substring(0, Math.min(slug.length(), 35));
+        if (RESERVED_SLUGS.contains(slug)) {
+            throw new UserVisibleException("Slug is already used");
+        }
+        if (slug.length() < 3){
+            throw new UserVisibleException("Minimum 3 letters required");
+        }
         return slug;
     }
 }
