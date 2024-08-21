@@ -159,7 +159,7 @@ const Dashboard: React.FC = ({ params }) => {
               />
               <div>
                 {boards && boards.length > 0 && boards.map((board, index) => (
-                  <div className="my-2">
+                  <div className="my-2" key={board + index}>
                     <FormLabel className={cn(index !== 0 && "sr-only")}>
                       Boards
                     </FormLabel>
