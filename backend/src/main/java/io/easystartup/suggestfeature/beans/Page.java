@@ -16,6 +16,9 @@ import java.util.List;
 public class Page {
     public static final String FIELD_ID = "_id";
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_SLUG = "slug";
+    public static final String FIELD_CUSTOM_DOMAIN = "customDomain";
 
     @Id
     private String id;
@@ -23,6 +26,7 @@ public class Page {
     @NotBlank
     private String slug;
     private List<String> boards;
+    @Indexed
     private String customDomain;
     @Indexed
     private String organizationId;

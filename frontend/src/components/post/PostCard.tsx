@@ -23,7 +23,7 @@ function FullScreenPostDialog({ id, params }) {
           <Expand />
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[600px] max-w-screen-xl flex flex-col items-center justify-between">
+      <DialogContent className="h-[600px] max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl flex flex-col items-center justify-between">
         <ScrollArea className="w-full h-full">
           <PostCard id={id} params={params} disableExpand={true} />
         </ScrollArea>

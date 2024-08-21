@@ -33,7 +33,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          // default Theme i want people to use light mode
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

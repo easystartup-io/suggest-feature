@@ -1,12 +1,12 @@
 package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.services.AuthService;
-import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
-import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.beans.Page;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.CustomDomainMappingService;
+import io.easystartup.suggestfeature.services.ValidationService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -48,6 +48,7 @@ public class PagesRestApi {
     public Response createPage(Page page) {
         String userId = UserContext.current().getUserId();
         validationService.validate(page);
+        page.setSlug(validateAndFix(page.getSlug()));
         Page existingPage = getPage(page.getId(), UserContext.current().getOrgId());
         boolean isNew = false;
         if (existingPage == null) {
@@ -61,10 +62,12 @@ public class PagesRestApi {
             page.setCreatedByUserId(existingPage.getCreatedByUserId());
             page.setCreatedAt(existingPage.getCreatedAt());
             if (page.getCustomDomain() != null && !page.getCustomDomain().equals(existingPage.getCustomDomain())) {
+                validateCustomDomainNotInUse(page.getCustomDomain());
                 customDomainMappingService.updateCustomDomainMapping(page.getCustomDomain(), page.getId());
             } else if (page.getCustomDomain() == null && existingPage.getCustomDomain() != null) {
                 customDomainMappingService.deleteCustomDomainMapping(existingPage.getCustomDomain());
             } else if (page.getCustomDomain() != null && existingPage.getCustomDomain() == null) {
+                validateCustomDomainNotInUse(page.getCustomDomain());
                 customDomainMappingService.createCustomDomainMapping(page.getCustomDomain(), page.getId());
             }
         }
@@ -79,6 +82,14 @@ public class PagesRestApi {
             throw new UserVisibleException("Page with this slug already exists");
         }
         return Response.ok(JacksonMapper.toJson(page)).build();
+    }
+
+    private void validateCustomDomainNotInUse(String customDomain) {
+        // Verify if a custom domain exists with same name, then throw exception
+        Page one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Page.FIELD_CUSTOM_DOMAIN).is(customDomain)), Page.class);
+        if (one != null) {
+            throw new UserVisibleException("Custom domain already exists");
+        }
     }
 
     @GET
@@ -110,5 +121,19 @@ public class PagesRestApi {
         }
         Criteria criteriaDefinition = Criteria.where(Page.FIELD_ID).is(pageId).and(Page.FIELD_ORGANIZATION_ID).is(orgId);
         return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Page.class);
+    }
+
+    private String validateAndFix(String slug) {
+        // Set slug based on the org name, all lower case and all special characters removed and spaces replaced with -
+        // Also cant end with - or start with -
+        // Example: "Example Org" => "example-org"
+        // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
+        // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
+        // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
+        // Limit max length to 35 characters
+        slug = slug.trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
+
+        slug = slug.substring(0, Math.min(slug.length(), 35));
+        return slug;
     }
 }
