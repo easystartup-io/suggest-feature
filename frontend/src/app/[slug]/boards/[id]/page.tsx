@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from "react";
 import { SidebarContext } from "@/app/[slug]/layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Icons } from "@/components/icons";
 import { useToast } from "@/components/ui/use-toast"

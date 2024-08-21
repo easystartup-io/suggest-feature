@@ -36,6 +36,7 @@ import { useTheme } from "next-themes"
 import dynamic from "next/dynamic"
 import { usePathname, useRouter } from "next/navigation"
 import { createContext, useEffect, useState } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export const SidebarContext = createContext();
 export function ModeToggle() {
@@ -289,7 +290,7 @@ const Dashboard: React.FC = ({ children, params }) => {
   const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
 
   return (
-    <div className="h-screen w-full">
+    <div className="flex flex-1 flex-col h-full w-full">
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {

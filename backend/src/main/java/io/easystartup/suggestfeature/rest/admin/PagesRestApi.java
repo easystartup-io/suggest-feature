@@ -1,5 +1,6 @@
 package io.easystartup.suggestfeature.rest.admin;
 
+import io.easystartup.suggestfeature.beans.Board;
 import io.easystartup.suggestfeature.beans.Page;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
@@ -11,6 +12,8 @@ import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -92,6 +95,18 @@ public class PagesRestApi {
                 customDomainMappingService.createCustomDomainMapping(page.getCustomDomain(), page.getId());
             }
         }
+        List<String> boards = page.getBoards();
+        if (CollectionUtils.isNotEmpty(boards)) {
+            boards = boards.stream().filter(StringUtils::isNotBlank).distinct().toList();
+        }
+        if (CollectionUtils.isNotEmpty(boards)) {
+            Criteria in = Criteria.where(Board.FIELD_ID).in(boards).and(Board.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
+            List<String> boardIds = mongoConnection.getDefaultMongoTemplate().find(new Query(in), Board.class).stream().map(Board::getId).toList();
+            if (boardIds.size() != boards.size()) {
+                throw new UserVisibleException("Invalid board id");
+            }
+        }
+        page.setBoards(boards);
         page.setOrganizationId(UserContext.current().getOrgId());
         try {
             if (isNew) {

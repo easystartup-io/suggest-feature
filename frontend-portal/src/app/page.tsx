@@ -1,3 +1,4 @@
+"use client"
 import { CircleUser } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -10,19 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
-import dynamic from "next/dynamic"
-import { headers } from 'next/headers'
-import Image from 'next/image'
-
-const ModeToggle = dynamic(() => import('./ModeToggle'), { ssr: false });
-
-async function getData() {
-  const host = headers().get('host');
-  const res = await fetch(`http://${host}/api/portal/unauth/posts/get-page`)
-  const data = await res.json()
-
-  return data;
-}
+import { useEffect, useState } from "react"
+import ModeToggle from "./ModeToggle"
 
 function Custom404() {
   return (
@@ -32,12 +22,6 @@ function Custom404() {
         Oops! Page not found!
       </div>
       <div className="relative w-24 h-24 mt-8">
-        {/* <Image */}
-        {/*   src="/parachute-icon.png" */}
-        {/*   alt="Parachute" */}
-        {/*   layout="fill" */}
-        {/*   objectFit="contain" */}
-        {/* /> */}
       </div>
       <div className="mt-8 text-lg text-white underline">
         <a href="https://suggestfeature.com">Go Back to Suggest Feature</a>
@@ -46,11 +30,27 @@ function Custom404() {
   );
 }
 
-export default async function Dashboard() {
-  const data = await getData();
+export default function Dashboard({ params }) {
+  const [data, setData] = useState({});
+  const [error, setError] = useState(false);
 
-  if (!data || Object.keys(data).length === 0) {
-    console.log('data is empty')
+
+  useEffect(() => {
+    const host = window.location.host
+    fetch(`http://${host}/api/portal/unauth/posts/get-page`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Object.keys(data).length === 0) {
+          setError(true)
+        } else {
+          setData(data)
+        }
+      }).catch((e) => {
+        console.log(e)
+      })
+  }, [params]);
+
+  if (!data || error) {
     return <Custom404 />
   }
 
