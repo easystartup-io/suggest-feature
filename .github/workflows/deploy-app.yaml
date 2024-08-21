@@ -187,7 +187,7 @@ jobs:
   update-helm-repo-ui-portal:
     needs: [build-nextjs-portal]
     name: Commit new revision in helm repo for frontend-portal
-    if: ${{needs.build-nextjs-app.outputs.job_successful == 'yes'}}
+    if: ${{needs.build-nextjs-portal.outputs.job_successful == 'yes'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Helm repo
