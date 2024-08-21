@@ -193,7 +193,7 @@ export default function Dashboard({ params }) {
               <div className="flex items-center font-semibold pb-4 text-lg">
                 Boards
               </div>
-              <div className="grid grid-cols-3 gap-6 w-full justify-between">
+              <div className="grid md:grid-cols-3 gap-6 w-full md:justify-between">
                 {boards && boards.map((board) => {
                   return (
                     <div key={board.id} className="bg-white dark:bg-background rounded-lg p-4 w-full">
@@ -205,7 +205,7 @@ export default function Dashboard({ params }) {
               <div className="flex items-center font-semibold pt-8 text-lg">
                 Roadmap
               </div>
-              <div className="grid grid-cols-3 gap-6 w-full justify-between mt-6">
+              <div className="grid md:grid-cols-3 gap-6 w-full justify-between mt-6">
                 {
                   posts && Object.keys(posts).map((key) => {
                     return (<div key={key} className="border rounded-lg p-4 flex flex-1 flex-col h-full h-[calc(100vh/2)]">
