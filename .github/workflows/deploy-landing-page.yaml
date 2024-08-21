@@ -15,6 +15,8 @@ jobs:
   build:
     name: Build Docusaurus
     runs-on: ubuntu-latest
+    outputs:
+      job_successful: ${{ steps.job_successful.outputs.job_successful }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,10 +48,13 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/build
-
+      - id: job_successful
+        if: ${{env.changes_made == 'yes'}}
+        run: echo "job_successful=yes" >> "$GITHUB_OUTPUT"
   deploy:
     name: Deploy to GitHub Pages
-    needs: build
+    needs: [build]
+    if: ${{needs.build.outputs.job_successful == 'yes'}}
 
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
