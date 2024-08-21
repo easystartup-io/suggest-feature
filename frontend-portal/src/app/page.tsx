@@ -31,7 +31,7 @@ function Custom404() {
 }
 
 export default function Dashboard({ params }) {
-  const [page, setPage] = useState({});
+  const [org, setOrg] = useState({});
   const [boards, setBoards] = useState([]);
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(false);
@@ -46,7 +46,7 @@ export default function Dashboard({ params }) {
         if (Object.keys(data).length === 0) {
           setError(true)
         } else {
-          setPage(data)
+          setOrg(data.org)
         }
       }).catch((e) => {
         console.log(e)
@@ -56,7 +56,6 @@ export default function Dashboard({ params }) {
       .then((res) => res.json())
       .then((data) => {
         if (Object.keys(data).length === 0) {
-          setError(true)
         } else {
           setPosts(data)
         }
@@ -65,7 +64,7 @@ export default function Dashboard({ params }) {
       })
   }, [params]);
 
-  if (!page || error) {
+  if (!org || error) {
     return <Custom404 />
   }
 
@@ -100,7 +99,7 @@ export default function Dashboard({ params }) {
           <div className="w-full">
             <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
               <div className="grid gap-6">
-                <h1 className="text-2xl font-semibold">{page.name}</h1>
+                <h1 className="text-2xl font-semibold">{org.name}</h1>
               </div>
             </div>
           </div>

@@ -86,13 +86,13 @@ public class PagesRestApi {
         }
         existingOrg.setName(organization.getName());
         existingOrg.setSlug(organization.getSlug());
-        if (StringUtils.isNotBlank(organization.getCustomDomain())){
-            DomainValidator domainValidator = DomainValidator.getInstance();
-            boolean valid = domainValidator.isValid(organization.getCustomDomain());
-            if (!valid) {
-                throw new UserVisibleException("Invalid custom domain name");
-            }
-        }
+//        if (StringUtils.isNotBlank(organization.getCustomDomain())){
+//            DomainValidator domainValidator = DomainValidator.getInstance();
+//            boolean valid = domainValidator.isValid(organization.getCustomDomain());
+//            if (!valid) {
+//                throw new UserVisibleException("Invalid custom domain name");
+//            }
+//        }
         existingOrg.setCustomDomain(organization.getCustomDomain());
         try {
             mongoConnection.getDefaultMongoTemplate().save(existingOrg);
@@ -133,7 +133,7 @@ public class PagesRestApi {
         slug = slug.trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
 
         slug = slug.substring(0, Math.min(slug.length(), 35));
-        if (RESERVED_SLUGS.contains(slug)) {
+        if (RESERVED_SLUGS.contains(slug) && !Util.isSelfHosted()) {
             throw new UserVisibleException("Slug is already used");
         }
         if (slug.length() < 3) {

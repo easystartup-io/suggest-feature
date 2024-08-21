@@ -56,10 +56,10 @@ public class PublicPortalPostRestApi {
         try {
             resp = hostOrgCache.get(host, () -> {
                 Organization org = getOrg(host);
-                List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
                 if (org == null) {
                     return JacksonMapper.toJson(Collections.emptyMap());
                 }
+                List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
                 Map<String, Object> rv = new HashMap<>();
                 rv.put("org", org);
                 rv.put("boards", boardList);
