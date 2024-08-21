@@ -15,6 +15,7 @@ import { useEffect, useState } from "react"
 import ModeToggle from "./ModeToggle"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from "date-fns"
 
 export const statusConfig = {
@@ -100,6 +101,7 @@ const PostList = ({ posts }) => {
                   {formatDistanceToNow(new Date(item.createdAt), {
                     addSuffix: true,
                   })}
+                  {/* <Badge className="ml-2">{item.votes}</Badge> */}
                 </div>
               </div>
             </div>
@@ -135,6 +137,7 @@ export default function Dashboard({ params }) {
           setBoards(data.boards)
         }
       }).catch((e) => {
+        setError(true)
         console.log(e)
       })
 
@@ -195,6 +198,8 @@ export default function Dashboard({ params }) {
                     </div>
                   );
                 })}
+              </div>
+              <div className="grid grid-cols-3 gap-6 w-full justify-between mt-6">
                 {
                   posts && Object.keys(posts).map((key) => {
                     return (<div key={key} className="border rounded-lg p-4 flex flex-1 flex-col h-full">
