@@ -70,7 +70,7 @@ export default async function Dashboard() {
           <div className="w-full">
             <div className="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]">
               <div className="grid gap-6">
-                {data.name}
+                <h1 className="text-2xl font-semibold">{data.name}</h1>
               </div>
             </div>
           </div>
