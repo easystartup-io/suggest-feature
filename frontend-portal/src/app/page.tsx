@@ -1,16 +1,6 @@
-import Link from "next/link"
-import { CircleUser, Menu, Moon, Package2, Search, Sun } from "lucide-react"
+import { CircleUser } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
-import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
-import { cookies, headers } from 'next/headers'
+import { headers } from 'next/headers'
+import Image from 'next/image'
 
 const ModeToggle = dynamic(() => import('./ModeToggle'), { ssr: false });
 
@@ -36,8 +24,35 @@ async function getData() {
   return data;
 }
 
+function Custom404() {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blue-400 to-blue-300 text-center">
+      <div className="text-8xl font-bold text-white">404</div>
+      <div className="mt-4 text-2xl font-medium text-white">
+        Oops! Page not found!
+      </div>
+      <div className="relative w-24 h-24 mt-8">
+        {/* <Image */}
+        {/*   src="/parachute-icon.png" */}
+        {/*   alt="Parachute" */}
+        {/*   layout="fill" */}
+        {/*   objectFit="contain" */}
+        {/* /> */}
+      </div>
+      <div className="mt-8 text-lg text-white underline">
+        <a href="https://suggestfeature.com">Go Back to Suggest Feature</a>
+      </div>
+    </div>
+  );
+}
+
 export default async function Dashboard() {
   const data = await getData();
+
+  if (!data || Object.keys(data).length === 0) {
+    console.log('data is empty')
+    return <Custom404 />
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center">

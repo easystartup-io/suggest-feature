@@ -63,6 +63,18 @@ function DialogDemo({ params }) {
     }, 1000)
   }
 
+  const updateSlug = (value: string) => {
+    // Set org slug based on the org name, all lower case and all special characters removed and spaces replaced with -
+    // Example: "Example Org" => "example-org"
+    // Example: "Example Org" => "example-org"
+    // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
+    // Limit max length to 35 characters 
+    // replace all special characters with - and replace multiple - with single -
+    setSlug(value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-/g, '').slice(0, 35))
+  }
+
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen} >
       <DialogTrigger asChild>
@@ -98,11 +110,19 @@ function DialogDemo({ params }) {
               id="slug"
               value={slug}
               placeholder="org-name"
-              onChange={(e) => setSlug(e.target.value)}
+              onChange={(e) => updateSlug(e.target.value)}
               disabled={isLoading}
               className="col-span-3"
             />
           </div>
+          {
+            slug && slug.length > 2 && slug.trim().length > 2 &&
+            <div className="text-sm text-muted-foreground items-center gap-4 flex justify-end">
+              <div>
+                <p>{slug}.suggestfeature.com</p>
+              </div>
+            </div>
+          }
         </div>
         <DialogFooter>
           <Button type="submit" onClick={onSubmit} disabled={isLoading}>
@@ -168,11 +188,11 @@ const Dashboard: React.FC = ({ params }) => {
                   <TableCell>{page.name}</TableCell>
                   <TableCell className="">
                     <Link
-                      href={`https://${page.customDomain || `widget.suggestfeature.com/${page.slug}`}`}
+                      href={`https://${page.customDomain || `${page.slug}.suggestfeature.com`}`}
                       target="_blank"
                       className={`flex items-center gap-4 hover:text-indigo-700`}
                     >
-                      {page.customDomain || `widget.suggestfeature.com/${page.slug}`}
+                      {page.customDomain || `${page.slug}.suggestfeature.com`}
                       <ExternalLink className="w-5 h-5" />
                     </Link>
                   </TableCell>

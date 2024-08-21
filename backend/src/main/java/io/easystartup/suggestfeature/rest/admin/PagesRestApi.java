@@ -35,7 +35,7 @@ public class PagesRestApi {
     private final ValidationService validationService;
     private final CustomDomainMappingService customDomainMappingService;
     private static final Set<String> RESERVED_SLUGS = Set.of(
-            "create-page", "fetch-page", "fetch-pages", "app", "docs", "blog", "feedback",
+            "create-page", "fetch-page", "fetch-pages", "app", "docs", "blog", "feedback", "demo",
             "login", "sign-up", "logout", "auth", "unauth", "portal", "api", "pages",
             "posts", "users", "organizations", "custom-domains", "custom-domain-mappings",
             "create-organization", "fetch", "fetch-organization", "fetch-organizations",
@@ -52,7 +52,7 @@ public class PagesRestApi {
             "false", "administrator", "admin", "root", "terms", "privacy", "contact",
             "about", "team", "careers", "jobs", "faq", "legal", "tos", "eula", "pricing",
             "assets", "static", "public", "private", "uploads", "media", "resources",
-            "images", "css", "js", "fonts", "widget", "component", "module", "iframe", "fuck", "mofo", "fuck-it", "sign-in", "log-in", "cards", "credit-card", "payment", "payments", "fuck-off"
+            "images", "css", "js", "fonts", "widget", "component", "module", "iframe", "fuck", "mofo", "fuck-it", "sign-in", "log-in", "cards", "credit-card", "payment", "payments", "fuck-off", "test", "cool","fuckoff", "fuckit"
     );
     @Autowired
     public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, CustomDomainMappingService customDomainMappingService) {

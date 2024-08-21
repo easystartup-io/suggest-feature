@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +59,9 @@ public class PublicPortalPostRestApi {
                     criteria = Criteria.where(Page.FIELD_SLUG).is(host.split("\\.")[0]);
                 }
                 Page page = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), Page.class);
+                if (page == null){
+                    return JacksonMapper.toJson(Collections.emptyMap());
+                }
                 return JacksonMapper.toJson(page);
             });
         } catch (ExecutionException e) {
