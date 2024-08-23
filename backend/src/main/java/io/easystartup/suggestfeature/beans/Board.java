@@ -1,7 +1,10 @@
 package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,6 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document
 @JsonIgnoreProperties(ignoreUnknown = true)
+@CompoundIndexes({
+        @CompoundIndex(def = "{'slug': 1, 'organizationId': 1}",name = "slug_1_organizationId_1", unique = true)
+})
 public class Board {
     public static final String FIELD_ID = "_id";
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
@@ -20,13 +26,15 @@ public class Board {
     public static final String FIELD_ALLOW_ANONYMOUS = "allowAnonymous";
     public static final String FIELD_ALLOW_WITHOUT_EMAIL_VERIFICATION = "allowWithoutEmailVerification";
     public static final String FIELD_ADD_POST_ONLY_AFTER_APPROVAL = "addPostOnlyAfterApproval";
+    public static final String FIELD_POST_COUNT = "postCount";
 
     @Id
     private String id;
+    @NotBlank
     private String name;
+    @NotBlank
+    private String slug;
     private String description;
-    @Indexed
-    private String pageId;
     @Indexed
     private String organizationId;
     @Indexed
@@ -35,6 +43,8 @@ public class Board {
     private boolean allowAnonymous;
     private boolean allowWithoutEmailVerification;
     private boolean addPostOnlyAfterApproval;
+
+    private Long postCount;
 
     private Long createdAt;
 
@@ -81,14 +91,6 @@ public class Board {
         this.createdAt = createdAt;
     }
 
-    public String getPageId() {
-        return pageId;
-    }
-
-    public void setPageId(String pageId) {
-        this.pageId = pageId;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -119,5 +121,21 @@ public class Board {
 
     public void setAddPostOnlyAfterApproval(boolean addPostOnlyAfterApproval) {
         this.addPostOnlyAfterApproval = addPostOnlyAfterApproval;
+    }
+
+    public Long getPostCount() {
+        return postCount;
+    }
+
+    public void setPostCount(Long postCount) {
+        this.postCount = postCount;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 }

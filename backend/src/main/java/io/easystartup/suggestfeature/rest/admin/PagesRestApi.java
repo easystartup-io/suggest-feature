@@ -37,6 +37,7 @@ public class PagesRestApi {
     private final ValidationService validationService;
     private final CustomDomainMappingService customDomainMappingService;
     private static final Set<String> RESERVED_SLUGS = Set.of(
+            "localhost",
             "create-page", "fetch-page", "fetch-pages", "app", "docs", "blog", "feedback", "demo",
             "login", "sign-up", "logout", "auth", "unauth", "portal", "api", "pages",
             "posts", "users", "organizations", "custom-domains", "custom-domain-mappings",
@@ -84,16 +85,16 @@ public class PagesRestApi {
             validateCustomDomainNotInUse(organization.getCustomDomain());
             customDomainMappingService.createCustomDomainMapping(organization.getCustomDomain(), organization.getId());
         }
-        existingOrg.setName(organization.getName());
-        existingOrg.setSlug(organization.getSlug());
-//        if (StringUtils.isNotBlank(organization.getCustomDomain())){
-//            DomainValidator domainValidator = DomainValidator.getInstance();
-//            boolean valid = domainValidator.isValid(organization.getCustomDomain());
-//            if (!valid) {
-//                throw new UserVisibleException("Invalid custom domain name");
-//            }
-//        }
-        existingOrg.setCustomDomain(organization.getCustomDomain());
+        existingOrg.setName(organization.getName().trim());
+        existingOrg.setSlug(organization.getSlug().trim());
+        if (StringUtils.isNotBlank(organization.getCustomDomain()) && (organization.getCustomDomain().endsWith(".suggestfeature.com") || organization.getCustomDomain().equals("suggestfeature.com") )) {
+            throw new UserVisibleException("Custom domain cannot end with suggestfeature.com");
+        }
+        // Validate the domain name and ensure it doesnot start with https or have a path and allow localhost and suggestfeature.com
+        if (StringUtils.isNotBlank(organization.getCustomDomain()) && !DomainValidator.getInstance(true).isValid(organization.getCustomDomain())) {
+            throw new UserVisibleException("Invalid domain name. It should be of this format subdomain.yourdomain.com");
+        }
+        existingOrg.setCustomDomain(organization.getCustomDomain().trim());
         try {
             mongoConnection.getDefaultMongoTemplate().save(existingOrg);
         } catch (DuplicateKeyException e) {

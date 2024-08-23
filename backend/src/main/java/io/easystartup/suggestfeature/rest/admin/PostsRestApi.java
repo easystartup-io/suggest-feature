@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -117,6 +118,9 @@ public class PostsRestApi {
                 voter.setOrganizationId(UserContext.current().getOrgId());
                 voter.setCreatedAt(System.currentTimeMillis());
                 mongoConnection.getDefaultMongoTemplate().insert(voter);
+
+                // Update post count in board
+                mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_ID).is(boardId)), new Update().inc(Board.FIELD_POST_COUNT, 1), Board.class);
 
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(post);

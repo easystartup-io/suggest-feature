@@ -196,8 +196,11 @@ export default function Dashboard({ params }) {
               <div className="grid md:grid-cols-3 gap-6 w-full md:justify-between">
                 {boards && boards.map((board) => {
                   return (
-                    <div key={board.id} className="bg-white dark:bg-background rounded-lg p-4 w-full">
-                      <h2 className="text-lg font-semibold">{board.name}</h2>
+                    <div key={board.id} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 w-full">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">{board.name}</h2>
+                        <Badge>{board.postCount}</Badge>
+                      </div>
                     </div>
                   );
                 })}
@@ -208,9 +211,10 @@ export default function Dashboard({ params }) {
               <div className="grid md:grid-cols-3 gap-6 w-full justify-between mt-6">
                 {
                   posts && Object.keys(posts).map((key) => {
-                    return (<div key={key} className="border rounded-lg p-4 flex flex-1 flex-col h-full h-[calc(100vh/2)]">
+                    return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-full h-[calc(100vh/2)]">
                       <div className="flex items-center justify-center font-semibold pb-4">
                         {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
+                        {/* {key} {posts[key].length > 0 ? <Badge className="mx-2">{posts[key].length}</Badge> : ''} */}
                       </div>
                       {posts[key] && posts[key].length > 0 ? <PostList posts={posts[key]} /> : (
                         <div className="flex flex-col items-center justify-center h-full">

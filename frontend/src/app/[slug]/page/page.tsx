@@ -8,6 +8,7 @@ import withAuth from '@/hoc/withAuth';
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
+import { ExternalLink } from "lucide-react";
 
 
 const Dashboard: React.FC = ({ params }) => {
@@ -112,7 +113,15 @@ const Dashboard: React.FC = ({ params }) => {
                       <Input disabled={isLoading} placeholder="slug" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This is the org slug. It should be unique and can only contain letters, numbers, and hyphens.
+                      <p>
+                        This is the org slug. It should be unique and can only contain letters, numbers, and hyphens.
+                      </p>
+                      <p>
+                        Your page will be accessible at <a href={`https://${field.value}.suggestfeature.com`} target="_blank"
+                          className="inline-block hover:text-indigo-700">
+                          https://{field.value}.suggestfeature.com<ExternalLink className="ml-1 h-4 w-4 inline-block" />
+                        </a>
+                      </p>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

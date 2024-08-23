@@ -57,4 +57,17 @@ public class Util {
         return StringUtils.isBlank(System.getenv(key)) ? defaultVal : Long.parseLong(System.getenv(key));
     }
 
+    public static String fixSlug(String slug) {
+        // Set slug based on the org name, all lower case and all special characters removed and spaces replaced with -
+        // Also cant end with - or start with -
+        // Example: "Example Org" => "example-org"
+        // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
+        // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
+        // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
+        // Limit max length to 35 characters
+        slug = slug.trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
+
+        slug = slug.substring(0, Math.min(slug.length(), 35));
+        return slug;
+    }
 }

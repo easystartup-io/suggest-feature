@@ -46,6 +46,7 @@ public class BoardRestApi {
     public Response createBoard(Board board) {
         String userId = UserContext.current().getUserId();
         validationService.validate(board);
+        board.setSlug(Util.fixSlug(board.getSlug()));
         Board existingBoard = getBoard(board.getId(), UserContext.current().getOrgId());
         boolean isNew = false;
         if (existingBoard == null) {

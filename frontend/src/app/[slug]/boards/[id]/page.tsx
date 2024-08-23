@@ -10,19 +10,41 @@ import { useForm } from "react-hook-form"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Icons } from "@/components/icons";
 import { useToast } from "@/components/ui/use-toast"
-import { Telescope } from "lucide-react";
+import { ExternalLink, Telescope } from "lucide-react";
 import { useRouter } from 'next/navigation'
 
 const Dashboard: React.FC = ({ params }) => {
   const { toast } = useToast()
   const router = useRouter();
 
-
   const [data, setData] = useState(null)
+  const [org, setOrg] = useState(null)
   const [isLoading, setLoading] = useState(true)
   const [defaultValues, setDefaultValues] = useState({})
   const form = useForm({ defaultValues })
-  const { reset } = form; // Get reset function from useForm
+  const { reset, setValue, watch } = form; // Get reset function from useForm
+  const watchSlug = watch('slug', "")
+  const watchName = watch('name', "")
+
+  const updateSlug = (value: string) => {
+    // Set org slug based on the org name, all lower case and all special characters removed and spaces replaced with -
+    // Example: "Example Org" => "example-org"
+    // Example: "Example Org" => "example-org"
+    // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
+    // Limit max length to 35 characters 
+    // replace all special characters with - and replace multiple - with single -
+    setValue("slug", value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-/g, '').slice(0, 35))
+  }
+
+  useEffect(() => {
+    updateSlug(watchSlug)
+  }, [watchSlug])
+
+  useEffect(() => {
+    updateSlug(watchName)
+  }, [watchName])
 
   useEffect(() => {
     fetch(`/api/auth/boards/fetch-board?boardId=${params.id}`, {
@@ -35,6 +57,16 @@ const Dashboard: React.FC = ({ params }) => {
         setData(data)
         reset(data)
         setLoading(false)
+      })
+
+    fetch(`/api/auth/pages/fetch-org`, {
+      headers: {
+        "x-org-slug": params.slug
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setOrg(data)
       })
   }, [params.id, params.slug, reset])
 
@@ -125,6 +157,38 @@ const Dashboard: React.FC = ({ params }) => {
                     </FormControl>
                     <FormDescription>
                       This is the board description.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug</FormLabel>
+                    <FormControl>
+                      <Input disabled={isLoading} placeholder="Please input the slug" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      <p>
+                        This is the board slug. It should be unique in your org and can only contain letters, numbers, and hyphens.
+                      </p>
+
+                      <p>
+                        Your page will be accessible at {
+                          org && org.customDomain ? <a href={`https://${org.customDomain}/b/${field.value}`} target="_blank"
+                            className="inline-block hover:text-indigo-700">
+                            https://{org.customDomain}/b/{field.value}<ExternalLink className="ml-1 h-4 w-4 inline-block" />
+                          </a>
+                            : <a href={`https://widget.suggestfeature.com/b/${field.value}`} target="_blank"
+                              className="inline-block hover:text-indigo-700">
+                              https://widget.suggestfeature.com/b/{field.value}<ExternalLink className="ml-1 h-4 w-4 inline-block" />
+                            </a>
+                        }
+                      </p>
+
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
