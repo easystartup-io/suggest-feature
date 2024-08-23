@@ -153,7 +153,7 @@ export default function Dashboard({ params }) {
             <div className="flex items-center font-semibold pt-8 text-lg">
               Roadmap
             </div>
-            <div className="grid md:grid-cols-3 gap-6 w-full justify-between mt-6">
+            <div className="grid md:grid-cols-3 gap-6 mt-6">
               {
                 posts && Object.keys(posts).map((key) => {
                   return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,24rem))]">
