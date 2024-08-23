@@ -18,8 +18,10 @@ import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -64,6 +66,24 @@ public class PagesRestApi {
         this.authService = authService;
         this.validationService = validationService;
         this.customDomainMappingService = customDomainMappingService;
+    }
+
+
+    @POST
+    @Path("/edit-roadmap")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response editRoadmap(Organization organization) {
+        String userId = UserContext.current().getUserId();
+        if (organization.getRoadmapSettings() == null){
+            throw new UserVisibleException("Invalid settings");
+        }
+        organization.setId(UserContext.current().getOrgId());
+        organization.setSlug(validateAndFix(organization.getSlug()));
+        Organization existingOrg = authService.getOrgById(organization.getId());
+        existingOrg.setRoadmapSettings(organization.getRoadmapSettings());
+        Organization andModify = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(Criteria.where(Organization.FIELD_ID).is(organization.getId())), new Update().set(Organization.FIELD_ROADMAP_SETTINGS, organization.getRoadmapSettings()), FindAndModifyOptions.options().returnNew(true), Organization.class);
+        return Response.ok(JacksonMapper.toJson(andModify)).build();
     }
 
     @POST

@@ -13,6 +13,8 @@ import withInit from "@/hoc/withInit";
 import { InitContextProvider, useInit } from "@/context/InitContext";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import LoginDialog from "@/components/LoginDialog";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -80,22 +82,23 @@ function Header({ params }) {
         </div>
         <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
           <ModeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <LoginDialog />
+          {/* <DropdownMenu> */}
+          {/*   <DropdownMenuTrigger asChild> */}
+          {/*     <Button variant="secondary" size="icon" className="rounded-full"> */}
+          {/*       <CircleUser className="h-5 w-5" /> */}
+          {/*       <span className="sr-only">Toggle user menu</span> */}
+          {/*     </Button> */}
+          {/*   </DropdownMenuTrigger> */}
+          {/*   <DropdownMenuContent align="end"> */}
+          {/*     <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+          {/*     <DropdownMenuSeparator /> */}
+          {/*     <DropdownMenuItem>Settings</DropdownMenuItem> */}
+          {/*     <DropdownMenuItem>Support</DropdownMenuItem> */}
+          {/*     <DropdownMenuSeparator /> */}
+          {/*     <DropdownMenuItem>Logout</DropdownMenuItem> */}
+          {/*   </DropdownMenuContent> */}
+          {/* </DropdownMenu> */}
         </div>
       </header>
     </div>

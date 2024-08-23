@@ -3,10 +3,9 @@ import {
   BookOpenText,
   Clipboard,
   Home,
-  LineChart,
+  Map,
   Menu,
   MessageCircleMore,
-  Package2,
   UserRoundCog,
   Users
 } from "lucide-react"
@@ -111,6 +110,14 @@ function MobileNavigation({ params, isActive, setCurrentSection }) {
           >
             <Clipboard className="h-5 w-5" />
             Boards
+          </Link>
+          <Link
+            href={`/${params.slug}/roadmap`}
+            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all ${isActive('roadmap')}`}
+            onClick={() => setCurrentSection('roadmap')}
+          >
+            <Map className="h-5 w-5" />
+            Roadmap
           </Link>
           <Link
             href={`/${params.slug}/members`}
@@ -228,6 +235,15 @@ function FullscreenNav({ isActive, setCurrentSection, params, isCollapsed }) {
         >
           <Clipboard className="h-4 w-4" />
           {isCollapsed ? null : 'Boards'}
+        </Link>
+        <Link
+          href={`/${params.slug}/roadmap`}
+          className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive('roadmap')}`,
+            isCollapsed && "justify-center lg:mx-2")}
+          onClick={() => setCurrentSection('roadmap')}
+        >
+          <Map className="h-4 w-4" />
+          {isCollapsed ? null : 'Roadmap'}
         </Link>
         <Link
           href={`/${params.slug}/members`}

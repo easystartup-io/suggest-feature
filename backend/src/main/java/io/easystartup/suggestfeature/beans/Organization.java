@@ -19,7 +19,8 @@ public class Organization {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_SLUG = "slug";
     public static final String FIELD_CUSTOM_DOMAIN = "customDomain";
-
+    public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_ROADMAP_SETTINGS = "roadmapSettings";
 
     @Id
     private String id;
