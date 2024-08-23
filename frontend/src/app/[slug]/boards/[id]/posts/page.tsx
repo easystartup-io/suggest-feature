@@ -72,7 +72,7 @@ function AddPostDialog({ params, refetch }) {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ title, description, boardId: params.id, status })
+        body: JSON.stringify({ title, description, boardSlug: params.id, status })
       })
       const respData = await response.json();
 
@@ -202,7 +202,7 @@ const Dashboard: React.FC = ({ params }) => {
         "x-org-slug": params.slug,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ boardId: params.id })
+      body: JSON.stringify({ boardSlug: params.id })
     })
       .then((res) => res.json())
       .then((data) => {
@@ -221,7 +221,7 @@ const Dashboard: React.FC = ({ params }) => {
   useEffect(() => {
     refetchPosts();
 
-    fetch(`/api/auth/boards/fetch-board?boardId=${params.id}`, {
+    fetch(`/api/auth/boards/fetch-board?boardSlug=${params.id}`, {
       headers: {
         "x-org-slug": params.slug,
       },
@@ -263,15 +263,15 @@ const Dashboard: React.FC = ({ params }) => {
           className="h-full flex-1"
         >
           <ResizablePanel defaultSize={defaultLayout[0]} minSize={30} className="">
-            <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <form>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search" className="pl-8" />
-                </div>
-              </form>
-            </div>
-            <ScrollArea className="h-full overflow-y-auto">
+            <ScrollArea className="pb-4 h-full overflow-y-auto">
+              <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <form>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search" className="pl-8" />
+                  </div>
+                </form>
+              </div>
               <div className="flex flex-col gap-2 px-4 pt-0">
                 {data && data.length > 0 && data.map((item) => (
                   <button

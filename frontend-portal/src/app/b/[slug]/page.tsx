@@ -70,7 +70,8 @@ function Custom404() {
   );
 }
 
-const PostList = ({ posts }) => {
+const PostList = ({ posts, params }) => {
+  const router = useRouter();
 
   return (
     <ScrollArea className="h-full overflow-y-auto">
@@ -86,7 +87,9 @@ const PostList = ({ posts }) => {
             }}
           >
             <div className="flex w-full flex-col gap-1">
-              <div className="flex items-center">
+              <div className="flex items-center" onClick={() => {
+                router.push(`/b/${params.slug}/p/${item.slug}`)
+              }}>
                 <div className="flex items-center gap-2">
                   <div className="font-semibold">
                     {(() => {
@@ -124,6 +127,7 @@ export default function Dashboard({ params }) {
   const [posts, setPosts] = useState([]);
   const { org, boards } = useInit()
   const router = useRouter();
+  const [board, setBoard] = useState({})
 
   useEffect(() => {
     const host = window.location.host
@@ -136,13 +140,21 @@ export default function Dashboard({ params }) {
       }).catch((e) => {
         console.log(e)
       })
-  }, [params]);
+
+    if (boards) {
+      const b = boards.find((item) => item.slug === params.slug);
+      setBoard(b)
+    }
+  }, [params, boards])
 
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10 w-full">
       <div className="w-full max-w-screen-xl">
         <div className="w-full">
           <div className="mx-auto w-full max-w-6xl items-start">
+            <div className="font-bold text-xl">
+              {board && board.name}
+            </div>
             <div className="w-full justify-between mt-6 grid md:grid-cols-3 gap-4">
               <div className="">
                 <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4">
@@ -165,7 +177,7 @@ export default function Dashboard({ params }) {
               </div>
               <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2">
                 {
-                  posts && <PostList posts={posts} />
+                  posts && <PostList posts={posts} params={params} />
                 }
               </div>
             </div>

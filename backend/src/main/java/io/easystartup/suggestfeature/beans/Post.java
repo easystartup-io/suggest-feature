@@ -43,8 +43,13 @@ public class Post {
     private String organizationId;
     private String createdByUserId;
     @Indexed
-    @NotBlank
     private String boardId;
+
+    // Just used in request DTO
+    @NotBlank
+    @Transient
+    private String boardSlug;
+
     private String status = "OPEN";
     private String priority;
     private String slug;
@@ -199,5 +204,13 @@ public class Post {
 
     public void setSlug(String slug) {
         this.slug = slug;
+    }
+
+    public @NotBlank String getBoardSlug() {
+        return boardSlug;
+    }
+
+    public void setBoardSlug(@NotBlank String boardSlug) {
+        this.boardSlug = boardSlug;
     }
 }

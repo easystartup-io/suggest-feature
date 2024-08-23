@@ -163,7 +163,7 @@ const Dashboard: React.FC = ({ params }) => {
                   <TableCell className="text-right items-center">
                     <div className="flex items-center justify-end gap-4">
                       <Button
-                        onClick={() => router.push(`/${params.slug}/boards/${board.id}/posts`)}
+                        onClick={() => router.push(`/${params.slug}/boards/${board.slug}/posts`)}
                         variant="outline"
                         className="flex items-center gap-2"
                       >
@@ -171,7 +171,7 @@ const Dashboard: React.FC = ({ params }) => {
                         View Posts
                       </Button>
                       <Button
-                        onClick={() => router.push(`/${params.slug}/boards/${board.id}`)}
+                        onClick={() => router.push(`/${params.slug}/boards/${board.slug}`)}
                         variant="destructive"
                         className="flex items-center gap-2"
                         size="icon"

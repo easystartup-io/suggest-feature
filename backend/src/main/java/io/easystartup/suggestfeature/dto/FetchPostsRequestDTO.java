@@ -7,19 +7,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FetchPostsRequestDTO {
-    private String boardId;
+    private String boardSlug;
     private Page page;
     private Sort sort;
 
     public FetchPostsRequestDTO() {
-    }
-
-    public String getBoardId() {
-        return boardId;
-    }
-
-    public void setBoardId(String boardId) {
-        this.boardId = boardId;
     }
 
     public Page getPage() {
@@ -38,4 +30,11 @@ public class FetchPostsRequestDTO {
         this.sort = sort;
     }
 
+    public String getBoardSlug() {
+        return boardSlug;
+    }
+
+    public void setBoardSlug(String boardSlug) {
+        this.boardSlug = boardSlug;
+    }
 }

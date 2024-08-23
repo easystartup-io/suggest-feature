@@ -10,6 +10,7 @@ import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -82,9 +83,13 @@ public class BoardRestApi {
     @Path("/fetch-board")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response fetchBoard(@QueryParam("boardId") String boardId) {
+    public Response fetchBoard(@QueryParam("boardId") String boardId, @QueryParam("boardSlug") String boardSlug) {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
+        if (StringUtils.isNotBlank(boardSlug)){
+            Board one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
+            return Response.ok(JacksonMapper.toJson(one)).build();
+        }
         Board one = getBoard(boardId, orgId);
         return Response.ok(JacksonMapper.toJson(one)).build();
     }

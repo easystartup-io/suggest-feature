@@ -2,23 +2,15 @@
 import { Calendar, CheckCircle, Circle, CircleUser, Eye, Loader, Play, XCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
 import { useEffect, useState } from "react"
-import ModeToggle from "./ModeToggle"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from "date-fns"
 import { useInit } from "@/context/InitContext"
 import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 
 export const statusConfig = {
   "OPEN": {
@@ -51,21 +43,6 @@ export const statusConfig = {
   }
 };
 
-function Custom404() {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blue-400 to-blue-300 text-center">
-      <div className="text-8xl font-bold text-white">404</div>
-      <div className="mt-4 text-2xl font-medium text-white">
-        Oops! Page not found!
-      </div>
-      <div className="relative w-24 h-24 mt-8">
-      </div>
-      <div className="mt-8 text-lg text-white underline">
-        <a href="https://suggestfeature.com">Go Back to Suggest Feature</a>
-      </div>
-    </div>
-  );
-}
 
 const PostList = ({ posts }) => {
 
@@ -121,65 +98,59 @@ export default function Dashboard({ params }) {
   const [posts, setPosts] = useState([]);
   const { org, boards } = useInit()
   const router = useRouter();
+  const [board, setBoard] = useState({})
 
   useEffect(() => {
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
 
-    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-roadmap-posts`)
+    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-posts-by-board?slug=${params.slug}`)
       .then((res) => res.json())
       .then((data) => {
-        if (Object.keys(data).length === 0) {
-        } else {
-          setPosts(data)
-        }
+        setPosts(data)
       }).catch((e) => {
         console.log(e)
       })
-  }, [params]);
+
+    if (boards) {
+      const b = boards.find((item) => item.slug === params.slug);
+      setBoard(b)
+    }
+  }, [params, boards])
 
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10 w-full">
       <div className="w-full max-w-screen-xl">
         <div className="w-full">
-          <div className="mx-auto grid w-full max-w-6xl items-start">
-            <div className="flex items-center font-semibold pb-4 text-lg">
-              Boards
+          <div className="mx-auto w-full max-w-6xl items-start">
+            <div className="font-bold text-xl">
+              {board && board.name}
             </div>
-            <div className="grid md:grid-cols-3 gap-6 w-full md:justify-between">
-              {boards && boards.map((board) => {
-                return (
-                  <div key={board.id} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 w-full cursor-pointer hover:bg-gray-100" onClick={() => {
-                    router.push(`/b/${board.slug}`)
-                  }}>
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-semibold">{board.name}</h2>
-                      <Badge>{board.postCount}</Badge>
-                    </div>
+            <div className="w-full justify-between mt-6 grid md:grid-cols-3 gap-4">
+              <div className="">
+                <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4">
+                  <div>
+                    <Label>
+                      Title
+                    </Label>
+                    <Input />
                   </div>
-                );
-              })}
-            </div>
-            <div className="flex items-center font-semibold pt-8 text-lg">
-              Roadmap
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 w-full justify-between mt-6">
-              {
-                posts && Object.keys(posts).map((key) => {
-                  return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,24rem))]">
-                    <div className="flex items-center justify-center font-semibold pb-4">
-                      {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
-                      {/* {key} {posts[key].length > 0 ? <Badge className="mx-2">{posts[key].length}</Badge> : ''} */}
-                    </div>
-                    {posts[key] && posts[key].length > 0 ? <PostList posts={posts[key]} /> : (
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <div className="text-2xl font-semibold text-muted-foreground">No posts found</div>
-                      </div>
-                    )}
+                  <div>
+                    <Label>
+                      Description
+                    </Label>
+                    <Textarea />
                   </div>
-                  );
-                })
-              }
+                  <div className="flex justify-end w-full">
+                    <Button>Submit</Button>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2">
+                {
+                  posts && <PostList posts={posts} />
+                }
+              </div>
             </div>
           </div>
         </div>
@@ -187,3 +158,4 @@ export default function Dashboard({ params }) {
     </main>
   )
 }
+

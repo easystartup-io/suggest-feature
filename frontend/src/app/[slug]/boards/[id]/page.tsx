@@ -47,7 +47,7 @@ const Dashboard: React.FC = ({ params }) => {
   }, [watchName])
 
   useEffect(() => {
-    fetch(`/api/auth/boards/fetch-board?boardId=${params.id}`, {
+    fetch(`/api/auth/boards/fetch-board?boardSlug=${params.id}`, {
       headers: {
         "x-org-slug": params.slug
       }
@@ -85,9 +85,16 @@ const Dashboard: React.FC = ({ params }) => {
       const respData = await resp.json();
       if (resp.ok) {
         setData(respData)
+        let toastTitle = 'Board updated successfully'
+        if (respData.slug !== params.id) {
+          toastTitle = 'Your board url has been updated. You are being redirected'
+          setTimeout(() => {
+            router.push(`/${params.slug}/boards/${respData.slug}`)
+          }, 1000)
+        }
         reset(respData)
         toast({
-          title: 'Board updated successfully',
+          title: toastTitle
         })
       } else {
         toast({
@@ -108,8 +115,7 @@ const Dashboard: React.FC = ({ params }) => {
   }
 
 
-  // if (isLoading) return <p>Loading...</p>
-  if (!data) return <p>No profile data</p>
+  if (!data || !org) return <p>No board data</p>
 
 
   return (

@@ -85,8 +85,16 @@ public class PostsRestApi {
         validateStatus(post.getStatus());
         validatePriority(post.getPriority());
 
+        Board board = null;
+        if (StringUtils.isNotBlank(post.getBoardSlug())) {
+            board = getBoardFromSlug(post.getBoardSlug(), UserContext.current().getOrgId());
+            post.setBoardId(board.getId());
+        }
+
         String boardId = post.getBoardId();
-        Board board = getBoard(boardId, UserContext.current().getOrgId());
+        if (board == null) {
+            board = getBoard(boardId, UserContext.current().getOrgId());
+        }
         if (board == null) {
             throw new UserVisibleException("Board not found");
         }
@@ -108,6 +116,7 @@ public class PostsRestApi {
             }
             post.setApproved(existingPost.isApproved());
             post.setSlug(existingPost.getSlug());
+            post.setBoardId(existingPost.getBoardId());
         }
         post.setOrganizationId(UserContext.current().getOrgId());
         try {
@@ -115,7 +124,9 @@ public class PostsRestApi {
                 try {
                     mongoConnection.getDefaultMongoTemplate().insert(post);
                 } catch (DuplicateKeyException e) {
-                    post.setSlug(post.getSlug() + "-" + new ObjectId().toString());
+                    String slugSuffix = new ObjectId().toString();
+                    // split slug suffix into two parts
+                    post.setSlug(post.getSlug() + "-" + slugSuffix.substring(0, 4) + "-" + slugSuffix.substring(4));
                     mongoConnection.getDefaultMongoTemplate().insert(post);
                 }
             } else {
@@ -338,8 +349,10 @@ public class PostsRestApi {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         Criteria criteriaDefinition = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId);
-        if (StringUtils.isNotBlank(req.getBoardId())) {
-            criteriaDefinition.and(Post.FIELD_BOARD_ID).is(req.getBoardId());
+        if (StringUtils.isNotBlank(req.getBoardSlug())) {
+            Criteria boardFetch = Criteria.where(Board.FIELD_SLUG).is(req.getBoardSlug()).and(Board.FIELD_ORGANIZATION_ID).is(orgId);
+            Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(boardFetch), Board.class);
+            criteriaDefinition.and(Post.FIELD_BOARD_ID).is(board.getId());
         }
         Query query = new Query(criteriaDefinition);
         if (req.getSort() == null) {
@@ -393,4 +406,13 @@ public class PostsRestApi {
         Criteria criteriaDefinition = Criteria.where(Board.FIELD_ID).is(boardId).and(Post.FIELD_ORGANIZATION_ID).is(orgId);
         return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Board.class);
     }
+
+    private Board getBoardFromSlug(String boardSlug, String orgId) {
+        if (boardSlug == null) {
+            return null;
+        }
+        Criteria criteriaDefinition = Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Post.FIELD_ORGANIZATION_ID).is(orgId);
+        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Board.class);
+    }
+
 }
