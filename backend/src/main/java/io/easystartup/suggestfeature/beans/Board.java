@@ -42,6 +42,8 @@ public class Board {
     @Indexed
     private String createdByUserId;
 
+    private boolean privateBoard;
+
     private boolean allowAnonymous;
     private boolean allowWithoutEmailVerification;
     private boolean addPostOnlyAfterApproval;
@@ -139,5 +141,13 @@ public class Board {
 
     public void setSlug(String slug) {
         this.slug = slug;
+    }
+
+    public boolean isPrivateBoard() {
+        return privateBoard;
+    }
+
+    public void setPrivateBoard(boolean privateBoard) {
+        this.privateBoard = privateBoard;
     }
 }

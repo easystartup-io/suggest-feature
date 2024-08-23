@@ -11,6 +11,7 @@ import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -94,17 +95,7 @@ public class UserRestApi {
     public Response createOrg(OrganizationRequest req) {
         validationService.validate(req);
 
-        // Set org slug based on the org name, all lower case and all special characters removed and spaces replaced with -
-        // Also cant end with - or start with -
-        // Example: "Example Org" => "example-org"
-        // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
-        // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
-        // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
-        // Limit max length to 35 characters
-        String slug = req.getOrganizationSlug().trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
-
-        slug = slug.substring(0, Math.min(slug.length(), 35));
-
+        String slug = PagesRestApi.validateAndFix(req.getOrganizationSlug());
         req.setOrganizationSlug(slug);
 
         // Ensure organization name is clean, does not contain xss and is trimmed

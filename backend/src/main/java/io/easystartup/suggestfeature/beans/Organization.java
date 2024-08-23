@@ -31,6 +31,7 @@ public class Organization {
     @Indexed
     private String customDomain;
     private Long createdAt;
+    private RoadmapSettings roadmapSettings;
 
     public Organization() {
     }
@@ -75,4 +76,11 @@ public class Organization {
         this.customDomain = customDomain;
     }
 
+    public RoadmapSettings getRoadmapSettings() {
+        return roadmapSettings;
+    }
+
+    public void setRoadmapSettings(RoadmapSettings roadmapSettings) {
+        this.roadmapSettings = roadmapSettings;
+    }
 }

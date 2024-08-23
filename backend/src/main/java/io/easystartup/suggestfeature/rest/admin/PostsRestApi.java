@@ -2,13 +2,13 @@ package io.easystartup.suggestfeature.rest.admin;
 
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.*;
-import io.easystartup.suggestfeature.dto.Page;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -60,13 +60,13 @@ public class PostsRestApi {
         if (existingPost == null) {
             throw new UserVisibleException("Post not found");
         }
-        if (StringUtils.isNotBlank(req.getStatus())){
+        if (StringUtils.isNotBlank(req.getStatus())) {
             existingPost.setStatus(req.getStatus());
         }
-        if (req.getApproved() != null){
+        if (req.getApproved() != null) {
             existingPost.setApproved(req.getApproved());
         }
-        if (StringUtils.isNotBlank(req.getPriority())){
+        if (StringUtils.isNotBlank(req.getPriority())) {
             existingPost.setPriority(req.getPriority());
         }
 
@@ -87,7 +87,7 @@ public class PostsRestApi {
 
         String boardId = post.getBoardId();
         Board board = getBoard(boardId, UserContext.current().getOrgId());
-        if (board == null){
+        if (board == null) {
             throw new UserVisibleException("Board not found");
         }
 
@@ -98,6 +98,7 @@ public class PostsRestApi {
             post.setCreatedAt(System.currentTimeMillis());
             post.setCreatedByUserId(userId);
             post.setApproved(false);
+            post.setSlug(Util.fixSlug(post.getTitle()));
             isNew = true;
         } else {
             post.setCreatedByUserId(existingPost.getCreatedByUserId());
@@ -106,47 +107,55 @@ public class PostsRestApi {
                 throw new UserVisibleException("Cannot change board of a post");
             }
             post.setApproved(existingPost.isApproved());
+            post.setSlug(existingPost.getSlug());
         }
         post.setOrganizationId(UserContext.current().getOrgId());
         try {
             if (isNew) {
-                mongoConnection.getDefaultMongoTemplate().insert(post);
-
-                Voter voter = new Voter();
-                voter.setUserId(userId);
-                voter.setPostId(post.getId());
-                voter.setOrganizationId(UserContext.current().getOrgId());
-                voter.setCreatedAt(System.currentTimeMillis());
-                mongoConnection.getDefaultMongoTemplate().insert(voter);
-
-                // Update post count in board
-                mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_ID).is(boardId)), new Update().inc(Board.FIELD_POST_COUNT, 1), Board.class);
-
+                try {
+                    mongoConnection.getDefaultMongoTemplate().insert(post);
+                } catch (DuplicateKeyException e) {
+                    post.setSlug(post.getSlug() + "-" + new ObjectId().toString());
+                    mongoConnection.getDefaultMongoTemplate().insert(post);
+                }
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(post);
             }
+
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Post with this slug already exists");
+        }
+
+        if (isNew) {
+            Voter voter = new Voter();
+            voter.setUserId(userId);
+            voter.setPostId(post.getId());
+            voter.setOrganizationId(UserContext.current().getOrgId());
+            voter.setCreatedAt(System.currentTimeMillis());
+            mongoConnection.getDefaultMongoTemplate().insert(voter);
+
+            // Update post count in board
+            mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_ID).is(boardId)), new Update().inc(Board.FIELD_POST_COUNT, 1), Board.class);
         }
         return Response.ok(JacksonMapper.toJson(post)).build();
     }
 
     private void validatePriority(String priority) {
-        if (StringUtils.isBlank(priority)){
+        if (StringUtils.isBlank(priority)) {
             return;
         }
         Set<String> validPriority = Set.of("High", "Medium", "Low");
-        if (!validPriority.contains(priority)){
+        if (!validPriority.contains(priority)) {
             throw new UserVisibleException("Invalid priority");
         }
     }
 
     private void validateStatus(String status) {
-        if (StringUtils.isBlank(status)){
+        if (StringUtils.isBlank(status)) {
             return;
         }
         Set<String> validStatus = Set.of("OPEN", "UNDER REVIEW", "PLANNED", "IN PROGRESS", "LIVE", "COMPLETE", "CLOSED");
-        if (!validStatus.contains(status)){
+        if (!validStatus.contains(status)) {
             throw new UserVisibleException("Invalid status");
         }
     }
@@ -160,13 +169,13 @@ public class PostsRestApi {
         validationService.validate(comment);
         String postId = comment.getPostId();
         Post post = getPost(postId, UserContext.current().getOrgId());
-        if (post == null){
+        if (post == null) {
             throw new UserVisibleException("Post not found");
         }
 
-        if (StringUtils.isNotBlank(comment.getReplyToCommentId())){
+        if (StringUtils.isNotBlank(comment.getReplyToCommentId())) {
             Comment inReplyToComment = getComment(comment.getReplyToCommentId(), UserContext.current().getOrgId());
-            if (inReplyToComment == null){
+            if (inReplyToComment == null) {
                 throw new UserVisibleException("Parent comment does not exist");
             }
         }
@@ -329,18 +338,18 @@ public class PostsRestApi {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         Criteria criteriaDefinition = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId);
-        if (StringUtils.isNotBlank(req.getBoardId())){
+        if (StringUtils.isNotBlank(req.getBoardId())) {
             criteriaDefinition.and(Post.FIELD_BOARD_ID).is(req.getBoardId());
         }
         Query query = new Query(criteriaDefinition);
-        if (req.getSort()== null){
+        if (req.getSort() == null) {
             req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.DESC));
         }
-        if (req.getPage() == null){
+        if (req.getPage() == null) {
             req.setPage(new Page(0, 20));
         }
         String field = req.getSort().getField();
-        if (!ALLOWED_SORT_FIELDS.contains(field)){
+        if (!ALLOWED_SORT_FIELDS.contains(field)) {
             throw new UserVisibleException("Invalid sort field");
         }
         query.with(org.springframework.data.domain.Sort.by(getOrder(req), field));
@@ -350,7 +359,7 @@ public class PostsRestApi {
     }
 
     private static org.springframework.data.domain.Sort.Direction getOrder(FetchPostsRequestDTO req) {
-        switch (req.getSort().getOrder()){
+        switch (req.getSort().getOrder()) {
             case ASC -> {
                 return org.springframework.data.domain.Sort.Direction.ASC;
             }

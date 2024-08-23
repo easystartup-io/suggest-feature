@@ -18,6 +18,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -61,7 +62,9 @@ public class PublicPortalPostRestApi {
                 if (org == null) {
                     return JacksonMapper.toJson(Collections.emptyMap());
                 }
+                sanitizeOrg(org);
                 List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
+                boardList.stream().filter((board) -> !board.isPrivateBoard()).forEach(PublicPortalPostRestApi::sanitizeBoard);
                 Map<String, Object> rv = new HashMap<>();
                 rv.put("org", org);
                 rv.put("boards", boardList);
@@ -73,17 +76,32 @@ public class PublicPortalPostRestApi {
         return Response.ok().entity(resp).build();
     }
 
+    private void sanitizeOrg(Organization org) {
+        org.setCreatedAt(null);
+        org.setRoadmapSettings(null);
+    }
+
+    private static void sanitizeBoard(Board board) {
+        board.setOrganizationId(null);
+        board.setCreatedByUserId(null);
+        board.setCreatedAt(null);
+    }
+
     @GET
-    @Path("/get-posts")
+    @Path("/get-roadmap-posts")
     @Produces("application/json")
     public Response getPosts(@Context HttpServletRequest request) {
         String host = request.getHeader("host");
         Organization org = getOrg(host);
-        if (org == null) {
+        if (org == null || (org.getRoadmapSettings() != null && !org.getRoadmapSettings().isEnabled())) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId())), Board.class);
-        Set<String> boardIds = boardList.stream().map(Board::getId).collect(Collectors.toSet());
+        Set<String> disabledBoards = new HashSet<>();
+        if (org.getRoadmapSettings() != null && CollectionUtils.isNotEmpty(org.getRoadmapSettings().getDisabledBoards())) {
+            disabledBoards.addAll(org.getRoadmapSettings().getDisabledBoards());
+        }
+        Set<String> boardIds = boardList.stream().filter((board) -> !board.isPrivateBoard() && !disabledBoards.contains(board.getId())).map(Board::getId).collect(Collectors.toSet());
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds);
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
         posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
@@ -105,7 +123,7 @@ public class PublicPortalPostRestApi {
         }
         Criteria criteriaDefinition1 = Criteria.where(Board.FIELD_SLUG).is(slug).and(Board.FIELD_ORGANIZATION_ID).is(org.getId());
         Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition1), Board.class);
-        if (board == null) {
+        if (board == null || board.isPrivateBoard()) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId());

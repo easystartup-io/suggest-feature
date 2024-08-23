@@ -126,7 +126,7 @@ export default function Dashboard({ params }) {
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
 
-    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-posts`)
+    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-roadmap-posts`)
       .then((res) => res.json())
       .then((data) => {
         if (Object.keys(data).length === 0) {
@@ -166,7 +166,7 @@ export default function Dashboard({ params }) {
             <div className="grid md:grid-cols-3 gap-6 w-full justify-between mt-6">
               {
                 posts && Object.keys(posts).map((key) => {
-                  return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-full h-[calc(100vh/2)]">
+                  return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-full h-[calc(min(100vh/2, max(24rem, 100vh/2)))]">
                     <div className="flex items-center justify-center font-semibold pb-4">
                       {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
                       {/* {key} {posts[key].length > 0 ? <Badge className="mx-2">{posts[key].length}</Badge> : ''} */}

@@ -1,5 +1,6 @@
 package io.easystartup.suggestfeature.utils;
 
+import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,6 +59,7 @@ public class Util {
     }
 
     public static String fixSlug(String slug) {
+        slug = slug.trim();
         // Set slug based on the org name, all lower case and all special characters removed and spaces replaced with -
         // Also cant end with - or start with -
         // Example: "Example Org" => "example-org"
@@ -65,8 +67,8 @@ public class Util {
         // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
         // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
         // Limit max length to 35 characters
-        slug = slug.trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
-
+        Slugify builder = Slugify.builder().transliterator(true).build();
+        slug = builder.slugify(slug);
         slug = slug.substring(0, Math.min(slug.length(), 35));
         return slug;
     }

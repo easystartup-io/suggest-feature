@@ -125,17 +125,9 @@ public class PagesRestApi {
         return Response.ok(JacksonMapper.toJson(org)).build();
     }
 
-    private String validateAndFix(String slug) {
-        // Set slug based on the org name, all lower case and all special characters removed and spaces replaced with -
-        // Also cant end with - or start with -
-        // Example: "Example Org" => "example-org"
-        // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
-        // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
-        // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
-        // Limit max length to 35 characters
-        slug = slug.trim().toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
+    public static String validateAndFix(String slug) {
+        slug = Util.fixSlug(slug);
 
-        slug = slug.substring(0, Math.min(slug.length(), 35));
         if (RESERVED_SLUGS.contains(slug) && !Util.isSelfHosted()) {
             throw new UserVisibleException("Slug is already used");
         }

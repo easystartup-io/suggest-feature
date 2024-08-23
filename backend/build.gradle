@@ -53,6 +53,10 @@ dependencies {
     implementation group: 'org.springframework.security', name: 'spring-security-core', version: '6.3.1'
 
     implementation group: 'dnsjava', name: 'dnsjava', version: '3.6.1'
+    implementation group: 'com.github.slugify', name: 'slugify', version: '3.0.7'
+    // for transliterator of slugify
+    implementation group: 'com.ibm.icu', name: 'icu4j', version: '75.1'
+
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

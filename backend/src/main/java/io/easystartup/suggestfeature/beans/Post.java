@@ -19,7 +19,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @CompoundIndexes({
         @CompoundIndex(name = "organizationId_1_boardId_1_createdAt_1", def = "{'organizationId': 1, 'boardId': 1, 'createdAt': 1}"),
-        @CompoundIndex(name = "organizationId_1_createdAt_1", def = "{'organizationId': 1, 'createdAt': 1}")
+        @CompoundIndex(name = "organizationId_1_createdAt_1", def = "{'organizationId': 1, 'createdAt': 1}"),
+        @CompoundIndex(name = "organizationId_1_boardId_1_slug_1", def = "{'organizationId': 1, 'boardId': 1,'slug': 1}", unique = true)
 })
 public class Post {
     public static final String FIELD_ID = "_id";
@@ -46,6 +47,7 @@ public class Post {
     private String boardId;
     private String status = "OPEN";
     private String priority;
+    private String slug;
 
     @Transient
     private boolean selfVoted;
@@ -189,5 +191,13 @@ public class Post {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 }
