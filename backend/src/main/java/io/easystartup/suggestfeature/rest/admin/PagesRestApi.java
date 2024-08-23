@@ -94,7 +94,9 @@ public class PagesRestApi {
         if (StringUtils.isNotBlank(organization.getCustomDomain()) && !DomainValidator.getInstance(true).isValid(organization.getCustomDomain())) {
             throw new UserVisibleException("Invalid domain name. It should be of this format subdomain.yourdomain.com");
         }
-        existingOrg.setCustomDomain(organization.getCustomDomain().trim());
+        if (StringUtils.isNotBlank(organization.getCustomDomain())) {
+            existingOrg.setCustomDomain(organization.getCustomDomain().trim());
+        }
         try {
             mongoConnection.getDefaultMongoTemplate().save(existingOrg);
         } catch (DuplicateKeyException e) {
