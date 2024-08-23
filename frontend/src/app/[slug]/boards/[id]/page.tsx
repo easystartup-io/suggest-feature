@@ -182,9 +182,9 @@ const Dashboard: React.FC = ({ params }) => {
                             className="inline-block hover:text-indigo-700">
                             https://{org.customDomain}/b/{field.value}<ExternalLink className="ml-1 h-4 w-4 inline-block" />
                           </a>
-                            : <a href={`https://widget.suggestfeature.com/b/${field.value}`} target="_blank"
+                            : <a href={`https://${org.slug}.suggestfeature.com/b/${field.value}`} target="_blank"
                               className="inline-block hover:text-indigo-700">
-                              https://widget.suggestfeature.com/b/{field.value}<ExternalLink className="ml-1 h-4 w-4 inline-block" />
+                              https://{org.slug}.suggestfeature.com/b/{field.value}<ExternalLink className="ml-1 h-4 w-4 inline-block" />
                             </a>
                         }
                       </p>
