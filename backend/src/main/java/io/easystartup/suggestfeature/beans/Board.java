@@ -27,6 +27,8 @@ public class Board {
     public static final String FIELD_ALLOW_WITHOUT_EMAIL_VERIFICATION = "allowWithoutEmailVerification";
     public static final String FIELD_ADD_POST_ONLY_AFTER_APPROVAL = "addPostOnlyAfterApproval";
     public static final String FIELD_POST_COUNT = "postCount";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_SLUG = "slug";
 
     @Id
     private String id;

@@ -11,6 +11,7 @@ import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -75,7 +76,7 @@ public class PublicPortalPostRestApi {
     @GET
     @Path("/get-posts")
     @Produces("application/json")
-    public Response getPosts(@Context HttpServletRequest request, @QueryParam("boardId") String boardId) {
+    public Response getPosts(@Context HttpServletRequest request) {
         String host = request.getHeader("host");
         Organization org = getOrg(host);
         if (org == null) {
@@ -83,15 +84,7 @@ public class PublicPortalPostRestApi {
         }
         List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId())), Board.class);
         Set<String> boardIds = boardList.stream().map(Board::getId).collect(Collectors.toSet());
-        if (boardId != null && !boardIds.contains(boardId)) {
-            return Response.ok().entity(Collections.emptyList()).build();
-        }
-        Criteria criteriaDefinition;
-        if (boardId == null) {
-            criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds);
-        } else{
-            criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(boardId);
-        }
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds);
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
         posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
 
@@ -99,6 +92,26 @@ public class PublicPortalPostRestApi {
         Map<String, List<Post>> postsByStatus = posts.stream().collect(Collectors.groupingBy(Post::getStatus));
 
         return Response.ok().entity(JacksonMapper.toJson(postsByStatus)).build();
+    }
+
+    @GET
+    @Path("/get-posts-by-board")
+    @Produces("application/json")
+    public Response getPostsByBoard(@Context HttpServletRequest request, @QueryParam("slug") @NotBlank String slug) {
+        String host = request.getHeader("host");
+        Organization org = getOrg(host);
+        if (org == null) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+        Criteria criteriaDefinition1 = Criteria.where(Board.FIELD_SLUG).is(slug).and(Board.FIELD_ORGANIZATION_ID).is(org.getId());
+        Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition1), Board.class);
+        if (board == null) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId());
+        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
+        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        return Response.ok().entity(JacksonMapper.toJson(posts)).build();
     }
 
     private Organization getOrg(String host) {
