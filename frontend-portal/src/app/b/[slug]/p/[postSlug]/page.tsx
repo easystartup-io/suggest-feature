@@ -1,16 +1,10 @@
 "use client"
-import { Calendar, CheckCircle, Circle, CircleUser, Eye, Loader, Play, XCircle } from "lucide-react"
+import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { formatDistanceToNow } from "date-fns"
+import { PostCard } from "@/components/PostCard"
 import { useInit } from "@/context/InitContext"
 import { useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { useEffect, useState } from "react"
 
 export const statusConfig = {
   "OPEN": {
@@ -43,59 +37,8 @@ export const statusConfig = {
   }
 };
 
-
-const PostList = ({ posts }) => {
-
-  return (
-    <ScrollArea className="h-full overflow-y-auto">
-      <div className="flex flex-col gap-2 px-4 pt-0">
-        {posts && posts.length > 0 && posts.map((item) => (
-          <button
-            key={item.id}
-            className={cn(
-              "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
-            )}
-            onClick={() => {
-              // go to post page
-            }}
-          >
-            <div className="flex w-full flex-col gap-1">
-              <div className="flex items-center">
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold">
-                    {(() => {
-                      const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                      return st.icon
-                    })()
-                    }
-                    {item.title}
-                  </div>
-                </div>
-                <div
-                  className={cn(
-                    "ml-auto text-xs",
-                    "text-muted-foreground"
-                  )}
-                >
-                  {formatDistanceToNow(new Date(item.createdAt), {
-                    addSuffix: true,
-                  })}
-                  {/* <Badge className="ml-2">{item.votes}</Badge> */}
-                </div>
-              </div>
-            </div>
-            <div className="line-clamp-2 text-xs text-muted-foreground">
-              {item.description.substring(0, 300)}
-            </div>
-          </button>
-        ))}
-      </div>
-    </ScrollArea>
-  )
-}
-
 export default function Dashboard({ params }) {
-  const [posts, setPosts] = useState([]);
+  const [post, setPost] = useState([]);
   const { org, boards } = useInit()
   const router = useRouter();
   const [board, setBoard] = useState({})
@@ -104,10 +47,10 @@ export default function Dashboard({ params }) {
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
 
-    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-posts-by-board?slug=${params.slug}`)
+    fetch(`${protocol}//${host}/api/portal/unauth/posts/fetch-post/?boardSlug=${params.slug}&postSlug=${params.postSlug}`)
       .then((res) => res.json())
       .then((data) => {
-        setPosts(data)
+        setPost(data)
       }).catch((e) => {
         console.log(e)
       })
@@ -123,35 +66,7 @@ export default function Dashboard({ params }) {
       <div className="w-full max-w-screen-xl">
         <div className="w-full">
           <div className="mx-auto w-full max-w-6xl items-start">
-            <div className="font-bold text-xl">
-              {board && board.name}
-            </div>
-            <div className="w-full justify-between mt-6 grid md:grid-cols-3 gap-4">
-              <div className="">
-                <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4">
-                  <div>
-                    <Label>
-                      Title
-                    </Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>
-                      Description
-                    </Label>
-                    <Textarea />
-                  </div>
-                  <div className="flex justify-end w-full">
-                    <Button>Submit</Button>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2">
-                {
-                  posts && <PostList posts={posts} />
-                }
-              </div>
-            </div>
+            <PostCard params={params} post={post} />
           </div>
         </div>
       </div>

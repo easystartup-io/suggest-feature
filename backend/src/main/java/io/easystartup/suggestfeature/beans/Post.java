@@ -32,6 +32,8 @@ public class Post {
     public static final String FIELD_APPROVED = "approved";
     public static final String FIELD_CREATED_BY_USER_ID = "createdByUserId";
     public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_PRIORITY = "priority";
+    public static final String FIELD_SLUG = "slug";
 
     @Id
     private String id;
