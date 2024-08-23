@@ -199,7 +199,7 @@ function UserHeader({ user }) {
           <AvatarImage src={`${user.profilePic}`} />
           <AvatarFallback>
             {(() => {
-              const name = user.name | ' ';
+              const name = user.name || '';
               const words = name.split(' ');
 
               let initials;
@@ -279,12 +279,10 @@ function NewCommentInput({ data, params, refetch }) {
       disabled={loading}
       onChange={(e) => setContent(e.target.value)} />
     <div className='mt-2 flex justify-end'>
-      {content.trim().length === 0 ? '' :
-        <Button onClick={submitComment} disabled={loading || content.trim().length === 0}>
-          {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-          Submit
-        </Button>
-      }
+      <Button onClick={submitComment} disabled={loading || content.trim().length === 0}>
+        {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+        Submit
+      </Button>
     </div>
   </div>)
 }
