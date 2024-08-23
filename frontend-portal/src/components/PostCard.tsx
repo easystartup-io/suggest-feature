@@ -73,60 +73,7 @@ function PostDetails({ params, data, refetch }) {
   }
 
   return (<div className='px-4 my-4 w-full' >
-    <div className="my-4">
-      <p className="text-sm font-medium my-2">Status</p>
-      <Select onValueChange={
-        val => {
-          setStatus(val)
-          updatePost({ updatedStatus: val })
-        }} value={status}>
-        <SelectTrigger
-          id="status"
-          aria-label="Select status"
-        >
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.keys(statusConfig).map((key) => {
-            const status = statusConfig[key];
-            return (
-              <SelectItem key={key} value={key}>
-                {status.icon}
-                {status.label}
-              </SelectItem>
-            )
-          })
-          }
-        </SelectContent>
-      </Select>
-    </div>
-    <div className="my-4">
-      <p className="text-sm font-medium my-2"><Flag className='w-4 h-4 inline-block mr-2' />Priority</p>
-      <Select onValueChange={val => {
-        setPriority(val);
-        updatePost({ updatedPriority: val })
-      }} value={priority} >
-        <SelectTrigger
-          id="priority"
-          aria-label="Select priority"
-        >
-          <SelectValue placeholder="Priority" >
-            <div className={cn("flex items-center",
-              priority === "High" && "text-red-500",
-              priority === "Medium" && "text-yellow-500",
-              priority === "Low" && "text-green-500"
-            )}>
-              <Flag className='w-4 h-4 inline-block mr-2' /> {priority}
-            </div>
-          </ SelectValue >
-        </SelectTrigger>
-        <SelectContent className="w-full">
-          <SelectItem value="High" className='text-red-500'><Flag className='w-4 h-4 inline-block mr-2 text-red-500' />High</SelectItem>
-          <SelectItem value="Medium" className='text-yellow-500'><Flag className='w-4 h-4 inline-block mr-2 text-yellow-500' />Medium</SelectItem>
-          <SelectItem value="Low" className='text-green-500'><Flag className='w-4 h-4 inline-block mr-2 text-green-500' />Low</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+    Voters
   </div>)
 }
 
@@ -158,7 +105,27 @@ function TitleHeader({ params, data, refetch }) {
             <ChevronUp />
             {data.votes}
           </div>
-          <h1 className="ml-4 text-lg font-semibold">{data.title}</h1>
+          <div className='ml-4'>
+            <h1 className="text-lg font-semibold">{data.title}</h1>
+            <div className='flex gap-2'>
+              <div className='flex items-center'>
+                <div className='p-2 bg-white dark:bg-background rounded-lg text-sm'>
+                  {data.status && statusConfig[data.status].icon}
+                  {data.status && statusConfig[data.status].label}
+                </div>
+              </div>
+              <div className='p-2 bg-white dark:bg-background rounded-lg text-sm'>
+                {data.priority && <div className={cn("flex items-center",
+                  data.priority === "High" && "text-red-500",
+                  data.priority === "Medium" && "text-yellow-500",
+                  data.priority === "Low" && "text-green-500"
+                )}>
+                  <Flag className='w-4 h-4 inline-block mr-2' /> {data.priority}
+                </div>
+                }
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -50,6 +50,9 @@ export default function Dashboard({ params }) {
     fetch(`${protocol}//${host}/api/portal/unauth/posts/fetch-post/?boardSlug=${params.slug}&postSlug=${params.postSlug}`)
       .then((res) => res.json())
       .then((data) => {
+        if (!data.priority) {
+          data.priority = "Medium"
+        }
         setPost(data)
       }).catch((e) => {
         console.log(e)
