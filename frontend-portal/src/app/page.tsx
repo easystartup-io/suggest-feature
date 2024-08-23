@@ -1,24 +1,13 @@
 "use client"
-import { Calendar, CheckCircle, Circle, CircleUser, Eye, Loader, Play, XCircle } from "lucide-react"
+import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
-import { useEffect, useState } from "react"
-import ModeToggle from "./ModeToggle"
-import { cn } from "@/lib/utils"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { formatDistanceToNow } from "date-fns"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useInit } from "@/context/InitContext"
+import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export const statusConfig = {
   "OPEN": {
@@ -68,6 +57,7 @@ function Custom404() {
 }
 
 const PostList = ({ posts }) => {
+  const router = useRouter();
 
   return (
     <ScrollArea className="h-full overflow-y-auto">
@@ -79,7 +69,7 @@ const PostList = ({ posts }) => {
               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
             )}
             onClick={() => {
-              // go to post page
+              router.push(`/b/${item.boardSlug}/p/${item.slug}`)
             }}
           >
             <div className="flex w-full flex-col gap-1">

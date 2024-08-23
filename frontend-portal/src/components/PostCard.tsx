@@ -72,7 +72,7 @@ function PostDetails({ params, data, refetch }) {
       })
   }
 
-  return (<div className='border-l px-4 my-4 w-full' >
+  return (<div className='px-4 my-4 w-full' >
     <div className="my-4">
       <p className="text-sm font-medium my-2">Status</p>
       <Select onValueChange={
@@ -161,7 +161,6 @@ function TitleHeader({ params, data, refetch }) {
           <h1 className="ml-4 text-lg font-semibold">{data.title}</h1>
         </div>
       </div>
-      <Separator />
     </div>
   )
 }
@@ -314,24 +313,20 @@ export const PostCard = ({ post, params, disableExpand = false }) => {
     )
   }
   return (
-    <div className="flex flex-1 w-full flex-col h-full">
-      <TitleHeader data={post} refetch={refetch} params={params} disableExpand={disableExpand} />
-      <div className="flex flex-1 w-full h-full">
-        <div className='h-full w-full'>
-          <div className='flex gap-2 flex-col md:flex-row w-full'>
-            <div className='flex-1'>
-              <UserHeader user={post.user} />
-              <PostContent data={post} />
-              <NewCommentInput data={post} params={params} refetch={refetch} />
-              <Separator className='my-6' />
-              {/* <ActionButtons data={post} /> */}
-              <CommentSection comments={post.comments} refetch={refetch} params={params} />
-            </div>
-            <div className='md:w-1/4 md:flex md:justify-center'>
-              <PostDetails data={post} params={params} refetch={refetch} key={post.id} />
-            </div>
-          </div>
+    <div className='grid md:grid-cols-3 gap-2'>
+      <div className='md:col-span-2 md:border-r order-2 md:order-1'>
+        <TitleHeader data={post} refetch={refetch} params={params} />
+        <div>
+          <UserHeader user={post.user} />
+          <PostContent data={post} />
+          <NewCommentInput data={post} params={params} refetch={refetch} />
+          <Separator className='my-6' />
+          {/* <ActionButtons data={post} /> */}
+          <CommentSection comments={post.comments} refetch={refetch} params={params} />
         </div>
+      </div>
+      <div className='md:col-span-1 order-1 md:order-2'>
+        <PostDetails data={post} params={params} refetch={refetch} key={post.id} />
       </div>
     </div>
   );

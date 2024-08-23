@@ -101,6 +101,7 @@ public class PublicPortalPostRestApi {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId())), Board.class);
+        Map<String, String> boardIdVsSlug = boardList.stream().collect(Collectors.toMap(Board::getId, Board::getSlug));
         Set<String> disabledBoards = new HashSet<>();
         if (org.getRoadmapSettings() != null && CollectionUtils.isNotEmpty(org.getRoadmapSettings().getDisabledBoards())) {
             disabledBoards.addAll(org.getRoadmapSettings().getDisabledBoards());
@@ -109,6 +110,10 @@ public class PublicPortalPostRestApi {
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds);
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
         posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+
+        for (Post post : posts) {
+            post.setBoardSlug(boardIdVsSlug.get(post.getBoardId()));
+        }
 
         // Group posts based on status
         Map<String, List<Post>> postsByStatus = posts.stream().collect(Collectors.groupingBy(Post::getStatus));
@@ -132,6 +137,7 @@ public class PublicPortalPostRestApi {
         }
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId()).and(Post.FIELD_SLUG).is(postSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
         Post post = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Post.class);
+        post.setBoardSlug(boardSlug);
         populatePost(post);
 
         return Response.ok().entity(JacksonMapper.toJson(post)).build();
@@ -154,6 +160,8 @@ public class PublicPortalPostRestApi {
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId());
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
         posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        posts.forEach(post -> post.setBoardSlug(slug));
+
         return Response.ok().entity(JacksonMapper.toJson(posts)).build();
     }
 
