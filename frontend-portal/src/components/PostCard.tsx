@@ -199,7 +199,7 @@ function UserHeader({ user }) {
           <AvatarImage src={`${user.profilePic}`} />
           <AvatarFallback>
             {(() => {
-              const name = user.name || user.email.split('@')[0];
+              const name = user.name | ' ';
               const words = name.split(' ');
 
               let initials;

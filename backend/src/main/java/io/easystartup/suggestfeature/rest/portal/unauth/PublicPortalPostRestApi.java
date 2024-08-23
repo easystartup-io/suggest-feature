@@ -4,7 +4,6 @@ package io.easystartup.suggestfeature.rest.portal.unauth;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.easystartup.suggestfeature.beans.*;
-import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
@@ -203,8 +202,29 @@ public class PublicPortalPostRestApi {
         User safeUser = new User();
         safeUser.setId(userByUserId.getId());
         safeUser.setName(userByUserId.getName());
+        if (StringUtils.isBlank(userByUserId.getName()) && StringUtils.isNotBlank(userByUserId.getEmail())) {
+            safeUser.setName(getNameFromEmail(userByUserId.getEmail()));
+        }
         safeUser.setProfilePic(userByUserId.getProfilePic());
         post.setUser(safeUser);
+    }
+
+    private static String getNameFromEmail(String email) {
+        // Extract name from email
+        email = email.substring(0, email.indexOf('@'));
+        // if it contains dots or any delimiters split it and capitalize first letter of each word and use just first two words
+        if (email.contains(".") || email.contains("_") || email.contains("-")) {
+            String[] split = email.split("[._-]");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < Math.min(2, split.length); i++) {
+                sb.append(StringUtils.capitalize(split[i]));
+                if (i != split.length - 1) {
+                    sb.append(" ");
+                }
+            }
+            return sb.toString();
+        }
+        return StringUtils.capitalize(email);
     }
 
     private void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments) {
@@ -216,6 +236,9 @@ public class PublicPortalPostRestApi {
             User safeUser = new User();
             safeUser.setId(user.getId());
             safeUser.setName(user.getName());
+            if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+                safeUser.setName(getNameFromEmail(user.getEmail()));
+            }
             safeUser.setProfilePic(user.getProfilePic());
             return safeUser;
         }).collect(Collectors.toMap(User::getId, Function.identity()));
