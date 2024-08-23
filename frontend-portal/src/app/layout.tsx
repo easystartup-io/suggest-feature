@@ -12,6 +12,7 @@ import ModeToggle from "./ModeToggle";
 import withInit from "@/hoc/withInit";
 import { InitContextProvider, useInit } from "@/context/InitContext";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -69,9 +70,9 @@ function Header({ params }) {
     return <Custom404 />
   }
   return (
-    <div className="w-full max-w-screen-xl items-center justify-center">
+    <div className="w-full px-4 md:px-10">
       <title>{org.name}</title>
-      <header className="flex h-16 items-center justify-between gap-4 bg-background px-4 md:px-6 w-full">
+      <header className="flex h-16 items-center justify-between gap-4 w-full">
         <div onClick={() => {
           router.push('/')
         }} className="cursor-pointer">
@@ -109,7 +110,7 @@ function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={cn(inter.className, "bg-muted/40")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -117,11 +118,17 @@ function RootLayout({
           disableTransitionOnChange
         >
 
-          <div className="flex h-full w-full flex-col items-center">
+          <div className="flex h-full w-full flex-col items-center justify-center">
             <InitContextProvider>
-              <Header params={params} />
+              <div className="w-full bg-background flex items-center justify-center">
+                <div className="max-w-screen-xl w-full">
+                  <Header params={params} />
+                </div>
+              </div>
               <Separator />
-              {children}
+              <div className="max-w-screen-xl w-full">
+                {children}
+              </div>
             </InitContextProvider>
           </div>
         </ThemeProvider>

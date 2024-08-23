@@ -65,13 +65,9 @@ export default function Dashboard({ params }) {
   }, [params, boards])
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10 w-full">
-      <div className="w-full max-w-screen-xl">
-        <div className="w-full">
-          <div className="mx-auto w-full max-w-6xl">
-            <PostCard params={params} post={post} />
-          </div>
-        </div>
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
+      <div className="w-full">
+        <PostCard params={params} post={post} />
       </div>
     </main>
   )

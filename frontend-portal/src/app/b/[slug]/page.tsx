@@ -74,52 +74,50 @@ const PostList = ({ posts, params }) => {
   const router = useRouter();
 
   return (
-    <ScrollArea className="h-full overflow-y-auto">
-      <div className="flex flex-col gap-2 px-4 pt-0">
-        {posts && posts.length > 0 && posts.map((item) => (
-          <button
-            key={item.id}
-            className={cn(
-              "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
-            )}
-            onClick={() => {
-              // go to post page
-            }}
-          >
-            <div className="flex w-full flex-col gap-1">
-              <div className="flex items-center" onClick={() => {
-                router.push(`/b/${params.slug}/p/${item.slug}`)
-              }}>
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold">
-                    {(() => {
-                      const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                      return st.icon
-                    })()
-                    }
-                    {item.title}
-                  </div>
-                </div>
-                <div
-                  className={cn(
-                    "ml-auto text-xs",
-                    "text-muted-foreground"
-                  )}
-                >
-                  {formatDistanceToNow(new Date(item.createdAt), {
-                    addSuffix: true,
-                  })}
-                  {/* <Badge className="ml-2">{item.votes}</Badge> */}
+    <div className="flex flex-col gap-2 px-4 pt-0 w-full">
+      {posts && posts.length > 0 && posts.map((item) => (
+        <button
+          key={item.id}
+          className={cn(
+            "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
+          )}
+          onClick={() => {
+            // go to post page
+          }}
+        >
+          <div className="flex w-full flex-col gap-1">
+            <div className="flex items-center" onClick={() => {
+              router.push(`/b/${params.slug}/p/${item.slug}`)
+            }}>
+              <div className="flex items-center gap-2">
+                <div className="font-semibold">
+                  {(() => {
+                    const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
+                    return st.icon
+                  })()
+                  }
+                  {item.title}
                 </div>
               </div>
+              <div
+                className={cn(
+                  "ml-auto text-xs",
+                  "text-muted-foreground"
+                )}
+              >
+                {formatDistanceToNow(new Date(item.createdAt), {
+                  addSuffix: true,
+                })}
+                {/* <Badge className="ml-2">{item.votes}</Badge> */}
+              </div>
             </div>
-            <div className="line-clamp-2 text-xs text-muted-foreground">
-              {item.description.substring(0, 300)}
-            </div>
-          </button>
-        ))}
-      </div>
-    </ScrollArea>
+          </div>
+          <div className="line-clamp-2 text-xs text-muted-foreground">
+            {item.description.substring(0, 300)}
+          </div>
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -148,16 +146,16 @@ export default function Dashboard({ params }) {
   }, [params, boards])
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10 w-full">
-      <div className="w-full max-w-screen-xl">
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
+      <div className="w-full">
         <div className="w-full">
-          <div className="mx-auto w-full max-w-6xl items-start">
+          <div className="w-full">
             <div className="font-bold text-xl">
               {board && board.name}
             </div>
-            <div className="w-full justify-between mt-6 grid md:grid-cols-3 gap-4">
-              <div className="">
-                <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4">
+            <div className="w-full mt-6 grid md:grid-cols-3 gap-4">
+              <div className="w-full">
+                <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4 w-full">
                   <div>
                     <Label>
                       Title
@@ -175,7 +173,7 @@ export default function Dashboard({ params }) {
                   </div>
                 </div>
               </div>
-              <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2">
+              <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2 w-full">
                 {
                   posts && <PostList posts={posts} params={params} />
                 }

@@ -40,22 +40,6 @@ export const statusConfig = {
   }
 };
 
-function Custom404() {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blue-400 to-blue-300 text-center">
-      <div className="text-8xl font-bold text-white">404</div>
-      <div className="mt-4 text-2xl font-medium text-white">
-        Oops! Page not found!
-      </div>
-      <div className="relative w-24 h-24 mt-8">
-      </div>
-      <div className="mt-8 text-lg text-white underline">
-        <a href="https://suggestfeature.com">Go Back to Suggest Feature</a>
-      </div>
-    </div>
-  );
-}
-
 const PostList = ({ posts }) => {
   const router = useRouter();
 
@@ -129,10 +113,10 @@ export default function Dashboard({ params }) {
   }, [params]);
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10 w-full">
-      <div className="w-full max-w-screen-xl">
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
+      <div className="w-full items-center justify-center flex">
         <div className="w-full">
-          <div className="mx-auto grid w-full max-w-6xl items-start">
+          <div className="w-full">
             <div className="flex items-center font-semibold pb-4 text-lg">
               Boards
             </div>
@@ -159,7 +143,6 @@ export default function Dashboard({ params }) {
                   return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,24rem))]">
                     <div className="flex items-center justify-center font-semibold pb-4">
                       {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
-                      {/* {key} {posts[key].length > 0 ? <Badge className="mx-2">{posts[key].length}</Badge> : ''} */}
                     </div>
                     {posts[key] && posts[key].length > 0 ? <PostList posts={posts[key]} /> : (
                       <div className="flex flex-col items-center justify-center h-full">
