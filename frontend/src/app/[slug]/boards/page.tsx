@@ -13,6 +13,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, Settings, Telescope } from "lucide-react";
 import Link from "next/link";
+import slugify from 'slugify';
+
+slugify.extend({ '@': 'at' })
 
 function DialogDemo({ params }) {
   const [isLoading, setLoading] = useState(false)
@@ -31,7 +34,13 @@ function DialogDemo({ params }) {
     // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
     // Limit max length to 35 characters 
     // replace all special characters with - and replace multiple - with single -
-    setSlug(value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-/g, '').slice(0, 35))
+    // setSlug(value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-/g, '').slice(0, 35))
+    const finalSlug = slugify(value, {
+      lower: true,
+      trim: false,
+      strict: true
+    })
+    setSlug(finalSlug.slice(0, 35))
   }
 
   const { toast } = useToast()
