@@ -1,10 +1,12 @@
 package io.easystartup.suggestfeature.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /*
@@ -15,6 +17,12 @@ public class Util {
     private static final Pattern NON_LATIN = Pattern.compile("[^\\w_-]");
     private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}&&[^-]]");
     public static final String WHITE_SPACE = " ";
+    public static final Map<String, String> SLUGIFY_MAP;
+
+    static {
+        // Used to replace $ with dollar
+         SLUGIFY_MAP = JacksonMapper.fromJsonResource("slugify.json", new TypeReference<Map<String, String>>() {});
+    }
 
     public static void sleepSafe(long millis) {
         try {
@@ -60,6 +68,13 @@ public class Util {
 
     public static String fixSlug(String slug) {
         slug = slug.trim();
+
+        // If the slug field has a character is in the map, replace all with the value from the map
+        // Used to replace $ with dollar
+        for (Map.Entry<String, String> entry : SLUGIFY_MAP.entrySet()) {
+            slug = slug.replace(entry.getKey(), entry.getValue());
+        }
+
         // Set slug based on the org name, all lower case and all special characters removed and spaces replaced with -
         // Also cant end with - or start with -
         // Example: "Example Org" => "example-org"

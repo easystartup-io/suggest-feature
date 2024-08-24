@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.annotation.Transient;
@@ -38,8 +39,10 @@ public class Post {
     @Id
     private String id;
     @NotBlank
+    @Size(max = 500)
     private String title;
     @NotBlank
+    @Size(max = 5000)
     private String description;
     @Indexed
     private String organizationId;

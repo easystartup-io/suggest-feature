@@ -18,8 +18,21 @@ function DialogDemo({ params }) {
   const [isLoading, setLoading] = useState(false)
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [slug, setSlug] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+
+  const updateSlug = (value: string) => {
+    // Set org slug based on the org name, all lower case and all special characters removed and spaces replaced with -
+    // Example: "Example Org" => "example-org"
+    // Example: "Example Org" => "example-org"
+    // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
+    // Limit max length to 35 characters 
+    // replace all special characters with - and replace multiple - with single -
+    setSlug(value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-/g, '').slice(0, 35))
+  }
 
   const { toast } = useToast()
 
@@ -34,13 +47,13 @@ function DialogDemo({ params }) {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify({ name, description, slug })
       })
       const respData = await response.json();
 
       if (response.ok) {
         setIsOpen(false)
-        router.push(`/${params.slug}/boards/${respData.id}`)
+        router.push(`/${params.slug}/boards/${respData.slug}`)
         toast({
           title: 'Board created',
         })
@@ -82,13 +95,16 @@ function DialogDemo({ params }) {
               id="name"
               value={name}
               placeholder="Feature requests"
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                updateSlug(e.target.value);
+              }}
               disabled={isLoading}
               className="col-span-3"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
+            <Label htmlFor="description" className="text-right">
               Description
             </Label>
             <Input
@@ -96,6 +112,19 @@ function DialogDemo({ params }) {
               value={description}
               placeholder="Features which you want"
               onChange={(e) => setDescription(e.target.value)}
+              disabled={isLoading}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="slug" className="text-right">
+              Slug
+            </Label>
+            <Input
+              id="slug"
+              value={slug}
+              placeholder="Board slug"
+              onChange={(e) => updateSlug(e.target.value)}
               disabled={isLoading}
               className="col-span-3"
             />

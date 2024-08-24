@@ -8,7 +8,11 @@ import withAuth from '@/hoc/withAuth';
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox"
 import { ExternalLink } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Elsie_Swash_Caps } from "next/font/google";
 
 
 const Dashboard: React.FC = ({ params }) => {
@@ -18,6 +22,10 @@ const Dashboard: React.FC = ({ params }) => {
   const [isLoading, setLoading] = useState(true)
   const [defaultValues, setDefaultValues] = useState({})
   const form = useForm({ defaultValues })
+  const [disabledBoards, setDisabledBoards] = useState([])
+  const [boards, setBoards] = useState([])
+  const [enableRoadmap, setEnableRoadmap] = useState(true)
+  const [title, setTitle] = useState('')
   const { reset } = form; // Get reset function from useForm
 
   useEffect(() => {
@@ -29,7 +37,25 @@ const Dashboard: React.FC = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        if (data.roadmapSettings) {
+          setDisabledBoards(data.roadmapSettings.disabledBoards || [])
+          setEnableRoadmap(data.roadmapSettings.enabled)
+          setTitle(data.roadmapSettings.title || '')
+        } else {
+          setEnableRoadmap(true)
+        }
         reset(data)
+        setLoading(false)
+      })
+
+    fetch(`/api/auth/boards/fetch-boards`, {
+      headers: {
+        "x-org-slug": params.slug
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setBoards(data)
         setLoading(false)
       })
 
@@ -39,17 +65,33 @@ const Dashboard: React.FC = ({ params }) => {
     setLoading(true)
     try {
 
+      const reqPayload = { ...data }
+      if (reqPayload.roadmapSettings) {
+        reqPayload.roadmapSettings.disabledBoards = disabledBoards || []
+        reqPayload.roadmapSettings.enabled = enableRoadmap
+        reqPayload.roadmapSettings.title = title
+      } else {
+        reqPayload.roadmapSettings = { disabledBoards: disabledBoards, enabled: enableRoadmap, title: title }
+      }
+
       const resp = await fetch(`/api/auth/pages/edit-roadmap`, {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(reqPayload)
       });
       const respData = await resp.json();
       if (resp.ok) {
         setData(respData)
+        if (respData.roadmapSettings) {
+          setDisabledBoards(respData.roadmapSettings.disabledBoards || [])
+          setEnableRoadmap(data.roadmapSettings.enabled)
+          setTitle(data.roadmapSettings.title || '')
+        } else {
+          setEnableRoadmap(true)
+        }
         reset(respData)
         toast({
           title: 'Updated successfully',
@@ -87,22 +129,47 @@ const Dashboard: React.FC = ({ params }) => {
         <div className="w-full p-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="customDomain"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Custom Domain</FormLabel>
-                    <FormControl>
-                      <Input disabled={isLoading} placeholder="feature-request.yourdomain.com" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      This is the custom domain for the page. You have to setup a CNAME mapping in your DNS server to our domain widget.suggestfeature.com .
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="enabel-roadmap">Enable Roadmap</Label>
+                <Switch id="enable-roadmap"
+                  disabled={isLoading}
+                  checked={enableRoadmap}
+                  onCheckedChange={(checked) => setEnableRoadmap(checked)}
+                  className="ml-4" />
+              </div>
+              <div className="space-y-2">
+                <FormLabel>Roadmap Title</FormLabel>
+                <Input disabled={isLoading} placeholder="Roadmap"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <FormDescription>
+                  The homepage is called the Roadmap. Select a different title for your homepage.
+                </FormDescription>
+              </div>
+              <div className="space-y-2">
+                <FormLabel>Include boards</FormLabel>
+                {
+                  boards && boards.map((board) => (
+                    <div className="flex items-center space-x-2" key={board.id}>
+                      <Checkbox
+                        id={board.id}
+                        onCheckedChange={(checked) => {
+                          checked ? setDisabledBoards(disabledBoards.filter((id) => id !== board.id)) : setDisabledBoards([...disabledBoards, board.id])
+                        }}
+                        checked={!disabledBoards.includes(board.id)}
+                        disabled={isLoading}
+                      />
+                      <label
+                        htmlFor={board.id}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {board.name}
+                      </label>
+                    </div>
+                  ))
+                }
+              </div>
               <Button type="submit" disabled={isLoading}>
                 {isLoading &&
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

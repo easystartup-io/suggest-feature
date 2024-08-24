@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,6 +26,7 @@ public class Organization {
     @Id
     private String id;
     @NotBlank
+    @Size(max = 500)
     private String name;
     @Indexed(unique = true)
     @NotBlank

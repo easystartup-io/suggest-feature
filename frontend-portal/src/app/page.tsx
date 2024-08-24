@@ -134,26 +134,30 @@ export default function Dashboard({ params }) {
                 );
               })}
             </div>
-            <div className="flex items-center font-semibold pt-8 text-lg">
-              Roadmap
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 mt-6">
-              {
-                posts && Object.keys(posts).map((key) => {
-                  return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,24rem))]">
-                    <div className="flex items-center justify-center font-semibold pb-4">
-                      {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
-                    </div>
-                    {posts[key] && posts[key].length > 0 ? <PostList posts={posts[key]} /> : (
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <div className="text-2xl font-semibold text-muted-foreground">No posts found</div>
+            {
+              org && ((org.roadmapSettings && org.roadmapSettings.enabled) || (!org.roadmapSettings)) && <div className="w-full h-full">
+                <div className="flex items-center font-semibold pt-8 text-lg">
+                  Roadmap
+                </div>
+                <div className="grid md:grid-cols-3 gap-6 mt-6">
+                  {
+                    posts && Object.keys(posts).map((key) => {
+                      return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,24rem))]">
+                        <div className="flex items-center justify-center font-semibold pb-4">
+                          {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
+                        </div>
+                        {posts[key] && posts[key].length > 0 ? <PostList posts={posts[key]} /> : (
+                          <div className="flex flex-col items-center justify-center h-full">
+                            <div className="text-2xl font-semibold text-muted-foreground">No posts found</div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  );
-                })
-              }
-            </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+            }
           </div>
         </div>
       </div>

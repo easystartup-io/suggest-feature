@@ -12,6 +12,7 @@ import java.util.List;
 public class RoadmapSettings {
 
     private boolean enabled = true;
+    private String title;
     private List<String> disabledBoards;
     private List<StatusConfig> statusConfigs;
 
@@ -40,5 +41,13 @@ public class RoadmapSettings {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

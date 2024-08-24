@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -33,9 +34,11 @@ public class Board {
     @Id
     private String id;
     @NotBlank
+    @Size(max = 500)
     private String name;
     @NotBlank
     private String slug;
+    @Size(max = 5000)
     private String description;
     @Indexed
     private String organizationId;
