@@ -11,12 +11,14 @@ import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +36,7 @@ public class PostsRestApi {
     private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
     private final ValidationService validationService;
-    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(Post.FIELD_CREATED_AT, Post.FIELD_NAME);
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(Post.FIELD_CREATED_AT, Post.FIELD_TITLE);
     public static final String EMPTY_JSON_RESPONSE = JacksonMapper.toJson(Collections.emptyMap());
 
     @Autowired
@@ -42,6 +44,49 @@ public class PostsRestApi {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
         this.validationService = validationService;
+    }
+
+
+    @POST
+    @Path("/search-post")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response searchPost(SearchPostDTO req) {
+        String userId = UserContext.current().getUserId();
+
+        if (StringUtils.isBlank(req.getQuery())) {
+            throw new UserVisibleException("Search query is required");
+        }
+
+        validationService.validate(req);
+
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
+        if (StringUtils.isNotBlank(req.getBoardSlug())) {
+            Board board = getBoardFromSlug(req.getBoardSlug(), UserContext.current().getOrgId());
+            if (board == null) {
+                throw new UserVisibleException("Board not found");
+            }
+            criteriaDefinition.and(Post.FIELD_BOARD_ID).is(board.getId());
+        }
+
+        TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(req.getQuery());
+
+        Query query = new Query(criteriaDefinition);
+        query.addCriteria(textCriteria);
+        query.limit(20);
+
+        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        if (CollectionUtils.isEmpty(posts) || posts.size() < 20) {
+            criteriaDefinition.and(Post.FIELD_TITLE).regex(req.getQuery(), "i");
+            query = new Query(criteriaDefinition);
+            query.limit(20);
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        }
+        // remove posts with same  post Id. cant be compared with object.equals as it is a mongo object
+        Set<String> postIds = new HashSet<>();
+        posts.removeIf(post -> !postIds.add(post.getId()));
+
+        return Response.ok(JacksonMapper.toJson(posts)).build();
     }
 
 

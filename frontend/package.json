@@ -58,6 +58,7 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.3",
     "vaul": "^0.9.1"
   },
   "devDependencies": {

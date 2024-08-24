@@ -20,6 +20,8 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { PostCard } from "@/components/post/PostCard";
 import Cookies from 'js-cookie';
+import { useDebouncedCallback } from 'use-debounce';
+
 
 export const statusConfig = {
   "OPEN": {
@@ -184,6 +186,7 @@ const Dashboard: React.FC = ({ params }) => {
   const { toast } = useToast()
 
   const [data, setData] = useState(null)
+  const [tempData, setTempData] = useState([])
   const [isLoading, setLoading] = useState(true)
   const [defaultValues, setDefaultValues] = useState({})
   const form = useForm({ defaultValues })
@@ -207,6 +210,7 @@ const Dashboard: React.FC = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        setTempData(data)
         if (data && data.length > 0) {
           setCurrentPost({
             post: data[0],
@@ -231,6 +235,39 @@ const Dashboard: React.FC = ({ params }) => {
         setBoard(data)
       })
   }, [params.id, params.slug, reset])
+
+  const searchOnDb = useDebouncedCallback((value) => {
+    if (value.trim() === '') {
+      setData(tempData)
+      if (tempData && tempData.length > 0) {
+        setCurrentPost({
+          post: tempData[0],
+          id: tempData[0].id
+        })
+      }
+      return
+    }
+    fetch(`/api/auth/posts/search-post`, {
+      method: "POST",
+      headers: {
+        "x-org-slug": params.slug,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ boardSlug: params.id, query: value })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data)
+        if (data && data.length > 0) {
+          setCurrentPost({
+            post: data[0],
+            id: data[0].id
+          })
+        }
+        reset(data)
+        setLoading(false)
+      })
+  }, 300);
 
   // if (isLoading) return <p>Loading...</p>
   if (!data) return <p>No post data</p>
@@ -265,12 +302,14 @@ const Dashboard: React.FC = ({ params }) => {
           <ResizablePanel defaultSize={defaultLayout[0]} minSize={30} className="">
             <ScrollArea className="pb-4 h-full overflow-y-auto">
               <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <form>
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search" className="pl-8" />
-                  </div>
-                </form>
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search" className="pl-8"
+                    onChange={(e) => {
+                      searchOnDb(e.target.value)
+                    }}
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-2 px-4 pt-0">
                 {data && data.length > 0 && data.map((item) => (

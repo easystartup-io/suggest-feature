@@ -21,11 +21,15 @@ import java.util.List;
 @CompoundIndexes({
         @CompoundIndex(name = "organizationId_1_boardId_1_createdAt_1", def = "{'organizationId': 1, 'boardId': 1, 'createdAt': 1}"),
         @CompoundIndex(name = "organizationId_1_createdAt_1", def = "{'organizationId': 1, 'createdAt': 1}"),
-        @CompoundIndex(name = "organizationId_1_boardId_1_slug_1", def = "{'organizationId': 1, 'boardId': 1,'slug': 1}", unique = true)
+        @CompoundIndex(name = "organizationId_1_boardId_1_slug_1", def = "{'organizationId': 1, 'boardId': 1,'slug': 1}", unique = true),
+        // Needed for search functionality Todo: Remove this index and implement search functionality using es/manticore
+        @CompoundIndex(name = "organizationId_1_title_1", def = "{'organizationId': 1, 'title': 'text'}"),
+        // For regex based search on title
+        @CompoundIndex(name = "organizationId_1_title_1_regex", def = "{'organizationId': 1, 'title': 1}")
 })
 public class Post {
     public static final String FIELD_ID = "_id";
-    public static final String FIELD_NAME = "name";
+    public static final String FIELD_TITLE = "title";
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
     public static final String FIELD_BOARD_ID = "boardId";
