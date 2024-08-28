@@ -50,8 +50,11 @@ public class BillingRestApi {
         Criteria criteria = Criteria.where(SubscriptionDetails.FIELD_ORGANIZATION_ID).is(userContext.getOrgId());
         SubscriptionDetails subscriptionDetails = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), SubscriptionDetails.class);
         if (subscriptionDetails == null) {
-            return Response.ok().entity("{}").build();
+            SubscriptionDetails newSubscriptionDetails = new SubscriptionDetails();
+            newSubscriptionDetails.setOrganizationId(userContext.getOrgId());
+            mongoConnection.getDefaultMongoTemplate().insert(newSubscriptionDetails);
+            subscriptionDetails = newSubscriptionDetails;
         }
-        return Response.ok().build();
+        return Response.ok(subscriptionDetails).build();
     }
 }

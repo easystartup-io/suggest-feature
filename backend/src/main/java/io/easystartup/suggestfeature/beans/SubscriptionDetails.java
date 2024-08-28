@@ -20,6 +20,8 @@ public class SubscriptionDetails {
     private String organizationId;
     private String email;
     private String userId;
+    private String subscriptionStatus;
+    private String subscriptionPlan;
 
     public SubscriptionDetails() {
     }
@@ -62,5 +64,21 @@ public class SubscriptionDetails {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getSubscriptionStatus() {
+        return subscriptionStatus;
+    }
+
+    public void setSubscriptionStatus(String subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
+    }
+
+    public String getSubscriptionPlan() {
+        return subscriptionPlan;
+    }
+
+    public void setSubscriptionPlan(String subscriptionPlan) {
+        this.subscriptionPlan = subscriptionPlan;
     }
 }
