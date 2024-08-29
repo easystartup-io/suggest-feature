@@ -117,7 +117,8 @@ public class UserRestApi {
             mongoConnection.getDefaultMongoTemplate().insert(member);
 
             SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
-            subscriptionDetails.setSubscriptionPlan();
+            subscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.trial.name());
+            subscriptionDetails.setSubscriptionStatus(SubscriptionDetails.Status.active.name());
             subscriptionDetails.setOrganizationId(organization.getId());
             subscriptionDetails.setUserId(userId);
             mongoConnection.getDefaultMongoTemplate().insert(subscriptionDetails);

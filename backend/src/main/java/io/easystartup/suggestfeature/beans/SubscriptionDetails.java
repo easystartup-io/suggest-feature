@@ -18,8 +18,9 @@ public class SubscriptionDetails {
 
     public enum Plan {
         trial,
-        indie,
-        startup,
+        basic,
+        pro,
+        team,
         enterprise
     }
 
