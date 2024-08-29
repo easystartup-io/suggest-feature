@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.rest.admin;
 
 import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.beans.Organization;
+import io.easystartup.suggestfeature.beans.SubscriptionDetails;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.CreateMemberRequest;
 import io.easystartup.suggestfeature.dto.OrganizationRequest;
@@ -114,6 +115,12 @@ public class UserRestApi {
             member.setOrganizationId(organization.getId());
             member.setRole(Member.Role.ADMIN);
             mongoConnection.getDefaultMongoTemplate().insert(member);
+
+            SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
+            subscriptionDetails.setSubscriptionPlan();
+            subscriptionDetails.setOrganizationId(organization.getId());
+            subscriptionDetails.setUserId(userId);
+            mongoConnection.getDefaultMongoTemplate().insert(subscriptionDetails);
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Organization Slug already exists").build();
         }

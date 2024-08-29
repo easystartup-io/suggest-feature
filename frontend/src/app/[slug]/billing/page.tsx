@@ -1,11 +1,38 @@
-import React from 'react';
+"use client"
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Loading from '@/components/Loading';
 
-const BillingPage = () => {
+const BillingPage = ({ params }) => {
+  const [subscription, setSubscription] = useState(null);
+
+  useEffect(() => {
+    fetch(`/api/auth/billing/get-subscription-details`, {
+      method: "GET",
+      headers: {
+        "x-org-slug": params.slug,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSubscription(data)
+      })
+  }, [params.slug]);
+
+  if (!subscription) {
+    return <Loading />;
+  }
+
+  if (subscription && subscription.subscriptionPlan === 'self-hosted') {
+    return (<div className='flex items-center justify-center h-screen w-full text-xl'>
+      Self Hosted Plan. Please contact support for further queries.
+    </div>)
+  }
+
   return (
     <ScrollArea className="h-full">
       <div className="container mx-auto p-6">
@@ -57,9 +84,9 @@ const BillingPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { name: "Free", price: "$0/mo", description: "Set up your feedback portal with just the basics", current: true },
-            { name: "Starter", price: "$79/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "billed yearly" },
-            { name: "Growth", price: "$359/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "billed yearly" },
+            { name: "Indie", price: "$9/mo", description: "Set up your feedback portal with just the basics", current: true },
+            { name: "Starter", price: "$39/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "billed yearly" },
+            { name: "Growth", price: "$49/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "billed yearly" },
             { name: "Business", price: "Custom", description: "Deploy additional permissions, compliance, and customizations" }
           ].map((plan, index) => (
             <Card key={index} className={plan.current ? "border-primary" : ""}>
@@ -77,7 +104,9 @@ const BillingPage = () => {
                 {plan.current ? (
                   <Badge variant="outline" className="bg-primary/10 text-primary">Current Plan</Badge>
                 ) : (
-                  <Button variant={plan.name === "Business" ? "outline" : "default"}>
+                  <Button variant={plan.name === "Business" ? "outline" : "default"}
+                    onClick={() => plan.name === "Business" ? window.location.href = "mailto:billing@suggestfeature.com" : window.location.href = "/[slug]/billing/checkout"}
+                  >
                     {plan.name === "Business" ? "Contact Us" : "Start Trial"}
                   </Button>
                 )}

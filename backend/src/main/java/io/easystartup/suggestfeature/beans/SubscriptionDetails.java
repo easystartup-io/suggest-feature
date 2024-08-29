@@ -11,6 +11,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class SubscriptionDetails {
 
+    public enum Status {
+        active,
+        inactive
+    }
+
+    public enum Plan {
+        trial,
+        indie,
+        startup,
+        enterprise
+    }
+
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
 
     @Id
