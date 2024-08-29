@@ -26,6 +26,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /*
  * @author indianBond
@@ -117,9 +118,13 @@ public class UserRestApi {
             mongoConnection.getDefaultMongoTemplate().insert(member);
 
             SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
-            subscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.trial.name());
+            subscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.basic.name());
             subscriptionDetails.setSubscriptionStatus(SubscriptionDetails.Status.active.name());
+            subscriptionDetails.setBillingInterval(SubscriptionDetails.BillingInterval.monthly);
             subscriptionDetails.setOrganizationId(organization.getId());
+            subscriptionDetails.setPrice("2900");
+            subscriptionDetails.setTrial(true);
+            subscriptionDetails.setTrialEndDate(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7));
             subscriptionDetails.setUserId(userId);
             mongoConnection.getDefaultMongoTemplate().insert(subscriptionDetails);
         } catch (Exception e) {

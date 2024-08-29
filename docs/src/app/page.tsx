@@ -147,7 +147,7 @@ const Pricing = () => {
     {
       title: "Team",
       description: "Best for small to medium sized businesses",
-      price: 99,
+      price: 49,
       features: [
         "Unlimited project boards",
         "Unlimited team members",

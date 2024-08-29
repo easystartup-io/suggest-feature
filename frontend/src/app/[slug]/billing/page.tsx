@@ -84,10 +84,10 @@ const BillingPage = ({ params }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { name: "Indie", price: "$9/mo", description: "Set up your feedback portal with just the basics", current: true },
-            { name: "Starter", price: "$39/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "billed yearly" },
-            { name: "Growth", price: "$49/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "billed yearly" },
-            { name: "Business", price: "Custom", description: "Deploy additional permissions, compliance, and customizations" }
+            { name: "Basic", price: "$9/mo", description: "Set up your feedback portal with just the basics", current: true },
+            { name: "Pro", price: "$29/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "billed yearly" },
+            { name: "Team", price: "$49/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "billed yearly" },
+            { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations" }
           ].map((plan, index) => (
             <Card key={index} className={plan.current ? "border-primary" : ""}>
               <CardHeader>
