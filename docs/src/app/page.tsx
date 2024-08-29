@@ -64,19 +64,19 @@ const Hero = () => (
         Simplest way to gather customer feedback
       </h1>
       <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
-        Understand what users really want to make the best product. Effortlessly manage and prioritize suggestions for your product's future roadmap.
+        Understand what users really want to make the best product. Effortlessly manage and prioritize suggestions for your product&apos;s future roadmap.
       </p>
       <div className="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
         <Link href="https://app.suggestfeature.com/sign-up" passHref={true}>
-          <Button size="lg" asChild className='py-3 px-5 font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900'>
-            <div>
+          <Button size="lg" asChild className='py-3 px-5 font-medium text-base text-center text-white rounded-lg border border-primary-700 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900 h-[13.5]'>
+            <div className='flex items-center'>
               Get Started
               <ArrowRight className="ml-2 -mr-1 w-6 h-6" />
             </div>
           </Button>
         </Link>
         <Link href="/demo" passHref={true}>
-          <Button variant="outline" className='py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800' size="lg">
+          <Button variant="outline" className='py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800 h-[13.5]' size="lg">
             <div className='flex items-center'>
               Try Demo
               <MousePointerClick className="ml-2 -mr-1 w-6 h-6" />
@@ -182,7 +182,7 @@ const Pricing = () => {
       <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
         <div className="mx-auto max-w-screen-md text-center mb-8 lg:mb-12">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Build the best features together with your customers</h2>
-          <p className="mb-5 font-light text-gray-500 sm:text-xl dark:text-gray-400">Prioritize what's important to increase MRR and reduce churn. Know what really matters to your customers and make everyone happy</p>
+          <p className="mb-5 font-light text-gray-500 sm:text-xl dark:text-gray-400">Prioritize what&apos;s important to increase MRR and reduce churn. Know what really matters to your customers and make everyone happy</p>
         </div>
         <div className="space-y-6 lg:grid lg:grid-cols-4 sm:gap-4 lg:space-y-0">
           {pricingData.map((tier, index) => (
