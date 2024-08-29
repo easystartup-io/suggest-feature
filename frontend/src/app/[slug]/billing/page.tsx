@@ -9,6 +9,7 @@ import Loading from '@/components/Loading';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
+  const [interval, setInterval] = useState('monthly');
 
   useEffect(() => {
     fetch(`/api/auth/billing/get-subscription-details`, {
@@ -76,17 +77,13 @@ const BillingPage = ({ params }) => {
 
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Plans</h2>
-          <div>
-            <Button variant="outline" className="mr-2">Pay Monthly</Button>
-            <Button>Pay Yearly</Button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { name: "Basic", price: "$9/mo", description: "Set up your feedback portal with just the basics", current: true },
-            { name: "Pro", price: "$29/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "billed yearly" },
-            { name: "Team", price: "$49/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "billed yearly" },
+            { name: "Pro", price: "$29/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "" },
+            { name: "Team", price: "$49/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "" },
             { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations" }
           ].map((plan, index) => (
             <Card key={index} className={plan.current ? "border-primary" : ""}>
@@ -104,10 +101,10 @@ const BillingPage = ({ params }) => {
                 {plan.current ? (
                   <Badge variant="outline" className="bg-primary/10 text-primary">Current Plan</Badge>
                 ) : (
-                  <Button variant={plan.name === "Business" ? "outline" : "default"}
+                  <Button variant={plan.name === "Enterprise" ? "outline" : "default"}
                     onClick={() => plan.name === "Business" ? window.location.href = "mailto:billing@suggestfeature.com" : window.location.href = "/[slug]/billing/checkout"}
                   >
-                    {plan.name === "Business" ? "Contact Us" : "Start Trial"}
+                    {plan.name === "Enterprise" ? "Contact Us" : "Start Trial"}
                   </Button>
                 )}
               </CardContent>
