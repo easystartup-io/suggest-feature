@@ -1,16 +1,24 @@
 "use client"
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from '@/components/Loading';
-import { formatDistanceToNow, formatDistanceToNowStrict, formatRelative } from 'date-fns';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatDistanceToNow } from 'date-fns';
+import { useEffect, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
   const [interval, setInterval] = useState('monthly');
+  const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/auth/billing/get-subscription-details`, {
@@ -104,19 +112,32 @@ const BillingPage = ({ params }) => {
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-2xl font-bold">Plans</h2>
 
-          <div className="flex justify-between items-center mb-4">
-            <Button>
-              Plan Details
-            </Button>
+          <div className="mb-4">
+            <Dialog open={isPlanDetailsOpen} onOpenChange={setIsPlanDetailsOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  className="bg-indigo-700 hover:bg-indigo-700/90"
+                >
+                  View Plan Details
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] w-[800px] max-h-[95vh] h-[600px] p-0">
+                <iframe
+                  src="https://suggestfeature.com/#pricing"
+                  className="w-full h-full border-none"
+                  title="Plan Details"
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { name: "Basic", price: "$9/mo", description: "Set up your feedback portal with just the basics", current: (!subscription.trial && subscription.subscriptionPlan === 'basic') },
-            { name: "Pro", price: "$29/mo", description: "Get more out of your feedback with advanced tools", billingPeriod: "" },
-            { name: "Team", price: "$49/mo", description: "Scale insights across your team with integrations and automations", billingPeriod: "" },
+            { name: "Basic", price: "$9/mo", description: "Best option for personal use & for your next project", current: (!subscription.trial && subscription.subscriptionPlan === 'basic') },
+            { name: "Pro", price: "$29/mo", description: "Relevant for multiple users & extended support", billingPeriod: "" },
+            { name: "Team", price: "$49/mo", description: "Best for small to medium sized businesses", billingPeriod: "" },
             { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations" }
           ].map((plan, index) => (
             <Card key={index} className={plan.current ? "border-primary" : ""}>
