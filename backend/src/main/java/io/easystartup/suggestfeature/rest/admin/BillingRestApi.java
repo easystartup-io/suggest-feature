@@ -9,11 +9,10 @@ import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -44,9 +43,9 @@ public class BillingRestApi {
     public Response getSubscriptionDetails() {
         if (Util.isSelfHosted()){
             SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
-            subscriptionDetails.setOrganizationId("self-hosted");
-            subscriptionDetails.setSubscriptionStatus("active");
-            subscriptionDetails.setSubscriptionPlan("self-hosted");
+            subscriptionDetails.setOrganizationId(UserContext.current().getOrgId());
+            subscriptionDetails.setSubscriptionStatus(SubscriptionDetails.Status.active.name());
+            subscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.self_hosted.name());
             return Response.ok(JacksonMapper.toJson(subscriptionDetails)).build();
         }
         UserContext userContext = UserContext.current();
@@ -78,6 +77,10 @@ public class BillingRestApi {
         if (Util.isSelfHosted()){
             return Response.ok().build();
         }
+        if (StringUtils.isBlank(checkoutRequestDTO.getPlan())){
+            throw new UserVisibleException("Plan is required");
+        }
+        checkoutRequestDTO.setPlan(checkoutRequestDTO.getPlan().toLowerCase().trim());
         UserContext userContext = UserContext.current();
         if (userContext.getOrgId() == null) {
             throw new UserVisibleException("Organization id is not valid");
@@ -90,6 +93,40 @@ public class BillingRestApi {
         if (subscriptionDetails == null) {
             SubscriptionDetails newSubscriptionDetails = new SubscriptionDetails();
             newSubscriptionDetails.setOrganizationId(userContext.getOrgId());
+            mongoConnection.getDefaultMongoTemplate().insert(newSubscriptionDetails);
+            subscriptionDetails = newSubscriptionDetails;
+        }
+        return Response.ok(JacksonMapper.toJson(subscriptionDetails)).build();
+    }
+
+    @POST
+    @Path("/cancel-subscription")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response cancelSubscription() {
+        if (Util.isSelfHosted()){
+            SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
+            subscriptionDetails.setOrganizationId(UserContext.current().getOrgId());
+            subscriptionDetails.setSubscriptionStatus(SubscriptionDetails.Status.active.name());
+            subscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.self_hosted.name());
+            return Response.ok(JacksonMapper.toJson(subscriptionDetails)).build();
+        }
+        UserContext userContext = UserContext.current();
+        if (userContext.getOrgId() == null) {
+            throw new UserVisibleException("Organization id is not valid");
+        }
+        if (userContext.getRole() != Member.Role.ADMIN) {
+            throw new UserVisibleException("Only admin can make changes to this", Response.Status.FORBIDDEN);
+        }
+        Criteria criteria = Criteria.where(SubscriptionDetails.FIELD_ORGANIZATION_ID).is(userContext.getOrgId());
+        SubscriptionDetails subscriptionDetails = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), SubscriptionDetails.class);
+        if (subscriptionDetails == null) {
+            SubscriptionDetails newSubscriptionDetails = new SubscriptionDetails();
+            newSubscriptionDetails.setOrganizationId(userContext.getOrgId());
+            newSubscriptionDetails.setSubscriptionStatus("active");
+            newSubscriptionDetails.setTrial(true);
+            newSubscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.basic.name());
+            newSubscriptionDetails.setTrialEndDate(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7));
             mongoConnection.getDefaultMongoTemplate().insert(newSubscriptionDetails);
             subscriptionDetails = newSubscriptionDetails;
         }

@@ -25,7 +25,8 @@ public class SubscriptionDetails {
         basic,
         pro,
         team,
-        enterprise
+        enterprise,
+        self_hosted
     }
 
     public static final String FIELD_ORGANIZATION_ID = "organizationId";

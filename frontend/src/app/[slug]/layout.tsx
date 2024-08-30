@@ -36,6 +36,7 @@ import {
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { openCrisp } from "@/lib/open-crisp"
 
 export const SidebarContext = createContext()
 
@@ -119,10 +120,7 @@ function ProfileDropdownMenu({ params, logout, router, user }) {
           Profile Settings
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => {
-          Crisp.user.setEmail(user.email);
-          Crisp.user.setNickname(user.name);
-          Crisp.session.setData({ orgSlug: params.slug });
-          Crisp.chat.open()
+          openCrisp({ user, params });
         }}>Support</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={async () => {

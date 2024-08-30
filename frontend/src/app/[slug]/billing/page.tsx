@@ -14,11 +14,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/context/AuthContext';
+import { openCrisp } from '@/lib/open-crisp';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
   const [interval, setInterval] = useState('monthly');
   const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
+  const { user } = useAuth()
 
   useEffect(() => {
     fetch(`/api/auth/billing/get-subscription-details`, {
@@ -33,11 +37,45 @@ const BillingPage = ({ params }) => {
       })
   }, [params.slug]);
 
+  const getCheckoutLink = async (plan) => {
+    try {
+      const resp = await fetch(`/api/auth/billing/get-checkout-link`, {
+        method: "POST",
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ plan })
+      })
+
+      const respData = await resp.json()
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const cancelSubscription = async () => {
+    try {
+      const resp = await fetch(`/api/auth/billing/cancel-subscription`, {
+        method: "POST",
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+
+      const respData = await resp.json()
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   if (!subscription) {
     return <Loading />;
   }
 
-  if (subscription && subscription.subscriptionPlan === 'self-hosted') {
+  if (subscription && subscription.subscriptionPlan === 'self_hosted') {
     return (<div className='flex items-center justify-center h-screen w-full text-xl'>
       Self Hosted Plan. Please contact support for further queries.
     </div>)
@@ -156,7 +194,11 @@ const BillingPage = ({ params }) => {
                   <Badge variant="outline" className="bg-primary/10 text-primary">Current Plan</Badge>
                 ) : (
                   <Button variant={plan.name === "Enterprise" ? "outline" : "default"}
-                    onClick={() => plan.name === "Business" ? window.location.href = "mailto:billing@suggestfeature.com" : window.location.href = "/[slug]/billing/checkout"}
+                    onClick={() => plan.name === "Enterprise" ? openCrisp({
+                      user, params, message: {
+                        msg: "I would like to upgrade to the Enterprise plan"
+                      }
+                    }) : getCheckoutLink(plan.name)}
                   >
                     {plan.name === "Enterprise" ? "Contact Us" : "Upgrade"}
                   </Button>
@@ -165,7 +207,28 @@ const BillingPage = ({ params }) => {
             </Card>
           ))}
         </div>
+
+        <Separator className='my-12' />
+
+        <section className="flex justify-between items-center my-6">
+          <h2 className="text-2xl font-bold text-red-800">Terminate Subscription</h2>
+          <p className="text-sm text-red-700">
+            Warning: Termination will disable user feedback and remove admin privileges.
+          </p>
+        </section>
+        <section className="flex justify-between items-center my-4 text-red">
+          <p className="text-sm underline text-red-700 cursor-pointer" onClick={() => {
+            openCrisp({
+              user, params, message: {
+                msg: "I would like to terminate my subscription"
+              }
+            })
+          }}>
+            Click here to contact us to terminate your subscription.
+          </p>
+        </section>
       </div>
+
     </ScrollArea>
   );
 };

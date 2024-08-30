@@ -174,6 +174,8 @@ const Pricing = () => {
         "Custom domain",
         "Advanced security features (SSO, audit logs)",
         "Custom integrations",
+        "Authentication integrations",
+        "White label",
         "On-premise deployment option",
         "SLA guarantees"
       ],
