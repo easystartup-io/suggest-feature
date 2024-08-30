@@ -19,6 +19,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 /*
  * @author indianBond
  */
@@ -59,6 +61,10 @@ public class BillingRestApi {
         if (subscriptionDetails == null) {
             SubscriptionDetails newSubscriptionDetails = new SubscriptionDetails();
             newSubscriptionDetails.setOrganizationId(userContext.getOrgId());
+            newSubscriptionDetails.setSubscriptionStatus("active");
+            newSubscriptionDetails.setTrial(true);
+            newSubscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.basic.name());
+            newSubscriptionDetails.setTrialEndDate(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7));
             mongoConnection.getDefaultMongoTemplate().insert(newSubscriptionDetails);
             subscriptionDetails = newSubscriptionDetails;
         }
