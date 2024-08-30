@@ -15,25 +15,23 @@ public class BillingServiceImpl implements BillingService {
     private final AuthService authService;
     private final SubscriptionService subscriptionService;
     private final MongoTemplateFactory mongoConnection;
+    private final LemonSqueezyPaymentService lemonSqueezyPaymentService;
 
     @Autowired
-    public BillingServiceImpl(AuthService authService, SubscriptionService subscriptionService, MongoTemplateFactory mongoConnection) {
+    public BillingServiceImpl(AuthService authService, SubscriptionService subscriptionService, MongoTemplateFactory mongoConnection, LemonSqueezyPaymentService lemonSqueezyPaymentService) {
         this.authService = authService;
         this.subscriptionService = subscriptionService;
         this.mongoConnection = mongoConnection;
+        this.lemonSqueezyPaymentService = lemonSqueezyPaymentService;
     }
 
-    public void checkout(String plan) {
-        if (!subscriptionService.hasValidSubscription(authService.getOrganizationId())) {
-            throw new RuntimeException("Invalid subscription");
-        }
-        // do checkout
+    @Override
+    public String checkoutLink(String plan, String orgId, String userId) {
+        return lemonSqueezyPaymentService.checkoutLink(plan, orgId, userId);
     }
 
-    public void cancelSubscription() {
-        if (!subscriptionService.hasValidSubscription(authService.getOrganizationId())) {
-            throw new RuntimeException("Invalid subscription");
-        }
+    @Override
+    public void cancelSubscription(String orgId) {
         // cancel subscription
     }
 }

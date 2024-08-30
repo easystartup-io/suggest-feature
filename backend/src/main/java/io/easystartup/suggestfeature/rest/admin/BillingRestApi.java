@@ -6,6 +6,7 @@ import io.easystartup.suggestfeature.dto.CheckoutRequestDTO;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.billing.BillingService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
@@ -18,6 +19,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -29,12 +32,12 @@ import java.util.concurrent.TimeUnit;
 public class BillingRestApi {
 
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
+    private final BillingService billingService;
 
     @Autowired
-    public BillingRestApi(MongoTemplateFactory mongoConnection, AuthService authService) {
+    public BillingRestApi(MongoTemplateFactory mongoConnection, BillingService billingService) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
+        this.billingService = billingService;
     }
 
     @GET
@@ -88,15 +91,10 @@ public class BillingRestApi {
         if (userContext.getRole() != Member.Role.ADMIN) {
             throw new UserVisibleException("Only admin can access this resource", Response.Status.FORBIDDEN);
         }
-        Criteria criteria = Criteria.where(SubscriptionDetails.FIELD_ORGANIZATION_ID).is(userContext.getOrgId());
-        SubscriptionDetails subscriptionDetails = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), SubscriptionDetails.class);
-        if (subscriptionDetails == null) {
-            SubscriptionDetails newSubscriptionDetails = new SubscriptionDetails();
-            newSubscriptionDetails.setOrganizationId(userContext.getOrgId());
-            mongoConnection.getDefaultMongoTemplate().insert(newSubscriptionDetails);
-            subscriptionDetails = newSubscriptionDetails;
-        }
-        return Response.ok(JacksonMapper.toJson(subscriptionDetails)).build();
+        String url = billingService.checkoutLink(checkoutRequestDTO.getPlan(), userContext.getOrgId(), userContext.getUserId());
+        Map<String, String> response = new HashMap<>();
+        response.put("url", url);
+        return Response.ok(JacksonMapper.toJson(response)).build();
     }
 
     @POST
@@ -118,18 +116,6 @@ public class BillingRestApi {
         if (userContext.getRole() != Member.Role.ADMIN) {
             throw new UserVisibleException("Only admin can make changes to this", Response.Status.FORBIDDEN);
         }
-        Criteria criteria = Criteria.where(SubscriptionDetails.FIELD_ORGANIZATION_ID).is(userContext.getOrgId());
-        SubscriptionDetails subscriptionDetails = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), SubscriptionDetails.class);
-        if (subscriptionDetails == null) {
-            SubscriptionDetails newSubscriptionDetails = new SubscriptionDetails();
-            newSubscriptionDetails.setOrganizationId(userContext.getOrgId());
-            newSubscriptionDetails.setSubscriptionStatus("active");
-            newSubscriptionDetails.setTrial(true);
-            newSubscriptionDetails.setSubscriptionPlan(SubscriptionDetails.Plan.basic.name());
-            newSubscriptionDetails.setTrialEndDate(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7));
-            mongoConnection.getDefaultMongoTemplate().insert(newSubscriptionDetails);
-            subscriptionDetails = newSubscriptionDetails;
-        }
-        return Response.ok(JacksonMapper.toJson(subscriptionDetails)).build();
+        return Response.ok(JacksonMapper.toJson("{}")).build();
     }
 }

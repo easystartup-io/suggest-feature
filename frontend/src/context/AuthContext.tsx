@@ -3,6 +3,8 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { useToast } from '@/components/ui/use-toast';
+import { Toaster } from '@/components/ui/toaster';
 
 interface User {
   username: string;
@@ -25,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkUserLoggedIn = async () => {
@@ -66,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('Magic link generation successful');
     } else {
       console.error('Magic link generation failed');
+      throw new Error('Failed to send verification code. Please try again.');
     }
   };
 
@@ -90,6 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } else {
       console.error('Login failed');
+      throw new Error('Failed to login');
     }
   };
 

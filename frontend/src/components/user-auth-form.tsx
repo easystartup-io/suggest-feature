@@ -13,6 +13,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/comp
 import { Mail } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { }
 
@@ -23,6 +24,7 @@ export function UserAuthForm({ className, formType, ...props }: UserAuthFormProp
   const { login, verifyCode } = useAuth();
   const [username, setUsername] = useState('');
   const router = useRouter()
+  const { toast } = useToast()
 
 
   async function onSubmit(event: React.SyntheticEvent) {
@@ -33,11 +35,19 @@ export function UserAuthForm({ className, formType, ...props }: UserAuthFormProp
     setIsLoading(true)
 
 
-    if (step === 'email') {
-      await login(username);
-      setStep('verification');
-    } else {
-      await verifyCode(username, verificationCode);
+    try {
+      if (step === 'email') {
+        await login(username);
+        setStep('verification');
+      } else {
+        await verifyCode(username, verificationCode);
+      }
+    } catch (e) {
+      toast({
+        title: "Error",
+        description: e.message,
+        variant: "destructive"
+      })
     }
 
     setTimeout(() => {

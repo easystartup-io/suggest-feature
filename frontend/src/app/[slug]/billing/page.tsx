@@ -17,12 +17,14 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthContext';
 import { openCrisp } from '@/lib/open-crisp';
+import { useToast } from '@/components/ui/use-toast';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
   const [interval, setInterval] = useState('monthly');
   const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
   const { user } = useAuth()
+  const { toast } = useToast()
 
   useEffect(() => {
     fetch(`/api/auth/billing/get-subscription-details`, {
@@ -37,7 +39,7 @@ const BillingPage = ({ params }) => {
       })
   }, [params.slug]);
 
-  const getCheckoutLink = async (plan) => {
+  const getAndRedirectToCheckoutLink = async (plan) => {
     try {
       const resp = await fetch(`/api/auth/billing/get-checkout-link`, {
         method: "POST",
@@ -49,7 +51,13 @@ const BillingPage = ({ params }) => {
       })
 
       const respData = await resp.json()
+      window.location.href = respData.url
     } catch (err) {
+      toast({
+        title: "Error fetching checkout link",
+        description: "Contact support for further queries",
+        variant: "destructive"
+      })
       console.log(err)
     }
   }
@@ -198,7 +206,7 @@ const BillingPage = ({ params }) => {
                       user, params, message: {
                         msg: "I would like to upgrade to the Enterprise plan"
                       }
-                    }) : getCheckoutLink(plan.name)}
+                    }) : getAndRedirectToCheckoutLink(plan.name)}
                   >
                     {plan.name === "Enterprise" ? "Contact Us" : "Upgrade"}
                   </Button>
