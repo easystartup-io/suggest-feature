@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format, formatDistanceToNow } from 'date-fns';
 import {
@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useSearchParams } from 'next/navigation'
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 import { Icons } from '@/components/icons';
+import { CreditCard, Pencil } from 'lucide-react';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
@@ -213,7 +214,13 @@ const BillingPage = ({ params }) => {
           subscription && !subscription.trial &&
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Subscription</CardTitle>
+              <CardTitle>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    Subscription
+                  </div>
+                </div>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -231,18 +238,18 @@ const BillingPage = ({ params }) => {
                   <span>Credit Card</span>
                   <div className="flex items-center space-x-2">
                     <span className="font-semibold">
-                      {subscription.cardBrand} ending in {subscription.cardLastFour}
+                      {subscription.cardBrand.charAt(0).toUpperCase() + subscription.cardBrand.slice(1)} ending in {subscription.cardLastFour}
                     </span>
                     <Button
-                      variant="outline"
-                      size="sm"
                       onClick={getAndRedirectToUpdatePaymentLink}
                       disabled={loadingPaymentUpdate}
+                      variant="ghost"
+                      size="icon"
                     >
                       {loadingPaymentUpdate ? (
                         <Icons.spinner className="h-4 w-4 animate-spin" />
                       ) : (
-                        "Update"
+                        <Pencil className="h-4 w-4" />
                       )}
                     </Button>
                   </div>
