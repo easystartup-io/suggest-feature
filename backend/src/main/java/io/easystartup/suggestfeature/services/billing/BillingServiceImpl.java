@@ -26,8 +26,18 @@ public class BillingServiceImpl implements BillingService {
     }
 
     @Override
-    public String checkoutLink(String plan, String orgId, String userId) {
-        return lemonSqueezyPaymentService.checkoutLink(plan, orgId, userId);
+    public String checkoutLink(String plan, String orgId, String userId, String currentUrl) {
+        return lemonSqueezyPaymentService.checkoutLink(plan, orgId, userId, currentUrl);
+    }
+
+    @Override
+    public String upgradeSubcription(String plan, String orgId, String userId) {
+        return lemonSqueezyPaymentService.upgradeSubscription(plan, orgId, userId);
+    }
+
+    @Override
+    public String getBillingDetailsUpdateUrl(String orgId, String userId) {
+        return lemonSqueezyPaymentService.getBillingDetailsUpdateUrl(orgId, userId);
     }
 
     @Override

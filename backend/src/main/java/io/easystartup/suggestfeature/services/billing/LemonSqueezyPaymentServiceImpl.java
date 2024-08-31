@@ -11,8 +11,9 @@ import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.Util;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -42,10 +43,92 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
     }
 
     @Override
-    public String checkoutLink(String plan, String orgId, String userId) {
+    public String checkoutLink(String plan, String orgId, String userId, String currentUrl) {
         Organization org = authService.getOrgById(orgId);
         User user = authService.getUserByUserId(userId);
-        return requestCheckout(plan, org, user);
+        return requestCheckout(plan, org, user, currentUrl);
+    }
+
+    @Override
+    public String upgradeSubscription(String plan, String orgId, String userId) {
+        SubscriptionDetails existingSubscription = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(SubscriptionDetails.FIELD_ORGANIZATION_ID).is(orgId)), SubscriptionDetails.class);
+        if (existingSubscription == null) {
+            throw new RuntimeException("Subscription not found for orgId: " + orgId);
+        }
+
+        Organization org = authService.getOrgById(orgId);
+        User user = authService.getUserByUserId(userId);
+        upgradeSub(org, existingSubscription.getSubscriptionId(), plan);
+        return "";
+    }
+
+    private void upgradeSub(Organization org, String subscriptionId, String plan) {
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            String variantId = getVariantId(plan);
+
+            String jsonBody = """
+                    {
+                      "data": {
+                        "type": "subscriptions",
+                        "id": "%s",
+                        "attributes": {
+                          "variant_id": %s,
+                          "invoice_immediately": true
+                        }
+                      }
+                    }
+                    """.formatted(subscriptionId, variantId);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(API_BASE_ENDPOINT + "subscriptions/" + subscriptionId))
+                    .header("Accept", "application/vnd.api+json")
+                    .header("Content-Type", "application/vnd.api+json")
+                    .header("Authorization", "Bearer " + getLemonSqueezyApiToken())
+                    .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                LOGGER.error("Subscription upgrade failed. Status code: " + response.statusCode() + " response: " + response.body());
+                throw new RuntimeException("Subscription upgrade failed. Status code: " + response.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Failed to upgrade subscription", e);
+        }
+    }
+
+    @Override
+    public String getBillingDetailsUpdateUrl(String orgId, String userId) {
+        // Fetch subscription and in its response its present
+        SubscriptionDetails one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(SubscriptionDetails.FIELD_ORGANIZATION_ID).is(orgId)), SubscriptionDetails.class);
+        String subscriptionId = one.getSubscriptionId();
+
+        // Use subscriptionId to get billing details update url. Fetch subscription from lemonsqueezy and get the url from it
+        return getBillingDetailsUpdateUrlFromLemonSqueezy(subscriptionId);
+    }
+
+    private String getBillingDetailsUpdateUrlFromLemonSqueezy(String subscriptionId) {
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(API_BASE_ENDPOINT + "subscriptions/" + subscriptionId))
+                    .header("Accept", "application/vnd.api+json")
+                    .header("Content-Type", "application/vnd.api+json")
+                    .header("Authorization", "Bearer " + getLemonSqueezyApiToken())
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                LOGGER.error("Failed to get subscription details. Status code: " + response.statusCode() + " response: " + response.body());
+                throw new RuntimeException("Failed to get subscription details. Status code: " + response.statusCode());
+            }
+
+            return getObjectMapper().readTree(response.body()).get("data").get("attributes").get("url").get("update_payment_method").asText();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Failed to get billing details update url", e);
+        }
     }
 
     @Override
@@ -53,7 +136,7 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
         System.out.println("Subscription cancelled for orgId: " + orgId);
     }
 
-    private String requestCheckout(String plan, Organization org, User user) {
+    private String requestCheckout(String plan, Organization org, User user, String currentUrl) {
         try (HttpClient client = HttpClient.newHttpClient()) {
             Map<String, String> variables = new HashMap<>();
             variables.put("name", "Suggest Feature - Monthly");
@@ -61,7 +144,11 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
             variables.put("orgName", org.getName());
             variables.put("usersName", user.getName());
             variables.put("userEmail", user.getEmail());
-            variables.put("redirectUrl", "https://app.suggestfeature.com/" + org.getSlug() + "/billing?state=success");
+
+            // from current url replace query params with empty string
+            currentUrl = currentUrl.split("\\?")[0];
+
+            variables.put("redirectUrl", currentUrl + "?status=success");
             variables.put("userId", user.getId());
             variables.put("storeId", getStoreId());
             variables.put("variantId", getVariantId(plan));
@@ -78,8 +165,8 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
                           },
                           "checkout_data": {
                             "custom": {
-                              "organization_id": "${orgId}",
-                              "user_id": "${userId}"
+                              "orgId": "${orgId}",
+                              "userId": "${userId}"
                             },
                             "email": "${userEmail}",
                             "name": "${usersName}"

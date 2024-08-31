@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, formatISO } from 'date-fns';
 import { useEffect, useState } from 'react';
 import {
   Dialog,
@@ -30,13 +30,13 @@ const BillingPage = ({ params }) => {
   const { user } = useAuth()
   const { toast } = useToast()
   const searchParams = useSearchParams()
-  const state = searchParams.get('state')
+  const status = searchParams.get('status')
 
   useEffect(() => {
-    if (state === 'success') {
+    if (status === 'success') {
       setIsPaymentSuccessOpen(true);  // Open the popup on success
     }
-  }, [state]);
+  }, [status]);
 
   useEffect(() => {
     fetch(`/api/auth/billing/get-subscription-details`, {
@@ -59,7 +59,7 @@ const BillingPage = ({ params }) => {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ plan, currentUrl: window.location.href })
       })
 
       const respData = await resp.json()
@@ -139,28 +139,28 @@ const BillingPage = ({ params }) => {
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span>Next billing date:</span>
-                  <span className="font-semibold">Never</span>
+                  <span>Next billing date</span>
+                  <span className="font-semibold">{format(subscription.nextBillingDate, 'd MMMM yyyy')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Invoices sent to:</span>
+                  <span>Invoices sent to</span>
                   <span className="font-semibold">
-                    tony.stark@gmail.com
-                    <Button variant="link" className="ml-2 p-0 h-auto">Change</Button>
+                    {subscription.email}
+                    {/* <Button variant="link" className="ml-2 p-0 h-auto">Change</Button> */}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Credit Card:</span>
+                  <span>Credit Card</span>
                   <span className="font-semibold">
-                    None
-                    <Button variant="link" className="ml-2 p-0 h-auto">Add</Button>
+                    {subscription.cardBrand} ending in {subscription.cardLastFour}
+                    {/* <Button variant="link" className="ml-2 p-0 h-auto">Add</Button> */}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Price:</span>
+                  <span>Plan</span>
                   <span className="font-semibold">
-                    $0/mo
-                    <Button variant="link" className="ml-2 p-0 h-auto">See invoice history</Button>
+                    {subscription.subscriptionPlan.charAt(0).toUpperCase() + subscription.subscriptionPlan.slice(1)}
+                    {/* <Button variant="link" className="ml-2 p-0 h-auto">See invoice history</Button> */}
                   </span>
                 </div>
               </div>
@@ -194,9 +194,9 @@ const BillingPage = ({ params }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { name: "Basic", price: "$9/mo", description: "Best option for personal use & for your next project", current: (!subscription.trial && subscription.subscriptionPlan === 'basic') },
-            { name: "Pro", price: "$29/mo", description: "Relevant for multiple users & extended support", billingPeriod: "" },
-            { name: "Team", price: "$49/mo", description: "Best for small to medium sized businesses", billingPeriod: "" },
-            { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations" }
+            { name: "Pro", price: "$29/mo", description: "Relevant for multiple users & extended support", billingPeriod: "", current: (!subscription.trial && subscription.subscriptionPlan === 'pro') },
+            { name: "Team", price: "$49/mo", description: "Best for small to medium sized businesses", billingPeriod: "", current: (!subscription.trial && subscription.subscriptionPlan === 'team') },
+            { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations", billingPeriod: "", current: (!subscription.trial && subscription.subscriptionPlan === 'enterprise') },
           ].map((plan, index) => (
             <Card key={index} className={plan.current ? "border-primary" : ""}>
               <CardHeader>

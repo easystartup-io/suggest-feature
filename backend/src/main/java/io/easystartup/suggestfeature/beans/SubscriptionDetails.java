@@ -22,14 +22,26 @@ public class SubscriptionDetails {
     }
 
     public enum Plan {
+        self_hosted,
         basic,
         pro,
         team,
         enterprise,
-        self_hosted
     }
 
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
+    public static final String FIELD_SUBSCRIPTION_STATUS = "subscriptionStatus";
+    public static final String FIELD_SUBSCRIPTION_PLAN = "subscriptionPlan";
+    public static final String FIELD_SUBSCRIPTION_ID = "subscriptionId";
+    public static final String FIELD_NEXT_BILLING_DATE = "nextBillingDate";
+    public static final String FIELD_PRICE = "price";
+    public static final String FIELD_EMAIL = "email";
+    public static final String FIELD_USER_ID = "userId";
+    public static final String FIELD_BILLING_INTERVAL = "billingInterval";
+    public static final String FIELD_CARD_BRAND = "cardBrand";
+    public static final String FIELD_CARD_LAST_FOUR = "cardLastFour";
+    public static final String FIELD_TRIAL = "trial";
+    public static final String FIELD_TRIAL_END_DATE = "trialEndDate";
 
     @Id
     private String id;
@@ -45,7 +57,10 @@ public class SubscriptionDetails {
     private String subscriptionStatus;
     private String subscriptionPlan;
 
-    private boolean isTrial;
+    private String cardBrand;
+    private String cardLastFour;
+
+    private boolean trial;
     private long trialEndDate;
 
     public SubscriptionDetails() {
@@ -116,11 +131,11 @@ public class SubscriptionDetails {
     }
 
     public boolean isTrial() {
-        return isTrial;
+        return trial;
     }
 
     public void setTrial(boolean trial) {
-        isTrial = trial;
+        this.trial = trial;
     }
 
     public long getTrialEndDate() {
@@ -145,5 +160,21 @@ public class SubscriptionDetails {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public String getCardBrand() {
+        return cardBrand;
+    }
+
+    public void setCardBrand(String cardBrand) {
+        this.cardBrand = cardBrand;
+    }
+
+    public String getCardLastFour() {
+        return cardLastFour;
+    }
+
+    public void setCardLastFour(String cardLastFour) {
+        this.cardLastFour = cardLastFour;
     }
 }
