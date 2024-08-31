@@ -18,13 +18,25 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthContext';
 import { openCrisp } from '@/lib/open-crisp';
 import { useToast } from '@/components/ui/use-toast';
+import { useSearchParams } from 'next/navigation'
+import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
   const [interval, setInterval] = useState('monthly');
   const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
+  const [isPaymentSuccessOpen, setIsPaymentSuccessOpen] = useState(false);  // New state
+
   const { user } = useAuth()
   const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const state = searchParams.get('state')
+
+  useEffect(() => {
+    if (state === 'success') {
+      setIsPaymentSuccessOpen(true);  // Open the popup on success
+    }
+  }, [state]);
 
   useEffect(() => {
     fetch(`/api/auth/billing/get-subscription-details`, {
@@ -109,7 +121,7 @@ const BillingPage = ({ params }) => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Trial end date:</span>
+                  <span>Trial end date</span>
                   <span className="font-semibold">
                     {`Expiring in ${formatDistanceToNow(new Date(subscription.trialEndDate), { addSuffix: true })}`}
                   </span>
@@ -236,7 +248,10 @@ const BillingPage = ({ params }) => {
           </p>
         </section>
       </div>
-
+      <PaymentSuccessPopup
+        isOpen={isPaymentSuccessOpen}
+        onClose={() => setIsPaymentSuccessOpen(false)}
+      />
     </ScrollArea>
   );
 };
