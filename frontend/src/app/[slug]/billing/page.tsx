@@ -1,11 +1,11 @@
 "use client"
+import React, { useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { format, formatDistanceToNow, formatISO } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -23,9 +23,8 @@ import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
-  const [interval, setInterval] = useState('monthly');
   const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
-  const [isPaymentSuccessOpen, setIsPaymentSuccessOpen] = useState(false);  // New state
+  const [isPaymentSuccessOpen, setIsPaymentSuccessOpen] = useState(false);
 
   const { user } = useAuth()
   const { toast } = useToast()
@@ -34,7 +33,7 @@ const BillingPage = ({ params }) => {
 
   useEffect(() => {
     if (status === 'success') {
-      setIsPaymentSuccessOpen(true);  // Open the popup on success
+      setIsPaymentSuccessOpen(true);
     }
   }, [status]);
 
@@ -63,30 +62,17 @@ const BillingPage = ({ params }) => {
       })
 
       const respData = await resp.json()
+      console.log(resp)
+      if (resp.status !== 200) {
+        throw new Error(respData.message)
+      };
       window.location.href = respData.url
     } catch (err) {
       toast({
-        title: "Error fetching checkout link",
+        title: err.message || "Error fetching checkout link",
         description: "Contact support for further queries",
         variant: "destructive"
       })
-      console.log(err)
-    }
-  }
-
-  const cancelSubscription = async () => {
-    try {
-      const resp = await fetch(`/api/auth/billing/cancel-subscription`, {
-        method: "POST",
-        headers: {
-          "x-org-slug": params.slug,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({})
-      })
-
-      const respData = await resp.json()
-    } catch (err) {
       console.log(err)
     }
   }
@@ -96,10 +82,22 @@ const BillingPage = ({ params }) => {
   }
 
   if (subscription && subscription.subscriptionPlan === 'self_hosted') {
-    return (<div className='flex items-center justify-center h-screen w-full text-xl'>
-      Self Hosted Plan. Please contact support for further queries.
-    </div>)
+    return (
+      <div className='flex items-center justify-center h-screen w-full text-xl'>
+        Self Hosted Plan. Please contact support for further queries.
+      </div>
+    )
   }
+
+  const planOrder = ['basic', 'pro', 'team', 'enterprise'];
+  const currentPlanIndex = planOrder.indexOf(subscription.subscriptionPlan);
+
+  const plans = [
+    { name: "Basic", price: "$9/mo", description: "Best option for personal use & for your next project", planKey: 'basic' },
+    { name: "Pro", price: "$29/mo", description: "Relevant for multiple users & extended support", planKey: 'pro' },
+    { name: "Team", price: "$49/mo", description: "Best for small to medium sized businesses", planKey: 'team' },
+    { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations", planKey: 'enterprise' },
+  ];
 
   return (
     <ScrollArea className="h-full">
@@ -146,21 +144,18 @@ const BillingPage = ({ params }) => {
                   <span>Invoices sent to</span>
                   <span className="font-semibold">
                     {subscription.email}
-                    {/* <Button variant="link" className="ml-2 p-0 h-auto">Change</Button> */}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Credit Card</span>
                   <span className="font-semibold">
                     {subscription.cardBrand} ending in {subscription.cardLastFour}
-                    {/* <Button variant="link" className="ml-2 p-0 h-auto">Add</Button> */}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Plan</span>
                   <span className="font-semibold">
                     {subscription.subscriptionPlan.charAt(0).toUpperCase() + subscription.subscriptionPlan.slice(1)}
-                    {/* <Button variant="link" className="ml-2 p-0 h-auto">See invoice history</Button> */}
                   </span>
                 </div>
               </div>
@@ -190,42 +185,43 @@ const BillingPage = ({ params }) => {
           </div>
         </div>
 
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { name: "Basic", price: "$9/mo", description: "Best option for personal use & for your next project", current: (!subscription.trial && subscription.subscriptionPlan === 'basic') },
-            { name: "Pro", price: "$29/mo", description: "Relevant for multiple users & extended support", billingPeriod: "", current: (!subscription.trial && subscription.subscriptionPlan === 'pro') },
-            { name: "Team", price: "$49/mo", description: "Best for small to medium sized businesses", billingPeriod: "", current: (!subscription.trial && subscription.subscriptionPlan === 'team') },
-            { name: "Enterprise", price: "Custom", description: "Deploy additional permissions, compliance, and customizations", billingPeriod: "", current: (!subscription.trial && subscription.subscriptionPlan === 'enterprise') },
-          ].map((plan, index) => (
-            <Card key={index} className={plan.current ? "border-primary" : ""}>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>{plan.name}</CardTitle>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold">{plan.price}</div>
-                    {plan.billingPeriod && <div className="text-sm text-muted-foreground">{plan.billingPeriod}</div>}
+          {plans.map((plan, index) => {
+            const planIndex = planOrder.indexOf(plan.planKey);
+            const isCurrent = !subscription.trial && subscription.subscriptionPlan === plan.planKey;
+            const isDisabled = planIndex < currentPlanIndex;
+
+            return (
+              <Card key={index} className={isCurrent ? "border-2 border-primary" : ""}>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>{plan.name}</CardTitle>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">{plan.price}</div>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">{plan.description}</p>
-                {plan.current ? (
-                  <Badge variant="outline" className="bg-primary/10 text-primary">Current Plan</Badge>
-                ) : (
-                  <Button variant={plan.name === "Enterprise" ? "outline" : "default"}
-                    onClick={() => plan.name === "Enterprise" ? openCrisp({
-                      user, params, message: {
-                        msg: "I would like to upgrade to the Enterprise plan"
-                      }
-                    }) : getAndRedirectToCheckoutLink(plan.name)}
-                  >
-                    {plan.name === "Enterprise" ? "Contact Us" : "Upgrade"}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-4">{plan.description}</p>
+                  {isCurrent ? (
+                    <Badge variant="outline" className="bg-primary/10 text-primary">Current Plan</Badge>
+                  ) : (
+                    <Button
+                      variant={plan.name === "Enterprise" ? "outline" : "default"}
+                      onClick={() => plan.name === "Enterprise" ? openCrisp({
+                        user, params, message: {
+                          msg: "I would like to upgrade to the Enterprise plan"
+                        }
+                      }) : getAndRedirectToCheckoutLink(plan.name)}
+                      disabled={isDisabled}
+                    >
+                      {plan.name === "Enterprise" ? "Contact Us" : isDisabled ? "Not Available" : "Upgrade"}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <Separator className='my-12' />
