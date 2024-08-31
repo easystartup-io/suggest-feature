@@ -27,6 +27,7 @@ const BillingPage = ({ params }) => {
   const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
   const [isPaymentSuccessOpen, setIsPaymentSuccessOpen] = useState(false);
   const [loadingButtonData, setLoadingButtonData] = useState(false);
+  const [loadingPaymentUpdate, setLoadingPaymentUpdate] = useState(false);
 
   const { user } = useAuth()
   const { toast } = useToast()
@@ -51,7 +52,6 @@ const BillingPage = ({ params }) => {
         setSubscription(data)
       })
   }
-
 
   useEffect(() => {
     refetchSubscriptionDetails()
@@ -129,6 +129,35 @@ const BillingPage = ({ params }) => {
     }, 1000)
   }
 
+  const getAndRedirectToUpdatePaymentLink = async () => {
+    try {
+      setLoadingPaymentUpdate(true)
+      const resp = await fetch(`/api/auth/billing/update-payment-details`, {
+        method: "POST",
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ currentUrl: window.location.href })
+      })
+
+      const respData = await resp.json()
+      if (resp.status !== 200) {
+        throw new Error(respData.message)
+      };
+      window.location.href = respData.url
+    } catch (err) {
+      toast({
+        title: err.message || "Error fetching update payment link",
+        description: "Contact support for further queries",
+        variant: "destructive"
+      })
+      console.log(err)
+    } finally {
+      setLoadingPaymentUpdate(false)
+    }
+  }
+
   if (!subscription) {
     return <Loading />;
   }
@@ -198,11 +227,25 @@ const BillingPage = ({ params }) => {
                     {subscription.email}
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Credit Card</span>
-                  <span className="font-semibold">
-                    {subscription.cardBrand} ending in {subscription.cardLastFour}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-semibold">
+                      {subscription.cardBrand} ending in {subscription.cardLastFour}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={getAndRedirectToUpdatePaymentLink}
+                      disabled={loadingPaymentUpdate}
+                    >
+                      {loadingPaymentUpdate ? (
+                        <Icons.spinner className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Update"
+                      )}
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex justify-between">
                   <span>Plan</span>

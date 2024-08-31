@@ -125,7 +125,7 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
                 throw new RuntimeException("Failed to get subscription details. Status code: " + response.statusCode());
             }
 
-            return getObjectMapper().readTree(response.body()).get("data").get("attributes").get("url").get("update_payment_method").asText();
+            return getObjectMapper().readTree(response.body()).get("data").get("attributes").get("urls").get("update_payment_method").asText();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Failed to get billing details update url", e);
         }
