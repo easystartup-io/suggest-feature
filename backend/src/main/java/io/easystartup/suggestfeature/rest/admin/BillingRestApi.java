@@ -143,7 +143,8 @@ public class BillingRestApi {
         }
 
         billingService.upgradeSubcription(checkoutRequestDTO.getPlan(), userContext.getOrgId(), userContext.getUserId());
-        return Response.ok("{}").build();
+        existingSubscriptionDetails.setSubscriptionPlan(checkoutRequestDTO.getPlan());
+        return Response.ok(JacksonMapper.toJson(existingSubscriptionDetails)).build();
     }
 
 

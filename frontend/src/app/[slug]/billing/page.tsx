@@ -20,11 +20,13 @@ import { openCrisp } from '@/lib/open-crisp';
 import { useToast } from '@/components/ui/use-toast';
 import { useSearchParams } from 'next/navigation'
 import PaymentSuccessPopup from '@/components/PaymentSuccessPopup';
+import { Icons } from '@/components/icons';
 
 const BillingPage = ({ params }) => {
   const [subscription, setSubscription] = useState(null);
   const [isPlanDetailsOpen, setIsPlanDetailsOpen] = useState(false);
   const [isPaymentSuccessOpen, setIsPaymentSuccessOpen] = useState(false);
+  const [loadingButtonData, setLoadingButtonData] = useState(false);
 
   const { user } = useAuth()
   const { toast } = useToast()
@@ -37,7 +39,7 @@ const BillingPage = ({ params }) => {
     }
   }, [status]);
 
-  useEffect(() => {
+  function refetchSubscriptionDetails() {
     fetch(`/api/auth/billing/get-subscription-details`, {
       method: "GET",
       headers: {
@@ -48,10 +50,16 @@ const BillingPage = ({ params }) => {
       .then((data) => {
         setSubscription(data)
       })
+  }
+
+
+  useEffect(() => {
+    refetchSubscriptionDetails()
   }, [params.slug]);
 
   const getAndRedirectToCheckoutLink = async (plan) => {
     try {
+      setLoadingButtonData(true)
       const resp = await fetch(`/api/auth/billing/get-checkout-link`, {
         method: "POST",
         headers: {
@@ -75,6 +83,50 @@ const BillingPage = ({ params }) => {
       })
       console.log(err)
     }
+    setTimeout(() => {
+      setLoadingButtonData(false)
+    }, 1000)
+  }
+
+  const upgradePlan = async (newPlan) => {
+    try {
+      setLoadingButtonData(true)
+      const resp = await fetch(`/api/auth/billing/upgrade-subscription`, {
+        method: "POST",
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ plan: newPlan })
+      })
+
+      const respData = await resp.json()
+      if (resp.status !== 200) {
+        throw new Error(respData.message)
+      };
+
+      setSubscription(respData)
+
+      setTimeout(() => {
+        refetchSubscriptionDetails()
+      }, 10000)
+
+      toast({
+        title: "Plan upgraded successfully",
+        description: `Your subscription has been upgraded to ${newPlan}`,
+      })
+    } catch (err) {
+      toast({
+        title: err.message || "Error upgrading plan",
+        description: "Contact support for further queries",
+        variant: "destructive"
+      })
+      console.log(err)
+    }
+
+    setTimeout(() => {
+      setLoadingButtonData(false)
+    }, 1000)
   }
 
   if (!subscription) {
@@ -189,7 +241,7 @@ const BillingPage = ({ params }) => {
           {plans.map((plan, index) => {
             const planIndex = planOrder.indexOf(plan.planKey);
             const isCurrent = !subscription.trial && subscription.subscriptionPlan === plan.planKey;
-            const isDisabled = planIndex < currentPlanIndex;
+            const isDisabled = planIndex <= currentPlanIndex && !subscription.trial;
 
             return (
               <Card key={index} className={isCurrent ? "border-2 border-primary" : ""}>
@@ -208,13 +260,24 @@ const BillingPage = ({ params }) => {
                   ) : (
                     <Button
                       variant={plan.name === "Enterprise" ? "outline" : "default"}
-                      onClick={() => plan.name === "Enterprise" ? openCrisp({
-                        user, params, message: {
-                          msg: "I would like to upgrade to the Enterprise plan"
+                      onClick={() => {
+                        if (plan.name === "Enterprise") {
+                          openCrisp({
+                            user, params, message: {
+                              msg: "I would like to upgrade to the Enterprise plan"
+                            }
+                          })
+                        } else if (subscription.trial) {
+                          getAndRedirectToCheckoutLink(plan.name)
+                        } else {
+                          upgradePlan(plan.planKey)
                         }
-                      }) : getAndRedirectToCheckoutLink(plan.name)}
-                      disabled={isDisabled}
+                      }}
+                      disabled={isDisabled || loadingButtonData}
                     >
+                      {loadingButtonData && (
+                        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                      )}
                       {plan.name === "Enterprise" ? "Contact Us" : isDisabled ? "Not Available" : "Upgrade"}
                     </Button>
                   )}
