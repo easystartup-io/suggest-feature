@@ -1,5 +1,6 @@
 package io.easystartup.suggestfeature.services;
 
+import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.utils.Util;
@@ -9,14 +10,12 @@ import org.xbill.DNS.CNAMERecord;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Type;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.Hashtable;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 /*
  * @author indianBond
@@ -26,15 +25,60 @@ public class CustomDomainMappingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomDomainMappingService.class);
 
-    public void createCustomDomainMapping(String customDomain, String pageId) {
+    public void createCustomDomainMapping(String customDomain, String orgId) {
+        if (Util.isSelfHosted()) {
+            return; // Skip domain deletion if self hosted
+        }
 
+        if (customDomain.contains("*")) {
+            throw new UserVisibleException("Wildcard domains are not supported");
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.cloudflare.com/client/v4/zones/%s/custom_hostnames".formatted(getCloudflareZoneId())))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + getCloudflareAuthKey())
+                .method("POST", HttpRequest.BodyPublishers.ofString(getCloudflareRequestBody(customDomain, orgId)))
+                .build();
+        HttpResponse<String> response = null;
+        try (HttpClient httpClient = HttpClient.newHttpClient()) {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(response.body());
+    }
+
+    private String getCloudflareRequestBody(String customDomain, String orgId) {
+        return """
+                {
+                  "hostname": "%s",
+                  "ssl": {
+                    "method": "http",
+                    "bundle_method": "ubiquitous",
+                    "settings": {
+                      "http2": "on",
+                      "min_tls_version": "1.2",
+                      "tls_1_3": "on"
+                    },
+                    "type": "dv",
+                    "wildcard": false
+                  }
+                }
+                """.formatted(customDomain);
     }
 
     public void deleteCustomDomainMapping(String customDomain) {
+        if (Util.isSelfHosted()) {
+            return; // Skip domain deletion if self hosted
+        }
 
     }
 
     public void updateCustomDomainMapping(String customDomain, String pageId) {
+        if (Util.isSelfHosted()) {
+            return; // Skip domain deletion if self hosted
+        }
 
     }
 
@@ -86,5 +130,13 @@ public class CustomDomainMappingService {
             LOGGER.error("Error verifying domain mapping for " + customDomain , e);
         }
         return false; // Domain does not resolve to the expected domain or errors
+    }
+
+    private String getCloudflareZoneId() {
+        return Util.getEnvVariable("CLOUDFLARE_ZONE_ID", "");
+    }
+
+    private String getCloudflareAuthKey() {
+        return Util.getEnvVariable("CLOUDFLARE_AUTH_KEY", "");
     }
 }

@@ -40,6 +40,9 @@ dependencies {
     implementation group: 'commons-validator', name: 'commons-validator', version: '1.9.0'
     implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
 
+    // For dotenv file
+    implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '3.0.1'
+
     implementation group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '5.1.0'
     implementation group: 'software.amazon.awssdk', name: 's3', version: '2.27.12'
     implementation group: 'software.amazon.awssdk', name: 'auth', version: '2.27.12'

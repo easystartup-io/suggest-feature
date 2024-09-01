@@ -146,7 +146,7 @@ const BillingPage = ({ params }) => {
       if (resp.status !== 200) {
         throw new Error(respData.message)
       };
-      window.location.href = respData.url
+      window.open(respData.url, '_blank', 'noopener,noreferrer');
     } catch (err) {
       toast({
         title: err.message || "Error fetching update payment link",
@@ -219,6 +219,20 @@ const BillingPage = ({ params }) => {
                   <div>
                     Subscription
                   </div>
+                  <div>
+                    <Button
+                      onClick={getAndRedirectToUpdatePaymentLink}
+                      disabled={loadingPaymentUpdate}
+                      variant="outline"
+                    >
+                      {loadingPaymentUpdate ? (
+                        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Pencil className="mr-2 h-4 w-4" />
+                      )}
+                      Edit
+                    </Button>
+                  </div>
                 </div>
               </CardTitle>
             </CardHeader>
@@ -240,18 +254,6 @@ const BillingPage = ({ params }) => {
                     <span className="font-semibold">
                       {subscription.cardBrand.charAt(0).toUpperCase() + subscription.cardBrand.slice(1)} ending in {subscription.cardLastFour}
                     </span>
-                    <Button
-                      onClick={getAndRedirectToUpdatePaymentLink}
-                      disabled={loadingPaymentUpdate}
-                      variant="ghost"
-                      size="icon"
-                    >
-                      {loadingPaymentUpdate ? (
-                        <Icons.spinner className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Pencil className="h-4 w-4" />
-                      )}
-                    </Button>
                   </div>
                 </div>
                 <div className="flex justify-between">

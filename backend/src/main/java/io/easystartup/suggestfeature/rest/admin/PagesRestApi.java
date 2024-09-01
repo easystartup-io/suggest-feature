@@ -1,21 +1,19 @@
 package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.beans.Board;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.CustomDomainMappingService;
+import io.easystartup.suggestfeature.services.SubscriptionService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.DomainValidator;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -24,7 +22,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 /*
@@ -36,6 +33,7 @@ public class PagesRestApi {
 
     private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
+    private final SubscriptionService subscriptionService;
     private final ValidationService validationService;
     private final CustomDomainMappingService customDomainMappingService;
     private static final Set<String> RESERVED_SLUGS = Set.of(
@@ -61,9 +59,10 @@ public class PagesRestApi {
     );
 
     @Autowired
-    public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, CustomDomainMappingService customDomainMappingService) {
+    public PagesRestApi(MongoTemplateFactory mongoConnection, AuthService authService, SubscriptionService subscriptionService, ValidationService validationService, CustomDomainMappingService customDomainMappingService) {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
+        this.subscriptionService = subscriptionService;
         this.validationService = validationService;
         this.customDomainMappingService = customDomainMappingService;
     }
@@ -96,12 +95,19 @@ public class PagesRestApi {
         organization.setId(UserContext.current().getOrgId());
         organization.setSlug(validateAndFix(organization.getSlug()));
         Organization existingOrg = authService.getOrgById(organization.getId());
-        if (organization.getCustomDomain() != null && !organization.getCustomDomain().equals(existingOrg.getCustomDomain())) {
+
+        if (subscriptionService.isTrial(organization.getId()) || !subscriptionService.hasValidSubscription(organization.getId())) {
+            // If subscription is valid, then only allow custom domain
+            throwExceptionIfTrialOrNotValidSubscription(organization);
+        }
+
+        if (StringUtils.isNotBlank(organization.getCustomDomain()) && StringUtils.isNotBlank(existingOrg.getCustomDomain()) && !organization.getCustomDomain().equals(existingOrg.getCustomDomain())) {
             validateCustomDomainNotInUse(organization.getCustomDomain());
             customDomainMappingService.updateCustomDomainMapping(organization.getCustomDomain(), organization.getId());
-        } else if (organization.getCustomDomain() == null && existingOrg.getCustomDomain() != null) {
+        } else if (StringUtils.isBlank(organization.getCustomDomain()) && existingOrg.getCustomDomain() != null) {
             customDomainMappingService.deleteCustomDomainMapping(existingOrg.getCustomDomain());
-        } else if (organization.getCustomDomain() != null && existingOrg.getCustomDomain() == null) {
+            existingOrg.setCustomDomain(null);
+        } else if (StringUtils.isNotBlank(organization.getCustomDomain()) && existingOrg.getCustomDomain() == null) {
             validateCustomDomainNotInUse(organization.getCustomDomain());
             customDomainMappingService.createCustomDomainMapping(organization.getCustomDomain(), organization.getId());
         }
@@ -126,11 +132,23 @@ public class PagesRestApi {
         return Response.ok(JacksonMapper.toJson(existingOrg)).build();
     }
 
+    private void throwExceptionIfTrialOrNotValidSubscription(Organization organization) {
+        boolean customDomainIsBlank = StringUtils.isBlank(organization.getCustomDomain());
+        if (customDomainIsBlank) {
+            return;
+        }
+        if (subscriptionService.isTrial(organization.getId())) {
+            throw new UserVisibleException("Custom domain is not available during trial");
+        } else if (!subscriptionService.hasValidSubscription(organization.getId())) {
+            throw new UserVisibleException("Custom domain can not be set for inactive subscription");
+        }
+    }
+
     private void validateCustomDomainNotInUse(String customDomain) {
         // Verify if a custom domain exists with same name, then throw exception
         Organization one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Organization.FIELD_CUSTOM_DOMAIN).is(customDomain)), Organization.class);
         if (one != null) {
-            throw new UserVisibleException("Custom domain already exists");
+            throw new UserVisibleException("Custom domain is already in use");
         }
     }
 

@@ -3,14 +3,15 @@ package io.easystartup.suggestfeature.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
-import io.easystartup.suggestfeature.beans.Organization;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 /*
  * @author indianBond
@@ -21,10 +22,21 @@ public class Util {
     private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}&&[^-]]");
     public static final String WHITE_SPACE = " ";
     public static final Map<String, String> SLUGIFY_MAP;
+    private static final Dotenv dotenv;
 
     static {
         // Used to replace $ with dollar
-         SLUGIFY_MAP = JacksonMapper.fromJsonResource("slugify.json", new TypeReference<Map<String, String>>() {});
+        SLUGIFY_MAP = JacksonMapper.fromJsonResource("slugify.json", new TypeReference<Map<String, String>>() {
+        });
+
+        // https://github.com/cdimascio/dotenv-java
+        // Environment variables listed in the host environment override those in .env.
+        dotenv = Dotenv
+                .configure()
+                .ignoreIfMissing()
+                .directory(defaultIfBlank(System.getProperty("envfile.dir"), "./"))
+                .filename(defaultIfBlank(System.getProperty("envfile.filename"), ".env"))
+                .load();
     }
 
     public static void sleepSafe(long millis) {
@@ -48,25 +60,26 @@ public class Util {
     }
 
     public static String getEnvVariable(String key, String defaultVal) {
-        return System.getenv(key) == null ? defaultVal : System.getenv(key);
+        return defaultIfEmpty(dotenv.get(key), defaultVal);
     }
 
     public static boolean isProdEnv() {
-        return System.getenv("ENV") != null && "PROD".equals(System.getenv("ENV"));
+        String env = getEnvVariable("ENV", "DEV");
+        return "PROD".equals(env);
     }
 
     public static boolean isSelfHosted() {
         // By default, assume self-hosted if the environment variable is not set or not equal to "false"
-        String selfHosted = System.getenv("SELF_HOSTED");
-        return selfHosted == null || !"false".equalsIgnoreCase(selfHosted);
+        String selfHosted = getEnvVariable("SELF_HOSTED", "true");
+        return !"false".equalsIgnoreCase(selfHosted);
     }
 
     public static Integer getEnvVariable(String key, Integer defaultVal) {
-        return StringUtils.isBlank(System.getenv(key)) ? defaultVal : Integer.parseInt(System.getenv(key));
+        return StringUtils.isBlank(dotenv.get(key)) ? defaultVal : Integer.parseInt(dotenv.get(key));
     }
 
     public static Long getEnvVariable(String key, Long defaultVal) {
-        return StringUtils.isBlank(System.getenv(key)) ? defaultVal : Long.parseLong(System.getenv(key));
+        return StringUtils.isBlank(dotenv.get(key)) ? defaultVal : Long.parseLong(dotenv.get(key));
     }
 
     public static String fixSlug(String slug) {
