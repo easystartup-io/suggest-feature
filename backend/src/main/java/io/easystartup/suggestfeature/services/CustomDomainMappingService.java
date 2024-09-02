@@ -29,6 +29,10 @@ public class CustomDomainMappingService {
         if (Util.isSelfHosted()) {
             return; // Skip domain deletion if self hosted
         }
+        // Validate by checking cname mapping is done to cname.suggestfeature.com
+        if (!verifyCustomDomainMapping(customDomain)) {
+            throw new UserVisibleException("DNS verification failed for %s. Please add here after your cname mapping is done. It can take some time for DNS to propagate".formatted(customDomain));
+        }
 
         if (customDomain.contains("*")) {
             throw new UserVisibleException("Wildcard domains are not supported");
@@ -87,9 +91,8 @@ public class CustomDomainMappingService {
     }
 
     public boolean verifyCustomDomainMapping(String customDomain) {
-        // Do a DNS lookup to verify the domain, that it is pointed properly to widget.suggestfeature.com. Either cname or alias
-
-        return false;
+        // Do a DNS lookup to verify the domain, that it is pointed properly to cname.suggestfeature.com. Either cname or alias
+        return verifyDomainMapping(customDomain, "cname.suggestfeature.com");
     }
 
     public static boolean verifyDomainMapping(String customDomain, String expectedDomain) {

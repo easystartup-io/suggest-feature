@@ -137,7 +137,7 @@ const Dashboard: React.FC = ({ params }) => {
                       <Input disabled={isLoading} placeholder="feature-request.yourdomain.com" {...field} />
                     </FormControl>
                     <FormDescription>
-                      This is the custom domain for the page. You have to setup a CNAME mapping in your DNS server to our domain cname.suggestfeature.com .
+                      This is the custom domain for the page. You have to setup a CNAME mapping in your DNS server to our domain cname.suggestfeature.com before setting it here.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
