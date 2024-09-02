@@ -49,29 +49,6 @@ function PostDetails({ params, data, refetch }) {
   const { toast } = useToast()
 
 
-  const updatePost = async ({ updatedStatus, updatedPriority }) => {
-    fetch(`/api/auth/posts/update-post-details`, {
-      method: "POST",
-      headers: {
-        "x-org-slug": params.slug,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        postId: data.id,
-        status: updatedStatus || status,
-        priority: updatedPriority || priority
-      })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        toast({
-          title: 'Post updated successfully'
-        })
-        refetch()
-        console.log(data)
-      })
-  }
-
   return (<div className='px-4 my-4 w-full' >
     Voters
   </div>)
