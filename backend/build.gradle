@@ -70,6 +70,8 @@ dependencies {
     // for transliterator of slugify
     implementation group: 'com.ibm.icu', name: 'icu4j', version: '75.1'
 
+    // kubernetes
+    implementation group: 'io.kubernetes', name: 'client-java', version: '20.0.1'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

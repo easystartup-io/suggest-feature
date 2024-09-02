@@ -39,9 +39,22 @@ public class SubscriptionService {
             return true;
         }
         SubscriptionDetails subscriptionForOrganization = getSubscriptionForOrganization(organizationId);
+
         if (subscriptionForOrganization == null || !SubscriptionDetails.Status.active.name().equals(subscriptionForOrganization.getSubscriptionStatus())) {
             return false;
         }
+
+        // Instead of running job, just mark the subscription as expired at runtime
+        if (subscriptionForOrganization.isTrial() && System.currentTimeMillis() > (subscriptionForOrganization.getTrialEndDate() + TimeUnit.DAYS.toMillis(1))) {
+            return false;
+        }
+
+        // Check if subscription is not renewed for 14 days
+        if (SubscriptionDetails.Status.active.name().equals(subscriptionForOrganization.getSubscriptionStatus()) && subscriptionForOrganization.getNextBillingDate() != null && (System.currentTimeMillis() > (subscriptionForOrganization.getNextBillingDate() + TimeUnit.DAYS.toMillis(14)))) {
+            return false;
+        }
+
+
         return true;
     }
 
@@ -53,6 +66,12 @@ public class SubscriptionService {
         if (subscriptionForOrganization == null || !SubscriptionDetails.Status.active.name().equals(subscriptionForOrganization.getSubscriptionStatus())) {
             return false;
         }
+
+        // Instead of running job, just mark the subscription as expired at runtime
+        if (subscriptionForOrganization.isTrial() && System.currentTimeMillis() > (subscriptionForOrganization.getTrialEndDate() + TimeUnit.DAYS.toMillis(1))) {
+            return false;
+        }
+
         return subscriptionForOrganization.isTrial();
     }
 
