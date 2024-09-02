@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.SearchPostDTO;
+import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
@@ -30,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static io.easystartup.suggestfeature.utils.Util.getNameFromEmail;
 
 /*
  * @author indianBond
@@ -264,12 +267,28 @@ public class PublicPortalPostRestApi {
         post.setVoters(voters);
         post.setVotes(voters.size());
 
-//        for (Voter voter : voters) {
-//            if (voter.getUserId().equals(UserContext.current().getUserId())) {
-//                post.setSelfVoted(true);
-//                break;
-//            }
-//        }
+        for (Voter voter : voters) {
+            if (voter.getUserId().equals(UserContext.current().getUserId())) {
+                post.setSelfVoted(true);
+                break;
+            }
+        }
+
+        Set<String> voterUserIds = voters.stream().map(Voter::getUserId).collect(Collectors.toSet());
+        List<User> users = authService.getUsersByUserIds(voterUserIds);
+        voters.stream().forEach(voter -> {
+            User user = users.stream().filter(u -> u.getId().equals(voter.getUserId())).findFirst().orElse(null);
+            if (user != null) {
+                User safeUser = new User();
+                safeUser.setName(user.getName());
+                if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+                    safeUser.setName(getNameFromEmail(user.getEmail()));
+                }
+                safeUser.setId(user.getId());
+                safeUser.setProfilePic(user.getProfilePic());
+                voter.setUser(safeUser);
+            }
+        });
 
         Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
         List<Comment> comments = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition1), Comment.class);
@@ -288,24 +307,6 @@ public class PublicPortalPostRestApi {
         }
         safeUser.setProfilePic(userByUserId.getProfilePic());
         post.setUser(safeUser);
-    }
-
-    private static String getNameFromEmail(String email) {
-        // Extract name from email
-        email = email.substring(0, email.indexOf('@'));
-        // if it contains dots or any delimiters split it and capitalize first letter of each word and use just first two words
-        if (email.contains(".") || email.contains("_") || email.contains("-")) {
-            String[] split = email.split("[._-]");
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < Math.min(2, split.length); i++) {
-                sb.append(StringUtils.capitalize(split[i]));
-                if (i != split.length - 1) {
-                    sb.append(" ");
-                }
-            }
-            return sb.toString();
-        }
-        return StringUtils.capitalize(email);
     }
 
     private void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments) {

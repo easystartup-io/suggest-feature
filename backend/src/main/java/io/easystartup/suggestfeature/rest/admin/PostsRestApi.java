@@ -11,7 +11,6 @@ import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +23,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static io.easystartup.suggestfeature.utils.Util.getNameFromEmail;
 
 /*
  * @author indianBond
@@ -357,6 +357,23 @@ public class PostsRestApi {
                 break;
             }
         }
+
+        Set<String> voterUserIds = voters.stream().map(Voter::getUserId).collect(Collectors.toSet());
+        List<User> users = authService.getUsersByUserIds(voterUserIds);
+        voters.stream().forEach(voter -> {
+            User user = users.stream().filter(u -> u.getId().equals(voter.getUserId())).findFirst().orElse(null);
+            if (user != null) {
+                User safeUser = new User();
+                safeUser.setName(user.getName());
+                if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+                    safeUser.setName(getNameFromEmail(user.getEmail()));
+                }
+                safeUser.setEmail(user.getEmail());
+                safeUser.setId(user.getId());
+                safeUser.setProfilePic(user.getProfilePic());
+                voter.setUser(safeUser);
+            }
+        });
 
         Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
         List<Comment> comments = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition1), Comment.class);

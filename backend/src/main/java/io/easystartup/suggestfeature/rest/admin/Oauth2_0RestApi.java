@@ -168,8 +168,11 @@ public class Oauth2_0RestApi {
                     if (existingUser == null) {
                         User user = new User();
                         user.setEmail(email);
+                        user.setId(new ObjectId().toString());
                         user.setName(name);
-                        user.setProfilePic(profilePic);
+                        // Copy profile pic to local cloudflare instance else  google is blocking it
+                        String ppic = Util.uploadCopy(user.getId(), one.getOrganizationId(), profilePic);
+                        user.setProfilePic(ppic);
                         user.setCreatedAt(System.currentTimeMillis());
                         mongoConnection.getDefaultMongoTemplate().insert(user);
                         existingUser = user;

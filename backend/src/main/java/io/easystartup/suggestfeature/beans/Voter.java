@@ -2,6 +2,8 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,6 +32,10 @@ public class Voter {
     private String postId;
     private String organizationId;
     private Long createdAt;
+
+    @Reference
+    @Transient
+    private User user;
 
     public Voter() {
     }
@@ -72,5 +78,13 @@ public class Voter {
 
     public void setPostId(String postId) {
         this.postId = postId;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 }

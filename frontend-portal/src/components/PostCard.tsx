@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Icons } from './icons';
+import Voters from './Voters';
 
 export const statusConfig = {
   "OPEN": {
@@ -50,7 +51,7 @@ function PostDetails({ params, data, refetch }) {
 
 
   return (<div className='px-4 my-4 w-full' >
-    Voters
+    <Voters voters={data.voters} />
   </div>)
 }
 

@@ -3,11 +3,30 @@ package io.easystartup.suggestfeature.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
+import io.easystartup.suggestfeature.loggers.Logger;
+import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.commons.lang3.StringUtils;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -23,6 +42,7 @@ public class Util {
     public static final String WHITE_SPACE = " ";
     public static final Map<String, String> SLUGIFY_MAP;
     private static final Dotenv dotenv;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
 
     static {
         // Used to replace $ with dollar
@@ -102,6 +122,115 @@ public class Util {
         slug = builder.slugify(slug);
         slug = slug.substring(0, Math.min(slug.length(), 35));
         return slug;
+    }
+
+
+    public static String getNameFromEmail(String email) {
+        // Extract name from email
+        email = email.substring(0, email.indexOf('@'));
+        // if it contains dots or any delimiters split it and capitalize first letter of each word and use just first two words
+        if (email.contains(".") || email.contains("_") || email.contains("-")) {
+            String[] split = email.split("[._-]");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < Math.min(2, split.length); i++) {
+                sb.append(StringUtils.capitalize(split[i]));
+                if (i != split.length - 1) {
+                    sb.append(" ");
+                }
+            }
+            return sb.toString();
+        }
+        return StringUtils.capitalize(email);
+    }
+
+
+    public static String uploadCopy(String userId, String orgId, String externalUrl) {
+        if (StringUtils.isBlank(externalUrl)) {
+            return null;
+        }
+        URL url = null;
+        String BUCKET_NAME = Util.getEnvVariable("S3_BUCKET", "suggest-feature"); // Replace with your bucket name
+        try {
+            url = new URL(externalUrl);
+            String fileName = getFileNameFromUrl(url);
+            String extension = getExtensionFromFileName(fileName);
+
+            // Construct the S3 key
+            String key = (orgId != null ? orgId + "/" : "") + userId + "/" + UUID.randomUUID() + "." + extension;
+
+            // Get file content and content type from the external URL
+            String contentType = url.openConnection().getContentType();
+
+            // Write to temp file before uploading
+            File tempFile = null;
+            try (InputStream inputStream = url.openStream()) {
+                tempFile = File.createTempFile("upload", "." + extension);
+                Files.copy(inputStream, tempFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(BUCKET_NAME)
+                        .key(key)
+                        .contentType(contentType)
+                        .build();
+
+                try (S3Client s3Client = S3Client.create()) {
+                    PutObjectResponse putObjectResponse = s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
+                    return Util.getEnvVariable("S3_CDN_URL", "https://assets.suggestfeature.com/") + key;
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("File upload failed.", e);
+            } finally {
+                if (tempFile != null) {
+                    try {
+                        Files.deleteIfExists(tempFile.toPath());
+                    } catch (IOException ignored) {
+                        // Ignored
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Failed to upload file from external URL: " + externalUrl, e);
+            return externalUrl;
+        }
+    }
+
+    private static String getFileNameFromUrl(URL url) {
+        String path = url.getPath();
+        String decoded = URLDecoder.decode(path, StandardCharsets.UTF_8);
+        return decoded.substring(decoded.lastIndexOf('/') + 1);
+    }
+
+    private static String getExtensionFromFileName(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
+    }
+
+    /*
+     * For Cloudflare R2
+     *  S3_ENDPOINT = 'https://<accountid>.r2.cloudflarestorage.com',
+     *  S3_KEY = '<access_key_id>',
+     *  S3_SECRET = '<access_key_secret>',
+     *  S3_REGION = '# Must be one of: wnam, enam, weur, eeur, apac, auto',
+     * */
+    public static S3Client s3Client() {
+        String R2_ENDPOINT = Util.getEnvVariable("S3_ENDPOINT", "");
+        String ACCESS_KEY = Util.getEnvVariable("S3_KEY", "");
+        String SECRET_KEY = Util.getEnvVariable("S3_SECRET", "");
+        String S3_REGION = Util.getEnvVariable("S3_REGION", "enam");
+        return S3Client.builder()
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY)
+                        )
+                )
+                .endpointOverride(URI.create(R2_ENDPOINT))
+                .region(Region.of(S3_REGION))
+                .serviceConfiguration(
+                        S3Configuration.builder()
+                                .pathStyleAccessEnabled(true)
+                                .build()
+                )
+                .build();
     }
 
 }

@@ -12,6 +12,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Textarea } from '../ui/textarea';
 import { statusConfig } from '@/app/[slug]/boards/[id]/posts/page';
 import { useToast } from "@/components/ui/use-toast"
+import Voters from '../Voters';
 
 function FullScreenPostDialog({ id, params }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -128,6 +129,7 @@ function PostDetails({ params, data, refetch }) {
         </SelectContent>
       </Select>
     </div>
+    <Voters voters={data.voters} />
   </div>)
 }
 
