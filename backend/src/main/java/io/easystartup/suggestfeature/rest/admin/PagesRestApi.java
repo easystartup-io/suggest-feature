@@ -103,7 +103,9 @@ public class PagesRestApi {
 
         if (StringUtils.isNotBlank(organization.getCustomDomain()) && StringUtils.isNotBlank(existingOrg.getCustomDomain()) && !organization.getCustomDomain().equals(existingOrg.getCustomDomain())) {
             validateCustomDomainNotInUse(organization.getCustomDomain());
-            customDomainMappingService.updateCustomDomainMapping(organization.getCustomDomain(), organization.getId());
+            // Updating custom domain mapping
+            customDomainMappingService.createCustomDomainMapping(organization.getCustomDomain(), organization.getId());
+            customDomainMappingService.deleteCustomDomainMapping(existingOrg.getCustomDomain());
         } else if (StringUtils.isBlank(organization.getCustomDomain()) && existingOrg.getCustomDomain() != null) {
             customDomainMappingService.deleteCustomDomainMapping(existingOrg.getCustomDomain());
             existingOrg.setCustomDomain(null);
@@ -122,6 +124,8 @@ public class PagesRestApi {
         }
         if (StringUtils.isNotBlank(organization.getCustomDomain())) {
             existingOrg.setCustomDomain(organization.getCustomDomain().trim());
+        } else {
+            existingOrg.setCustomDomain(null);
         }
         try {
             mongoConnection.getDefaultMongoTemplate().save(existingOrg);

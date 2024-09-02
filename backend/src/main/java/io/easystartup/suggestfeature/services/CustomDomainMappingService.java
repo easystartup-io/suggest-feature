@@ -1,9 +1,13 @@
 package io.easystartup.suggestfeature.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.utils.Util;
+import jakarta.ws.rs.core.UriBuilder;
 import org.springframework.stereotype.Service;
 import org.xbill.DNS.Address;
 import org.xbill.DNS.CNAMERecord;
@@ -50,7 +54,7 @@ public class CustomDomainMappingService {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(response.body());
+        LOGGER.error(response.body());
     }
 
     private String getCloudflareRequestBody(String customDomain, String orgId) {
@@ -77,18 +81,27 @@ public class CustomDomainMappingService {
             return; // Skip domain deletion if self hosted
         }
 
-    }
+        String customHostnameId = getCustomHostnameId(customDomain);
 
-    public void updateCustomDomainMapping(String customDomain, String pageId) {
-        if (Util.isSelfHosted()) {
-            return; // Skip domain deletion if self hosted
+        if (customHostnameId == null) {
+            return;
         }
 
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.cloudflare.com/client/v4/zones/%s/custom_hostnames/%s".formatted(getCloudflareZoneId(), customHostnameId)))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + getCloudflareAuthKey())
+                .method("DELETE", HttpRequest.BodyPublishers.noBody())
+                .build();
+        HttpResponse<String> response;
+        try (HttpClient httpClient = HttpClient.newHttpClient()) {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        LOGGER.error(response.body());
     }
 
-    public void getCustomDomainMapping(String customDomain) {
-
-    }
 
     public boolean verifyCustomDomainMapping(String customDomain) {
         // Do a DNS lookup to verify the domain, that it is pointed properly to cname.suggestfeature.com. Either cname or alias
@@ -141,5 +154,43 @@ public class CustomDomainMappingService {
 
     private String getCloudflareAuthKey() {
         return Util.getEnvVariable("CLOUDFLARE_AUTH_KEY", "");
+    }
+
+    private String getCustomHostnameId(String customDomain) {
+        String customHostnameId = null;
+        {
+            URI uri = UriBuilder.fromUri("https://api.cloudflare.com/client/v4/zones/%s/custom_hostnames".formatted(getCloudflareZoneId())).queryParam("hostname", customDomain).build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + getCloudflareAuthKey())
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            HttpResponse<String> response = null;
+            try (HttpClient httpClient = HttpClient.newHttpClient()) {
+                response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                // Parse the JSON response to fetch customhostnameid
+                customHostnameId = getCustomHostnameId(response.body(), customHostnameId);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LOGGER.error(response.body());
+        }
+        return customHostnameId;
+    }
+
+    private String getCustomHostnameId(String response, String customHostnameId) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = objectMapper.readTree(response);
+            JsonNode resultNode = rootNode.path("result").get(0);
+            if (resultNode != null) {
+                customHostnameId = resultNode.path("id").asText();
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error parsing JSON response", e);
+        }
+        return customHostnameId;
     }
 }

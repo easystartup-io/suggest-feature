@@ -67,7 +67,7 @@ public class PaymentWebhookRestApi {
             LOGGER.error("Invalid webhook received " + payload + " with signature " + sigHeader + " and event name " + eventName);
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        System.out.println("Webhook received " + payload + " with signature " + sigHeader + " and event name " + eventName);
+        LOGGER.error("Webhook received " + payload + " with signature " + sigHeader + " and event name " + eventName);
         try {
             JsonNode jsonNode = getObjectMapper().readTree(payload);
             JsonNode metaNode = jsonNode.get("meta");

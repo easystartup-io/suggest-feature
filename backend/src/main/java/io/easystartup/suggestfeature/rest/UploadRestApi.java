@@ -3,6 +3,8 @@ package io.easystartup.suggestfeature.rest;
 
 import com.google.common.collect.Sets;
 import io.easystartup.suggestfeature.filters.UserContext;
+import io.easystartup.suggestfeature.loggers.Logger;
+import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.Util;
@@ -44,6 +46,8 @@ import java.util.UUID;
 @Component
 public class UploadRestApi {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadRestApi.class);
+
     private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
     private static final Set<String> allowedExtensions = Sets.newHashSet(
@@ -67,9 +71,7 @@ public class UploadRestApi {
                                @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataBodyPart bodyPart,
                                @FormDataParam("file") FormDataContentDisposition fileMetaData) {
 
-        System.out.println("Uploading file" + fileMetaData.getFileName());
-        System.out.println("Uploading file" + fileMetaData.getSize());
-        System.out.println("Uploading file" + fileMetaData.getType());
+        LOGGER.error("Uploading file" + fileMetaData.getFileName() + " " + fileMetaData.getParameters() + " " + fileMetaData.getSize());
         UserContext userContext = UserContext.current();
 
         if (fileInputStream == null || fileMetaData == null) {

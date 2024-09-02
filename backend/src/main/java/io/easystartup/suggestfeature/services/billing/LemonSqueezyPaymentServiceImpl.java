@@ -133,7 +133,7 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
 
     @Override
     public void cancelSubscription(String orgId) {
-        System.out.println("Subscription cancelled for orgId: " + orgId);
+        LOGGER.error("Subscription cancelled for orgId: " + orgId);
     }
 
     private String requestCheckout(String plan, Organization org, User user, String currentUrl) {

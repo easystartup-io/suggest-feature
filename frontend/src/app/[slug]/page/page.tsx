@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { ExternalLink } from "lucide-react";
 import Loading from "@/components/Loading";
+import { useRouter } from "next/navigation";
 
 
 const Dashboard: React.FC = ({ params }) => {
@@ -20,6 +21,7 @@ const Dashboard: React.FC = ({ params }) => {
   const [defaultValues, setDefaultValues] = useState({})
   const form = useForm({ defaultValues })
   const { reset } = form; // Get reset function from useForm
+  const router = useRouter()
 
   useEffect(() => {
     fetch(`/api/auth/pages/fetch-org`, {
@@ -55,9 +57,13 @@ const Dashboard: React.FC = ({ params }) => {
         toast({
           title: 'Updated successfully',
         })
+        if (data.slug !== params.slug) {
+          router.push(`/${data.slug}/page`)
+        }
       } else {
         toast({
-          title: respData.message,
+          title: 'Failed to save',
+          description: `${respData.message}`,
           variant: 'destructive'
         })
       }
