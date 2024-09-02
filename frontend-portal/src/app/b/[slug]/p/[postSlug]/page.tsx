@@ -5,6 +5,7 @@ import { PostCard } from "@/components/PostCard"
 import { useInit } from "@/context/InitContext"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { useAuth } from "@/context/AuthContext"
 
 export const statusConfig = {
   "OPEN": {
@@ -42,12 +43,14 @@ export default function Dashboard({ params }) {
   const { org, boards } = useInit()
   const router = useRouter();
   const [board, setBoard] = useState({})
+  const { user, loading } = useAuth()
 
-  useEffect(() => {
+  function refetchPost() {
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
+    const path = user ? 'api/portal/auth/posts/fetch-post' : 'api/portal/unauth/posts/fetch-post';
 
-    fetch(`${protocol}//${host}/api/portal/unauth/posts/fetch-post/?boardSlug=${params.slug}&postSlug=${params.postSlug}`)
+    fetch(`${protocol}//${host}/${path}?boardSlug=${params.slug}&postSlug=${params.postSlug}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data.priority) {
@@ -62,12 +65,21 @@ export default function Dashboard({ params }) {
       const b = boards.find((item) => item.slug === params.slug);
       setBoard(b)
     }
-  }, [params, boards])
+  }
+
+
+  useEffect(() => {
+    if (loading) {
+      return
+    }
+
+    refetchPost()
+  }, [params, boards, user, loading])
 
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
       <div className="w-full">
-        <PostCard params={params} post={post} />
+        <PostCard params={params} post={post} refetch={refetchPost} />
       </div>
     </main>
   )

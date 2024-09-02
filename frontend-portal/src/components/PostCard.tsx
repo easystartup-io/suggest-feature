@@ -15,31 +15,38 @@ import Voters from './Voters';
 export const statusConfig = {
   "OPEN": {
     icon: <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />,
-    label: "OPEN"
+    label: "OPEN",
+    bgColor: "bg-blue-100 dark:bg-blue-800"
   },
   "UNDER REVIEW": {
     icon: <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />,
-    label: "UNDER REVIEW"
+    label: "UNDER REVIEW",
+    bgColor: "bg-yellow-100 dark:bg-yellow-800"
   },
   "PLANNED": {
     icon: <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />,
-    label: "PLANNED"
+    label: "PLANNED",
+    bgColor: "bg-blue-100 dark:bg-blue-800"
   },
   "IN PROGRESS": {
     icon: <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />,
-    label: "IN PROGRESS"
+    label: "IN PROGRESS",
+    bgColor: "bg-orange-100 dark:bg-orange-800"
   },
   "LIVE": {
     icon: <Play className="w-4 h-4 inline-block mr-2 text-green-500" />,
-    label: "LIVE"
+    label: "LIVE",
+    bgColor: "bg-green-100 dark:bg-green-800"
   },
   "COMPLETE": {
     icon: <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />,
-    label: "COMPLETE"
+    label: "COMPLETE",
+    bgColor: "bg-green-100 dark:bg-green-800"
   },
   "CLOSED": {
     icon: <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />,
-    label: "CLOSED"
+    label: "CLOSED",
+    bgColor: "bg-red-100 dark:bg-red-800"
   }
 };
 
@@ -86,16 +93,18 @@ function TitleHeader({ params, data, refetch }) {
             <h1 className="text-lg font-semibold">{data.title}</h1>
             <div className='flex gap-2'>
               <div className='flex items-center'>
-                <div className='p-2 bg-white dark:bg-background rounded-lg text-sm'>
+                <div className={cn('p-2 rounded-lg text-sm',
+                  statusConfig[data.status].bgColor
+                )}>
                   {data.status && statusConfig[data.status].icon}
                   {data.status && statusConfig[data.status].label}
                 </div>
               </div>
-              <div className='p-2 bg-white dark:bg-background rounded-lg text-sm'>
-                {data.priority && <div className={cn("flex items-center",
-                  data.priority === "High" && "text-red-500",
-                  data.priority === "Medium" && "text-yellow-500",
-                  data.priority === "Low" && "text-green-500"
+              <div className='text-sm'>
+                {data.priority && <div className={cn("flex items-center p-2 rounded-lg",
+                  data.priority === "High" && "text-red-500 bg-red-100 dark:bg-red-800",
+                  data.priority === "Medium" && "text-yellow-500 bg-yellow-100 dark:bg-yellow-800",
+                  data.priority === "Low" && "text-green-500 bg-green-100 dark:bg-green-800"
                 )}>
                   <Flag className='w-4 h-4 inline-block mr-2' /> {data.priority}
                 </div>
@@ -187,6 +196,7 @@ function PostContent({ data }) {
 function NewCommentInput({ data, params, refetch }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast()
 
   const submitComment = async (e) => {
     if (loading) {
@@ -194,10 +204,9 @@ function NewCommentInput({ data, params, refetch }) {
     }
     setLoading(true)
     try {
-      const resp = await fetch(`/api/auth/posts/create-comment`, {
+      const resp = await fetch(`/api/portal/auth/posts/create-comment`, {
         method: "POST",
         headers: {
-          "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -207,6 +216,9 @@ function NewCommentInput({ data, params, refetch }) {
       })
       const outputData = resp.json()
       refetch()
+      toast({
+        title: 'Comment added',
+      })
       console.log(outputData)
     } catch (e) {
       console.log(e)
@@ -231,20 +243,7 @@ function NewCommentInput({ data, params, refetch }) {
   </div>)
 }
 
-export const PostCard = ({ post, params, disableExpand = false }) => {
-
-  const refetch = () => {
-    fetch(`/api/auth/posts/fetch-post?postId=${id}`, {
-      method: "GET",
-      headers: {
-        "x-org-slug": params.slug,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        // setData(data)
-      })
-  }
+export const PostCard = ({ post, params, disableExpand = false, refetch }) => {
 
   if (post.length === 0 || Object.keys(post).length === 0) {
     return (

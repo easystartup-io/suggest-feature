@@ -7,10 +7,12 @@ import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
@@ -20,8 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static io.easystartup.suggestfeature.utils.Util.getNameFromEmail;
 
 /*
  * @author indianBond
@@ -35,11 +42,14 @@ public class PublicPortalAuthPostRestApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublicPortalAuthPostRestApi.class);
     private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
+    private final ValidationService validationService;
+
 
     @Autowired
-    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, AuthService authService) {
+    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService) {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
+        this.validationService = validationService;
     }
 
     @POST
@@ -93,6 +103,97 @@ public class PublicPortalAuthPostRestApi {
 
         return Response.ok().entity(JacksonMapper.toJson(post)).build();
     }
+
+    @GET
+    @Path("/fetch-post")
+    @Produces("application/json")
+    public Response fetchPost(@Context HttpServletRequest request, @QueryParam("postSlug") @NotBlank String postSlug, @QueryParam("boardSlug") @NotBlank String boardSlug) {
+        String host = request.getHeader("host");
+        Organization org = getOrg(host);
+        if (org == null || (org.getRoadmapSettings() != null && !org.getRoadmapSettings().isEnabled())) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+        Criteria boardCriteriaDefinition = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId()).and(Board.FIELD_SLUG).is(boardSlug);
+        Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(boardCriteriaDefinition), Board.class);
+        if (board.isPrivateBoard()) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId()).and(Post.FIELD_SLUG).is(postSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
+        Post post = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Post.class);
+        post.setBoardSlug(boardSlug);
+        populatePost(post);
+
+        return Response.ok().entity(JacksonMapper.toJson(post)).build();
+    }
+
+    @POST
+    @Path("/create-comment")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response createComment(Comment comment, @Context HttpServletRequest request) {
+        String userId = UserContext.current().getUserId();
+        validationService.validate(comment);
+
+        String host = request.getHeader("host");
+        Organization org = getOrg(host);
+        if (org == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Organization not found").build();
+        }
+        Criteria customerCriteria = Criteria.where(Customer.FIELD_USER_ID).is(userId).and(Customer.FIELD_ORGANIZATION_ID).is(org.getId());
+        Customer customer = mongoConnection.getDefaultMongoTemplate().findOne(new Query(customerCriteria), Customer.class);
+        if (customer == null || customer.isSpam()) {
+            return Response.status(Response.Status.FORBIDDEN).entity("User not allowed").build();
+        }
+
+        String postId = comment.getPostId();
+        Post post = getPost(postId, org.getId());
+        if (post == null) {
+            throw new UserVisibleException("Post not found");
+        }
+
+        String boardId = post.getBoardId();
+        Board board = getBoard(boardId, org.getId());
+        if (board == null || board.isPrivateBoard()){
+            throw new UserVisibleException("Post not found");
+        }
+
+        if (StringUtils.isNotBlank(comment.getReplyToCommentId())) {
+            Comment inReplyToComment = getComment(comment.getReplyToCommentId(), org.getId());
+            if (inReplyToComment == null) {
+                throw new UserVisibleException("Parent comment does not exist");
+            }
+        }
+
+        Comment existingComment = getComment(comment.getId(), org.getId());
+        boolean isNew = false;
+        if (existingComment == null) {
+            comment.setId(new ObjectId().toString());
+            comment.setCreatedAt(System.currentTimeMillis());
+            comment.setCreatedByUserId(userId);
+            comment.setOrganizationId(org.getId());
+            comment.setPostId(post.getId());
+            comment.setBoardId(post.getBoardId());
+            isNew = true;
+        } else {
+            if (!existingComment.getCreatedByUserId().equals(userId)) {
+                throw new UserVisibleException("User not allowed");
+            }
+            existingComment.setContent(comment.getContent());
+            existingComment.setModifiedAt(System.currentTimeMillis());
+        }
+        comment.setOrganizationId(org.getId());
+        try {
+            if (isNew) {
+                mongoConnection.getDefaultMongoTemplate().insert(comment);
+            } else {
+                mongoConnection.getDefaultMongoTemplate().save(existingComment);
+            }
+        } catch (DuplicateKeyException e) {
+            throw new UserVisibleException("Comment already exists");
+        }
+        return Response.ok("{}").build();
+    }
+
 
     @POST
     @Path("/add-post")
@@ -151,4 +252,109 @@ public class PublicPortalAuthPostRestApi {
         }
         return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), Organization.class);
     }
+
+    private void populatePost(Post post) {
+        if (post == null) {
+            return;
+        }
+        Criteria criteriaDefinition = Criteria.where(Voter.FIELD_POST_ID).is(post.getId());
+        List<Voter> voters = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Voter.class);
+        post.setVoters(voters);
+        post.setVotes(voters.size());
+
+        for (Voter voter : voters) {
+            if (voter.getUserId().equals(UserContext.current().getUserId())) {
+                post.setSelfVoted(true);
+                break;
+            }
+        }
+
+        Set<String> voterUserIds = voters.stream().map(Voter::getUserId).collect(Collectors.toSet());
+        List<User> users = authService.getUsersByUserIds(voterUserIds);
+        voters.stream().forEach(voter -> {
+            User user = users.stream().filter(u -> u.getId().equals(voter.getUserId())).findFirst().orElse(null);
+            if (user != null) {
+                User safeUser = new User();
+                safeUser.setName(user.getName());
+                if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+                    safeUser.setName(getNameFromEmail(user.getEmail()));
+                }
+                safeUser.setId(user.getId());
+                safeUser.setProfilePic(user.getProfilePic());
+                voter.setUser(safeUser);
+            }
+        });
+
+        Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
+        List<Comment> comments = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition1), Comment.class);
+        post.setComments(comments);
+
+        populateUserInCommentAndPopulateNestedCommentsStructure(comments);
+
+
+        User userByUserId = authService.getUserByUserId(post.getCreatedByUserId());
+
+        User safeUser = new User();
+        safeUser.setId(userByUserId.getId());
+        safeUser.setName(userByUserId.getName());
+        if (StringUtils.isBlank(userByUserId.getName()) && StringUtils.isNotBlank(userByUserId.getEmail())) {
+            safeUser.setName(getNameFromEmail(userByUserId.getEmail()));
+        }
+        safeUser.setProfilePic(userByUserId.getProfilePic());
+        post.setUser(safeUser);
+    }
+
+
+    private void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments) {
+        // All comments are already fetched. Now populate user in each comment by making single db call
+        // And also populate nested comments structure. Based on replyToCommentId and comments list
+        Set<String> userIds = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toSet());
+
+        Map<String, User> userIdVsUser = authService.getUsersByUserIds(userIds).stream().map(user -> {
+            User safeUser = new User();
+            safeUser.setId(user.getId());
+            safeUser.setName(user.getName());
+            if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+                safeUser.setName(getNameFromEmail(user.getEmail()));
+            }
+            safeUser.setProfilePic(user.getProfilePic());
+            return safeUser;
+        }).collect(Collectors.toMap(User::getId, Function.identity()));
+
+        for (Comment comment : comments) {
+            comment.setUser(userIdVsUser.get(comment.getCreatedByUserId()));
+        }
+
+        // Desc sort by created at
+        Collections.sort(comments, Comparator.comparing(Comment::getCreatedAt).reversed());
+
+        Map<String, Comment> commentIdVsComment = comments.stream().collect(Collectors.toMap(Comment::getId, Function.identity()));
+        for (Comment comment : comments) {
+            if (StringUtils.isNotBlank(comment.getReplyToCommentId())) {
+                Comment parentComment = commentIdVsComment.get(comment.getReplyToCommentId());
+                if (parentComment != null) {
+                    if (parentComment.getComments() == null) {
+                        parentComment.setComments(new ArrayList<>());
+                    }
+                    parentComment.getComments().add(comment);
+                }
+            }
+        }
+    }
+
+    private Post getPost(String postId, String orgId) {
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_ID).is(postId).and(Post.FIELD_ORGANIZATION_ID).is(orgId);
+        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Post.class);
+    }
+
+    private Board getBoard(String boardId, String orgId) {
+        Criteria criteriaDefinition = Criteria.where(Board.FIELD_ID).is(boardId).and(Board.FIELD_ORGANIZATION_ID).is(orgId);
+        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Board.class);
+    }
+
+    private Comment getComment(String replyToCommentId, String orgId) {
+        Criteria criteriaDefinition = Criteria.where(Comment.FIELD_ID).is(replyToCommentId).and(Comment.FIELD_ORGANIZATION_ID).is(orgId);
+        return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Comment.class);
+    }
+
 }

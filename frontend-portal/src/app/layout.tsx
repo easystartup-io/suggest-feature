@@ -43,7 +43,7 @@ function Custom404() {
 
 function Header({ params }) {
 
-  const { user, logout } = useAuth()
+  const { user, loading, logout } = useAuth()
   const [org, setOrg] = useState({});
   const [boards, setBoards] = useState({});
   const [error, setError] = useState(false);
@@ -74,6 +74,7 @@ function Header({ params }) {
   if (!org || error) {
     return <Custom404 />
   }
+
   return (
     <div className="w-full px-4 md:px-10">
       <title>{org.name}</title>
@@ -83,48 +84,50 @@ function Header({ params }) {
         }} className="cursor-pointer">
           <h1 className="text-xl font-semibold">{org.name}</h1>
         </div>
-        <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <ModeToggle />
-          {user ?
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <Avatar>
-                    <AvatarImage src={`${user.profilePic}`} />
-                    <AvatarFallback>
-                      {(() => {
-                        const name = user.name || user.email.split('@')[0];
-                        const words = name.split(' ');
+        {!loading ?
+          <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
+            <ModeToggle />
+            {user ?
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" size="icon" className="rounded-full">
+                    <Avatar>
+                      <AvatarImage src={`${user.profilePic}`} />
+                      <AvatarFallback>
+                        {(() => {
+                          const name = user.name || user.email.split('@')[0];
+                          const words = name.split(' ');
 
-                        let initials;
+                          let initials;
 
-                        if (words.length > 1) {
-                          // If the name has multiple words, take the first letter of each word
-                          initials = words.map(word => word[0]).join('').toUpperCase();
-                        } else {
-                          // If it's a single word, take the first two characters
-                          initials = name.slice(0, 2).toUpperCase();
-                        }
+                          if (words.length > 1) {
+                            // If the name has multiple words, take the first letter of each word
+                            initials = words.map(word => word[0]).join('').toUpperCase();
+                          } else {
+                            // If it's a single word, take the first two characters
+                            initials = name.slice(0, 2).toUpperCase();
+                          }
 
-                        // Ensure it returns exactly 2 characters
-                        return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
-                      })()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push('/settings')} >Settings</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            :
-            <LoginDialog />}
-        </div>
+                          // Ensure it returns exactly 2 characters
+                          return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+                        })()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push('/settings')} >Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              :
+              <LoginDialog />}
+          </div>
+          : ""}
       </header>
     </div>
   )
