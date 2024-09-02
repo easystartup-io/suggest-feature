@@ -104,6 +104,9 @@ public class CustomDomainMappingService {
 
 
     public boolean verifyCustomDomainMapping(String customDomain) {
+        if (Util.getEnvVariable("SKIP_DOMAIN_VERIFICATION", "false").equalsIgnoreCase("true")) {
+            return true; // Skip domain verification if explicitly disabled
+        }
         // Do a DNS lookup to verify the domain, that it is pointed properly to cname.suggestfeature.com. Either cname or alias
         return verifyDomainMapping(customDomain, "cname.suggestfeature.com");
     }

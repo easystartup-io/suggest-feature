@@ -26,35 +26,47 @@ export default function Dashboard({ params }) {
   const [saveLoading, setSaveLoading] = useState(false)
   const { toast } = useToast()
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
     setSaveLoading(true)
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
-    fetch(`${protocol}//${host}/api/portal/auth/update-user`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name,
-        profilePic: uploadedFileUrl || profilePic
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    try {
+      const res = await fetch(`${protocol}//${host}/api/portal/auth/update-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          profilePic: uploadedFileUrl || profilePic
+        }),
+      });
+      const respData = await res.json()
+
+      if (res.ok) {
         toast({
           title: 'Profile updated',
         })
-        setTimeout(() => {
-          setSaveLoading(false)
-        }, 1000)
-      }).catch((e) => {
-        setTimeout(() => {
-          setSaveLoading(false)
-        }, 1000)
-        console.log(e)
+      } else {
+        toast({
+          title: 'Failed to update',
+          description: respData.message,
+          variant: 'destructive'
+        })
+      }
+
+    } catch (e) {
+      console.log(e)
+      toast({
+        title: 'Failed to update',
+        description: e.message,
+        variant: 'destructive'
       })
+    }
+    setTimeout(() => {
+      setSaveLoading(false)
+    }, 1000)
   }
 
   useEffect(() => {

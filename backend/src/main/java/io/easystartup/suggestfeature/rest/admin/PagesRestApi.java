@@ -119,7 +119,7 @@ public class PagesRestApi {
             throw new UserVisibleException("Custom domain cannot end with suggestfeature.com");
         }
         // Validate the domain name and ensure it doesnot start with https or have a path and allow localhost and suggestfeature.com
-        if (StringUtils.isNotBlank(organization.getCustomDomain()) && !DomainValidator.getInstance(true).isValid(organization.getCustomDomain())) {
+        if (StringUtils.isNotBlank(organization.getCustomDomain()) && !Util.getEnvVariable("SKIP_DOMAIN_VERIFICATION", "false").equalsIgnoreCase("true") && !DomainValidator.getInstance(true).isValid(organization.getCustomDomain())) {
             throw new UserVisibleException("Invalid domain name. It should be of this format subdomain.yourdomain.com");
         }
         if (StringUtils.isNotBlank(organization.getCustomDomain())) {
