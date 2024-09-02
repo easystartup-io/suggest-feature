@@ -40,26 +40,37 @@ function PostDetails({ params, data, refetch }) {
 
 
   const updatePost = async ({ updatedStatus, updatedPriority }) => {
-    fetch(`/api/auth/posts/update-post-details`, {
-      method: "POST",
-      headers: {
-        "x-org-slug": params.slug,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        postId: data.id,
-        status: updatedStatus || status,
-        priority: updatedPriority || priority
+    try {
+      const res = await fetch(`/api/auth/posts/update-post-details`, {
+        method: "POST",
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: data.id,
+          status: updatedStatus || status,
+          priority: updatedPriority || priority
+        })
       })
-    })
-      .then((res) => res.json())
-      .then((data) => {
+      const respData = await res.json()
+      if (res.ok) {
         toast({
           title: 'Post updated successfully'
         })
         refetch()
-        console.log(data)
+      } else {
+        toast({
+          title: 'Post failed to update',
+          description: respData.message,
+          variant: 'destructive'
+        })
+      }
+    } catch (e) {
+      toast({
+        title: 'Post failed to update'
       })
+    }
   }
 
   return (<div className='border-l px-4 my-4 w-full' >
