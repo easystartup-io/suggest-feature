@@ -1,9 +1,6 @@
 package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.beans.Board;
-import io.easystartup.suggestfeature.beans.Comment;
-import io.easystartup.suggestfeature.beans.Post;
-import io.easystartup.suggestfeature.beans.Voter;
+import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
@@ -371,6 +368,57 @@ public class PostsRestApi {
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
         Collections.sort(posts, Comparator.comparing(Post::getId));
         return Response.ok(JacksonMapper.toJson(posts)).build();
+    }
+
+
+    @POST
+    @Path("/delete-post")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response deletePost(DeletePostDTO req) {
+        String userId = UserContext.current().getUserId();
+        if (StringUtils.isBlank(req.getPostId())) {
+            throw new UserVisibleException("Post id is required");
+        }
+        validationService.validate(req);
+        Post post = getPost(req.getPostId(), UserContext.current().getOrgId());
+        if (post == null) {
+            throw new UserVisibleException("Post not found");
+        }
+
+        Member memberForOrgId = authService.getMemberForOrgId(userId, UserContext.current().getOrgId());
+        if (memberForOrgId == null) {
+            throw new UserVisibleException("User not part of org");
+        }
+
+        mongoConnection.getDefaultMongoTemplate().remove(new Query(Criteria.where(Post.FIELD_ID).is(req.getPostId())), Post.class);
+
+        return Response.ok(EMPTY_JSON_RESPONSE).build();
+    }
+
+    @POST
+    @Path("/delete-comment")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response deleteComment(DeleteComment req) {
+        String userId = UserContext.current().getUserId();
+        if (StringUtils.isBlank(req.getCommentId())) {
+            throw new UserVisibleException("Comment id is required");
+        }
+        validationService.validate(req);
+        Comment comment = getComment(req.getCommentId(), UserContext.current().getOrgId());
+        if (comment == null) {
+            throw new UserVisibleException("Post not found");
+        }
+
+        Member memberForOrgId = authService.getMemberForOrgId(userId, UserContext.current().getOrgId());
+        if (memberForOrgId == null) {
+            throw new UserVisibleException("User not part of org");
+        }
+
+        mongoConnection.getDefaultMongoTemplate().remove(new Query(Criteria.where(Comment.FIELD_ID).is(req.getCommentId())), Comment.class);
+
+        return Response.ok(EMPTY_JSON_RESPONSE).build();
     }
 
     private static org.springframework.data.domain.Sort.Direction getOrder(FetchPostsRequestDTO req) {
