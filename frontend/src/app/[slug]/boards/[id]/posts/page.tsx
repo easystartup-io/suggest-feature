@@ -370,7 +370,9 @@ const Dashboard: React.FC = ({ params }) => {
           <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
             {
               currentPost && currentPost.id &&
-              <PostCard id={currentPost && currentPost.id} params={params} />
+              <PostCard
+                key={currentPost.id}
+                id={currentPost.id} params={params} />
             }
           </ResizablePanel>
         </ResizablePanelGroup>

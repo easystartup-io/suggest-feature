@@ -188,7 +188,7 @@ function TitleHeader({ params, data, refetch, id, disableExpand }) {
 function CommentSection({ params, refetch, comments }) {
 
   return (
-    <div className="">
+    <div className="flex flex-1 flex-col h-full">
       {comments && comments.length > 0 && comments.map(comment => (
         <CommentCard key={comment.id} comment={comment} params={params} refetch={refetch} />
       ))}
