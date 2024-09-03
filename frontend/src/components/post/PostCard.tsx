@@ -85,6 +85,8 @@ function PostDetails({ params, data, refetch }) {
         <SelectTrigger
           id="status"
           aria-label="Select status"
+          className={cn(statusConfig[status].bgColor)}
+
         >
           <SelectValue placeholder="Status" />
         </SelectTrigger>
@@ -104,21 +106,29 @@ function PostDetails({ params, data, refetch }) {
     </div>
     <div className="my-4">
       <p className="text-sm font-medium my-2"><Flag className='w-4 h-4 inline-block mr-2' />Priority</p>
-      <Select onValueChange={val => {
-        setPriority(val);
-        updatePost({ updatedPriority: val })
-      }} value={priority} >
+      <Select
+        onValueChange={val => {
+          setPriority(val);
+          updatePost({ updatedPriority: val })
+        }} value={priority} >
         <SelectTrigger
           id="priority"
           aria-label="Select priority"
+          className={cn(
+            data && data.priority === "High" && "bg-red-800",
+            data && data.priority === "Medium" && "bg-yellow-300",
+            data && data.priority === "Low" && "bg-green-800"
+          )}
         >
           <SelectValue placeholder="Priority" >
-            <div className={cn("flex items-center",
-              priority === "High" && "text-red-500",
-              priority === "Medium" && "text-yellow-500",
-              priority === "Low" && "text-green-500"
+            <div className={cn("flex items-center text-white",
+              priority === "Medium" && "text-black",
             )}>
-              <Flag className='w-4 h-4 inline-block mr-2' /> {priority}
+              <Flag className={cn('w-4 h-4 inline-block mr-2 ',
+                priority === "High" && "text-red-500",
+                priority === "Medium" && "text-yellow-500",
+                priority === "Low" && "text-green-500"
+              )} /> {priority}
             </div>
           </ SelectValue >
         </SelectTrigger>

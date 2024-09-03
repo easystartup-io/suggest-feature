@@ -3,6 +3,7 @@ package io.easystartup.suggestfeature.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -44,6 +45,10 @@ public class User {
     private Long userBlockedUntil;
     private Long magicLinkSentCount;
     private String profilePic;
+
+    // When rendering result displaying whether user is a member of the org
+    @Transient
+    private boolean partOfOrg;
 
     public User() {
     }
@@ -142,5 +147,13 @@ public class User {
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isPartOfOrg() {
+        return partOfOrg;
+    }
+
+    public void setPartOfOrg(boolean partOfOrg) {
+        this.partOfOrg = partOfOrg;
     }
 }

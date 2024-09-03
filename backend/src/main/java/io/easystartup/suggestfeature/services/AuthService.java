@@ -269,6 +269,13 @@ public class AuthService {
     }
 
     // Todo: add cache
+    public List<Member> getMembersForOrgId(Set<String> userIds, String orgId) {
+        return mongoTemplateFactory.getDefaultMongoTemplate().find(
+                new Query(Criteria.where(Member.FIELD_USER_ID).in(userIds).and(Member.FIELD_ORGANIZATION_ID).is(orgId)),
+                Member.class);
+    }
+
+    // Todo: add cache
     public Member getMemberForSlug(String userId, String orgSlug) {
         Organization organization = mongoTemplateFactory.getDefaultMongoTemplate()
                 .findOne(new Query(Criteria.where(Organization.FIELD_SLUG).is(orgSlug)), Organization.class);

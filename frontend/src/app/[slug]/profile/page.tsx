@@ -11,6 +11,8 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Icons } from "@/components/icons";
 import { useToast } from "@/components/ui/use-toast"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import FileUploadButton from "@/components/FileButton";
 
 const Dashboard: React.FC = ({ params }) => {
   const { toast } = useToast()
@@ -19,6 +21,9 @@ const Dashboard: React.FC = ({ params }) => {
   const [isLoading, setLoading] = useState(true)
   const [defaultValues, setDefaultValues] = useState({})
   const form = useForm({ defaultValues })
+  const [profilePic, setProfilePic] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadedFileUrl, setUploadedFileUrl] = useState('')
   const { reset } = form; // Get reset function from useForm
 
   useEffect(() => {
@@ -30,6 +35,7 @@ const Dashboard: React.FC = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        setProfilePic(data.profilePic)
         reset(data)
         setLoading(false)
       })
@@ -39,17 +45,22 @@ const Dashboard: React.FC = ({ params }) => {
     setLoading(true)
     try {
 
+      const reqData = {
+        ...data,
+        profilePic: uploadedFileUrl || profilePic
+      }
       const resp = await fetch(`/api/auth/user/update-user`, {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(reqData)
       });
       const respData = await resp.json();
       if (resp.ok) {
         setData(respData)
+        setProfilePic(respData.profilePic)
         reset(respData)
         toast({
           title: 'Profile updated successfully',
@@ -85,6 +96,32 @@ const Dashboard: React.FC = ({ params }) => {
         className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm"
       >
         <div className="w-full p-4">
+          <div className="flex items-center space-x-4 my-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={uploadedFileUrl || data.profilePic} alt="Profile" />
+              <AvatarFallback>
+                {(() => {
+                  const name = data.name || data.email.split('@')[0];
+                  const words = name.split(' ');
+
+                  let initials;
+
+                  if (words.length > 1) {
+                    // If the name has multiple words, take the first letter of each word
+                    initials = words.map(word => word[0]).join('').toUpperCase();
+                  } else {
+                    // If it's a single word, take the first two characters
+                    initials = name.slice(0, 2).toUpperCase();
+                  }
+
+                  // Ensure it returns exactly 2 characters
+                  return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+                })()}
+              </AvatarFallback>
+            </Avatar>
+            <FileUploadButton uploading={uploading} setUploading={setUploading} uploadedFileUrl={uploadedFileUrl} setUploadedFileUrl={setUploadedFileUrl} />
+            {/* <Button variant="outline">Upload image</Button> */}
+          </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -119,12 +156,17 @@ const Dashboard: React.FC = ({ params }) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading &&
-                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                }
-                Update profile
-              </Button>
+              <div
+                className="flex justify-end"
+              >
+                <Button
+                  type="submit" disabled={isLoading || uploading}>
+                  {(isLoading || uploading) &&
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                  }
+                  {uploading ? 'Uploading...' : 'Update profile'}
+                </Button>
+              </div>
             </form>
           </Form>
         </div>

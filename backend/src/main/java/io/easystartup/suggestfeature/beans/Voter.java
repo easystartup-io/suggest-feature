@@ -14,7 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Document
 @CompoundIndexes({
-        @CompoundIndex(name = "postId_1_userId_1",def = "{'postId': 1, 'userId': 1}", unique = true)
+        @CompoundIndex(name = "postId_1_userId_1",def = "{'postId': 1, 'userId': 1}", unique = true),
+        @CompoundIndex(name = "postId_1_createdAt_1",def = "{'postId': 1, 'createdAt': 1}"),
 })
 public class Voter {
     public static final String FIELD_ID = "_id";

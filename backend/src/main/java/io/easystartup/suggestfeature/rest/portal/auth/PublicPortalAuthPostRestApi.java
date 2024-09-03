@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.easystartup.suggestfeature.utils.Util.getNameFromEmail;
+import static io.easystartup.suggestfeature.utils.Util.*;
 
 /*
  * @author indianBond
@@ -121,7 +122,7 @@ public class PublicPortalAuthPostRestApi {
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId()).and(Post.FIELD_SLUG).is(postSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
         Post post = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Post.class);
         post.setBoardSlug(boardSlug);
-        populatePost(post);
+        populatePost(post, org.getId(), UserContext.current().getUserId());
 
         return Response.ok().entity(JacksonMapper.toJson(post)).build();
     }
@@ -251,95 +252,6 @@ public class PublicPortalAuthPostRestApi {
             criteria = Criteria.where(Organization.FIELD_SLUG).is(host.split("\\.")[0]);
         }
         return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), Organization.class);
-    }
-
-    private void populatePost(Post post) {
-        if (post == null) {
-            return;
-        }
-        Criteria criteriaDefinition = Criteria.where(Voter.FIELD_POST_ID).is(post.getId());
-        List<Voter> voters = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Voter.class);
-        post.setVoters(voters);
-        post.setVotes(voters.size());
-
-        for (Voter voter : voters) {
-            if (voter.getUserId().equals(UserContext.current().getUserId())) {
-                post.setSelfVoted(true);
-                break;
-            }
-        }
-
-        Set<String> voterUserIds = voters.stream().map(Voter::getUserId).collect(Collectors.toSet());
-        List<User> users = authService.getUsersByUserIds(voterUserIds);
-        voters.stream().forEach(voter -> {
-            User user = users.stream().filter(u -> u.getId().equals(voter.getUserId())).findFirst().orElse(null);
-            if (user != null) {
-                User safeUser = new User();
-                safeUser.setName(user.getName());
-                if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
-                    safeUser.setName(getNameFromEmail(user.getEmail()));
-                }
-                safeUser.setId(user.getId());
-                safeUser.setProfilePic(user.getProfilePic());
-                voter.setUser(safeUser);
-            }
-        });
-
-        Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
-        List<Comment> comments = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition1), Comment.class);
-        post.setComments(comments);
-
-        populateUserInCommentAndPopulateNestedCommentsStructure(comments);
-
-
-        User userByUserId = authService.getUserByUserId(post.getCreatedByUserId());
-
-        User safeUser = new User();
-        safeUser.setId(userByUserId.getId());
-        safeUser.setName(userByUserId.getName());
-        if (StringUtils.isBlank(userByUserId.getName()) && StringUtils.isNotBlank(userByUserId.getEmail())) {
-            safeUser.setName(getNameFromEmail(userByUserId.getEmail()));
-        }
-        safeUser.setProfilePic(userByUserId.getProfilePic());
-        post.setUser(safeUser);
-    }
-
-
-    private void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments) {
-        // All comments are already fetched. Now populate user in each comment by making single db call
-        // And also populate nested comments structure. Based on replyToCommentId and comments list
-        Set<String> userIds = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toSet());
-
-        Map<String, User> userIdVsUser = authService.getUsersByUserIds(userIds).stream().map(user -> {
-            User safeUser = new User();
-            safeUser.setId(user.getId());
-            safeUser.setName(user.getName());
-            if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
-                safeUser.setName(getNameFromEmail(user.getEmail()));
-            }
-            safeUser.setProfilePic(user.getProfilePic());
-            return safeUser;
-        }).collect(Collectors.toMap(User::getId, Function.identity()));
-
-        for (Comment comment : comments) {
-            comment.setUser(userIdVsUser.get(comment.getCreatedByUserId()));
-        }
-
-        // Desc sort by created at
-        Collections.sort(comments, Comparator.comparing(Comment::getCreatedAt).reversed());
-
-        Map<String, Comment> commentIdVsComment = comments.stream().collect(Collectors.toMap(Comment::getId, Function.identity()));
-        for (Comment comment : comments) {
-            if (StringUtils.isNotBlank(comment.getReplyToCommentId())) {
-                Comment parentComment = commentIdVsComment.get(comment.getReplyToCommentId());
-                if (parentComment != null) {
-                    if (parentComment.getComments() == null) {
-                        parentComment.setComments(new ArrayList<>());
-                    }
-                    parentComment.getComments().add(comment);
-                }
-            }
-        }
     }
 
     private Post getPost(String postId, String orgId) {

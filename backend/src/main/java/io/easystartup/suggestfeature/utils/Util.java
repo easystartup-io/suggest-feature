@@ -3,10 +3,17 @@ package io.easystartup.suggestfeature.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
+import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -24,10 +31,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
@@ -43,6 +50,8 @@ public class Util {
     public static final Map<String, String> SLUGIFY_MAP;
     private static final Dotenv dotenv;
     private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
+    private static LazyService<AuthService> authService = new LazyService<>(AuthService.class);
+    private static LazyService<MongoTemplateFactory> mongoConnection = new LazyService<>(MongoTemplateFactory.class);
 
     static {
         // Used to replace $ with dollar
@@ -231,6 +240,89 @@ public class Util {
                                 .build()
                 )
                 .build();
+    }
+
+    public static void populatePost(Post post, String orgId, String userId) {
+        if (post == null) {
+            return;
+        }
+        List<Voter> voters = getVoters(post);
+        List<Comment> comments = getComments(post);
+
+        post.setVoters(voters);
+        post.setVotes(voters.size());
+        post.setComments(comments);
+
+        Set<String> allUserIdsToFetch = new HashSet<>();
+        allUserIdsToFetch.addAll(voters.stream().map(Voter::getUserId).collect(Collectors.toSet()));
+        allUserIdsToFetch.addAll(comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toSet()));
+        allUserIdsToFetch.add(post.getCreatedByUserId());
+        List<User> users = authService.get().getUsersByUserIds(allUserIdsToFetch);
+        // These belong to the org so show special icon corresponding to those
+        List<Member> membersForOrgId = authService.get().getMembersForOrgId(allUserIdsToFetch, orgId);
+        Map<String, Member> userIdVsMember = membersForOrgId.stream().collect(Collectors.toMap(Member::getUserId, Function.identity()));
+
+        Map<String, User> userIdVsSafeUser = users.stream().map(user -> {
+            User safeUser = new User();
+            safeUser.setId(user.getId());
+            safeUser.setName(user.getName());
+            if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+                safeUser.setName(getNameFromEmail(user.getEmail()));
+            }
+            safeUser.setProfilePic(user.getProfilePic());
+            safeUser.setPartOfOrg(userIdVsMember.containsKey(user.getId()));
+            return safeUser;
+        }).collect(Collectors.toMap(User::getId, Function.identity()));
+
+        populateUserInCommentAndPopulateNestedCommentsStructure(comments, userIdVsSafeUser);
+
+        voters.forEach(voter -> {
+            voter.setUser(userIdVsSafeUser.get(voter.getUserId()));
+            if (voter.getUserId().equals(userId)) {
+                post.setSelfVoted(true);
+            }
+        });
+
+        post.setUser(userIdVsSafeUser.get(post.getCreatedByUserId()));
+    }
+
+    @NotNull
+    private static List<Comment> getComments(Post post) {
+        Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
+        Query query1 = new Query(criteriaDefinition1);
+        query1.with(Sort.by(Sort.Direction.ASC, Comment.FIELD_CREATED_AT));
+        List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(query1, Comment.class);
+        return comments;
+    }
+
+    @NotNull
+    private static List<Voter> getVoters(Post post) {
+        Criteria criteriaDefinition = Criteria.where(Voter.FIELD_POST_ID).is(post.getId());
+        Query query = new Query(criteriaDefinition);
+        query.with(Sort.by(Sort.Direction.DESC, Voter.FIELD_CREATED_AT));
+        List<Voter> voters = mongoConnection.get().getDefaultMongoTemplate().find(query, Voter.class);
+        return voters;
+    }
+
+
+    public static void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments, Map<String, User> userIdVsSafeUser) {
+        // All comments are already fetched. Now populate user in each comment by making single db call
+        // And also populate nested comments structure. Based on replyToCommentId and comments list
+        Map<String, Comment> commentIdVsComment = comments.stream().collect(Collectors.toMap(Comment::getId, Function.identity()));
+        for (Comment comment : comments) {
+            comment.setUser(userIdVsSafeUser.get(comment.getCreatedByUserId()));
+            if (StringUtils.isBlank(comment.getReplyToCommentId())) {
+                continue;
+            }
+            Comment parentComment = commentIdVsComment.get(comment.getReplyToCommentId());
+            if (parentComment == null) {
+                continue;
+            }
+            if (parentComment.getComments() == null) {
+                parentComment.setComments(new ArrayList<>());
+            }
+            parentComment.getComments().add(comment);
+        }
     }
 
 }

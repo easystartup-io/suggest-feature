@@ -27,31 +27,38 @@ import Loading from "@/components/Loading";
 export const statusConfig = {
   "OPEN": {
     icon: <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />,
-    label: "OPEN"
+    label: "OPEN",
+    bgColor: "bg-blue-300 dark:bg-blue-800"
   },
   "UNDER REVIEW": {
     icon: <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />,
-    label: "UNDER REVIEW"
+    label: "UNDER REVIEW",
+    bgColor: "bg-yellow-300 dark:bg-yellow-800"
   },
   "PLANNED": {
     icon: <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />,
-    label: "PLANNED"
+    label: "PLANNED",
+    bgColor: "bg-blue-300 dark:bg-blue-800"
   },
   "IN PROGRESS": {
     icon: <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />,
-    label: "IN PROGRESS"
+    label: "IN PROGRESS",
+    bgColor: "bg-orange-300 dark:bg-orange-800"
   },
   "LIVE": {
     icon: <Play className="w-4 h-4 inline-block mr-2 text-green-500" />,
-    label: "LIVE"
+    label: "LIVE",
+    bgColor: "bg-green-300 dark:bg-green-800"
   },
   "COMPLETE": {
     icon: <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />,
-    label: "COMPLETE"
+    label: "COMPLETE",
+    bgColor: "bg-green-300 dark:bg-green-800"
   },
   "CLOSED": {
     icon: <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />,
-    label: "CLOSED"
+    label: "CLOSED",
+    bgColor: "bg-red-300 dark:bg-red-800"
   }
 };
 

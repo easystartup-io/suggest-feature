@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Reference;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,6 +17,9 @@ import java.util.List;
  * @author indianBond
  */
 @Document
+@CompoundIndexes({
+        @CompoundIndex(name = "postId_1_createdAt_1", def = "{'postId': 1, 'createdAt': 1}"),
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Comment {
     public static final String FIELD_ID = "_id";
