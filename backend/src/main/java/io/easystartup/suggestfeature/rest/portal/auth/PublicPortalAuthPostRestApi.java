@@ -122,7 +122,7 @@ public class PublicPortalAuthPostRestApi {
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId()).and(Post.FIELD_SLUG).is(postSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
         Post post = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Post.class);
         post.setBoardSlug(boardSlug);
-        populatePost(post, org.getId(), UserContext.current().getUserId());
+        populatePost(post, org.getId(), UserContext.current().getUserId(), false);
 
         return Response.ok().entity(JacksonMapper.toJson(post)).build();
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
 import io.easystartup.suggestfeature.beans.*;
+import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
@@ -242,7 +243,7 @@ public class Util {
                 .build();
     }
 
-    public static void populatePost(Post post, String orgId, String userId) {
+    public static void populatePost(Post post, String orgId, String userId, boolean adminPortalRequest) {
         if (post == null) {
             return;
         }
@@ -268,6 +269,9 @@ public class Util {
             safeUser.setName(user.getName());
             if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
                 safeUser.setName(getNameFromEmail(user.getEmail()));
+            }
+            if (adminPortalRequest){
+                safeUser.setEmail(user.getEmail());
             }
             safeUser.setProfilePic(user.getProfilePic());
             safeUser.setPartOfOrg(userIdVsMember.containsKey(user.getId()));

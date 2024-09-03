@@ -5,6 +5,8 @@ import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format, fromUnixTime } from 'date-fns';
+import { Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const getInitials = (name) => {
   const words = name.split(' ');
@@ -37,13 +39,20 @@ const VotersTable = ({ voters }) => {
           <TableRow key={index}>
             <TableCell className="font-medium">
               <div className="flex items-center space-x-3">
-                <Avatar>
-                  <AvatarImage src={voter.user.profilePic} alt={voter.user.name} />
-                  <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                    {getInitials(voter.user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <span>{voter.user.name}</span>
+                <div className='relative'>
+                  <Avatar>
+                    <AvatarImage src={voter.user.profilePic} alt={voter.user.name} />
+                    <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                      {getInitials(voter.user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {voter.user.partOfOrg && (
+                    <div className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-0.5">
+                      <Star className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
+                <span className={cn(voter.user.partOfOrg ? "text-blue-500" : "")}>{voter.user.name}</span>
               </div>
             </TableCell>
             <TableCell>{voter.user.email}</TableCell>
@@ -79,12 +88,19 @@ const Voters = ({ voters }) => {
           {voters.length > 0 ? (
             <div className="flex -space-x-2 overflow-hidden">
               {displayedVoters.map((voter, index) => (
-                <Avatar key={index} className="inline-block border-2 border-white dark:border-gray-800">
-                  <AvatarImage src={voter.user.profilePic} alt={voter.user.name} />
-                  <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                    {getInitials(voter.user.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <div className='relative'>
+                  <Avatar key={index} className="border-2 border-white dark:border-gray-800">
+                    <AvatarImage src={voter.user.profilePic} alt={voter.user.name} />
+                    <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                      {getInitials(voter.user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {voter.user.partOfOrg && (
+                    <div className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-0.5">
+                      <Star className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
               ))}
               {remainingVoters > 0 && (
                 <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800">

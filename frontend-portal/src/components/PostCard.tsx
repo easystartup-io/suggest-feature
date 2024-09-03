@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { Calendar, CheckCircle, ChevronUp, Circle, Expand, Eye, Flag, Loader, Play, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, ChevronUp, Circle, Expand, Eye, Flag, Loader, Play, Star, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from '@/components/ui/button';
@@ -148,29 +148,38 @@ function UserHeader({ user }) {
   return (
     <div className="">
       <div className="mt-4 mx-4 flex items-center">
-        <Avatar className=''>
-          <AvatarImage src={`${user.profilePic}`} />
-          <AvatarFallback>
-            {(() => {
-              const name = user.name || '';
-              const words = name.split(' ');
+        <div className='relative'>
+          <Avatar className=''>
+            <AvatarImage src={`${user.profilePic}`} />
+            <AvatarFallback>
+              {(() => {
+                const name = user.name || '';
+                const words = name.split(' ');
 
-              let initials;
+                let initials;
 
-              if (words.length > 1) {
-                // If the name has multiple words, take the first letter of each word
-                initials = words.map(word => word[0]).join('').toUpperCase();
-              } else {
-                // If it's a single word, take the first two characters
-                initials = name.slice(0, 2).toUpperCase();
-              }
+                if (words.length > 1) {
+                  // If the name has multiple words, take the first letter of each word
+                  initials = words.map(word => word[0]).join('').toUpperCase();
+                } else {
+                  // If it's a single word, take the first two characters
+                  initials = name.slice(0, 2).toUpperCase();
+                }
 
-              // Ensure it returns exactly 2 characters
-              return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
-            })()}
-          </AvatarFallback>
-        </Avatar>
-        <h1 className="mx-2 text-sm font-semibold">{user.name}</h1>
+                // Ensure it returns exactly 2 characters
+                return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+              })()}
+            </AvatarFallback>
+          </Avatar>
+          {user.partOfOrg && (
+            <div className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-0.5">
+              <Star className="w-3 h-3 text-white" />
+            </div>
+          )}
+        </div>
+        <h1 className={cn("mx-2 text-sm font-semibold",
+          user.partOfOrg && "text-blue-500"
+        )}>{user.name}</h1>
       </div>
     </div>
   )

@@ -304,7 +304,7 @@ public class PostsRestApi {
         if (one != null && !one.getOrganizationId().equals(orgId)) {
             throw new UserVisibleException("Post not found");
         }
-        populatePost(one, orgId, userId);
+        populatePost(one, orgId, userId, true);
         return Response.ok(JacksonMapper.toJson(one)).build();
     }
 
