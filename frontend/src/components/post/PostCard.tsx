@@ -328,6 +328,8 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
         setIsDeleteDialogOpen(false);
         if (data.title) {
           deleteFromParentRender();
+        } else {
+          refetch();
         }
       } else {
         toast({
@@ -451,7 +453,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
           </DialogHeader>
           <DialogFooter className="mt-6 space-x-2">
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete Post</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete {data.title ? 'Post' : 'Comment'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
