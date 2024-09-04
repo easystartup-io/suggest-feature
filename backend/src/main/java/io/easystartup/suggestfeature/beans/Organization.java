@@ -40,6 +40,7 @@ public class Organization {
     private RoadmapSettings roadmapSettings;
     private String logo;
     private String favicon;
+    private boolean hideOrgName;
 
     public Organization() {
     }
@@ -122,5 +123,13 @@ public class Organization {
 
     public void setAllowedStatuses(List<String> allowedStatuses) {
         this.allowedStatuses = allowedStatuses;
+    }
+
+    public boolean isHideOrgName() {
+        return hideOrgName;
+    }
+
+    public void setHideOrgName(boolean hideOrgName) {
+        this.hideOrgName = hideOrgName;
     }
 }

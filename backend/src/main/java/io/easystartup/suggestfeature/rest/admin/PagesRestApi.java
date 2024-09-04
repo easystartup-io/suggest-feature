@@ -113,6 +113,7 @@ public class PagesRestApi {
             validateCustomDomainNotInUse(organization.getCustomDomain());
             customDomainMappingService.createCustomDomainMapping(organization.getCustomDomain(), organization.getId());
         }
+        existingOrg.setHideOrgName(organization.isHideOrgName());
         existingOrg.setName(organization.getName().trim());
         existingOrg.setSlug(organization.getSlug().trim());
         existingOrg.setLogo(organization.getLogo());

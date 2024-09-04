@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { Avatar } from '@/components/ui/avatar';
 import FileUploadButton from "@/components/FileButton";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 const ImagePlaceholder = ({ className }) => (
   <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
@@ -54,6 +55,8 @@ const Dashboard: React.FC = ({ params }) => {
   const [uploadingFavicon, setUploadingFavicon] = useState(false)
   const [uploadedFaviconUrl, setUploadedFaviconUrl] = useState('')
 
+  const [hideOrgName, setHideOrgName] = useState(false)
+
   const form = useForm({ defaultValues })
   const { reset } = form; // Get reset function from useForm
 
@@ -68,6 +71,7 @@ const Dashboard: React.FC = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        setHideOrgName(data.hideOrgName)
         reset(data)
         setLoading(false)
       })
@@ -78,7 +82,7 @@ const Dashboard: React.FC = ({ params }) => {
     setLoading(true)
     try {
 
-      const reqData = { ...data, logo: uploadedLogoUrl || data.logo, favicon: uploadedFaviconUrl || data.favicon }
+      const reqData = { ...data, logo: uploadedLogoUrl || data.logo, favicon: uploadedFaviconUrl || data.favicon, hideOrgName }
       console.log(reqData)
       console.log(uploadedLogoUrl)
       const resp = await fetch(`/api/auth/pages/edit-org`, {
@@ -92,6 +96,7 @@ const Dashboard: React.FC = ({ params }) => {
       const respData = await resp.json();
       if (resp.ok) {
         setData(respData)
+        setHideOrgName(respData.hideOrgName)
         reset(respData)
         toast({
           title: 'Updated successfully',
@@ -249,6 +254,21 @@ const Dashboard: React.FC = ({ params }) => {
                   </FormItem>
                 )}
               />
+
+              <div>
+                <div className="flex items-center space-x-2 my-4">
+                  <Label htmlFor="private-board">Hide org name on navbar</Label>
+                  <Switch id="hide-org-name"
+                    className="ml-4 data-[state=checked]:bg-yellow-500"
+                    disabled={isLoading}
+                    checked={hideOrgName}
+                    onCheckedChange={(checked) => setHideOrgName(checked)}
+                  />
+                </div>
+                <FormDescription>
+                  Select this option if your logo already contains the org name.
+                </FormDescription>
+              </div>
               <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>
                 {(isLoading || uploadingFavicon || uploadingLogo) &&
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

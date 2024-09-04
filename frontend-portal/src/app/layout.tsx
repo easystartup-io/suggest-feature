@@ -107,8 +107,15 @@ function Header({ params }) {
       <header className="flex h-16 items-center justify-between gap-4 w-full">
         <div onClick={() => {
           router.push('/')
-        }} className="cursor-pointer">
-          <h1 className="text-xl font-semibold">{org.name}</h1>
+        }} className="cursor-pointer flex items-center">
+          {org.logo ? <img
+            className="h-12 w-12 mr-2"
+            src={org.logo}
+          /> : null}
+          {
+            org.hideOrgName ? null :
+              <h1 className="text-xl font-semibold">{org.name}</h1>
+          }
         </div>
         {!loading ?
           <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
