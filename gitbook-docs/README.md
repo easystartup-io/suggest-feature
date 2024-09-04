@@ -20,7 +20,7 @@ layout:
 
 # Welcome
 
-Welcome to Suggest Feature! Here, you can explore all the incredible tools it provides to help you gather and organize feature requests, giving you a clearer understanding of customer needs and enabling you to prioritize your product roadmap effectively.
+Welcome to Suggest Feature! Here, you can explore all the incredible tools Suggest Feature provides to help you gather and organize feature requests, giving you a clearer understanding of customer needs and enabling you to prioritize your product roadmap effectively.
 
 ### Jump right in
 

@@ -4,8 +4,10 @@
 
 ## Getting Started
 
-* [Quickstart](getting-started/quickstart.md)
+* [The Basics](getting-started/quickstart.md)
 * [Publish your docs](getting-started/publish-your-docs.md)
+* [Custom Domain Setup](getting-started/custom-domain-setup.md)
+* [Branding](getting-started/branding.md)
 
 ## Basics
 
