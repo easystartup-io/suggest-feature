@@ -37,6 +37,8 @@ public class Organization {
     private Long createdAt;
     private List<String> allowedProviders = Lists.newArrayList("GOOGLE");
     private RoadmapSettings roadmapSettings;
+    private String logo;
+    private String favicon;
 
     public Organization() {
     }
@@ -95,5 +97,21 @@ public class Organization {
 
     public void setAllowedProviders(List<String> allowedProviders) {
         this.allowedProviders = allowedProviders;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public String getFavicon() {
+        return favicon;
+    }
+
+    public void setFavicon(String favicon) {
+        this.favicon = favicon;
     }
 }

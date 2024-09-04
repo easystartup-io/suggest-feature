@@ -6,6 +6,7 @@ import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.LoginRequest;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -128,19 +129,24 @@ public class AuthenticationRestApi {
                 user1.setName(req.getLastName().trim());
             } else {
                 // Extract name from email
+                String nameToSet = null;
                 String[] parts = req.getEmail().split("@");
                 // If email contains separators then separate and join to form name
                 if (parts.length > 1) {
                     String[] nameParts = parts[0].split("[._-]");
                     StringBuilder name = new StringBuilder();
                     for (String part : nameParts) {
+                        // Remove numbers
                         name.append(StringUtils.capitalize(part)).append(" ");
                     }
-                    user1.setName(name.toString().trim());
+                    // Remove numbers
+
+                    nameToSet = name.toString().trim();
                 } else {
                     // Capitalize
-                    user1.setName(StringUtils.capitalize(parts[0]));
+                    nameToSet = StringUtils.capitalize(parts[0].trim());
                 }
+                user1.setName(nameToSet);
             }
             user1.setMagicLinkCode(linkCode);
             user1.setMagicLinkValidTill(magicLinkValidTill);

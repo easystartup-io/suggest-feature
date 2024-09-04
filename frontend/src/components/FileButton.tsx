@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Icons } from './icons';
+import { cn } from '@/lib/utils';
 
 export default function FileUploadButton({ uploading, setUploading, uploadedFileUrl, setUploadedFileUrl }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -38,20 +39,21 @@ export default function FileUploadButton({ uploading, setUploading, uploadedFile
   };
 
   return (
-    <div className="flex flex-col items-center space-y-4">
-      {
-        uploading ? <Button
+    <div className="flex items-center justify-center space-y-4">
+      {uploading &&
+        <Button
           disabled={true}
           variant="ghost"
         >
           <Icons.spinner className="animate-spin mr-2 " />
           Uploading...
-        </Button> :
-          <Input
-            type="file"
-            onChange={handleFileChange}
-          />
+        </Button>
       }
+      <Input
+        className={cn(!uploading ? '' : 'hidden')}
+        type="file"
+        onChange={handleFileChange}
+      />
     </div>
   );
 }

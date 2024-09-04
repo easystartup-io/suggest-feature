@@ -11,6 +11,10 @@ import { useForm } from "react-hook-form";
 import { ExternalLink } from "lucide-react";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
+
+import { Avatar } from '@/components/ui/avatar';
+import FileUploadButton from "@/components/FileButton";
 
 
 const Dashboard: React.FC = ({ params }) => {
@@ -19,8 +23,15 @@ const Dashboard: React.FC = ({ params }) => {
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
   const [defaultValues, setDefaultValues] = useState({})
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [uploadedLogoUrl, setUploadedLogoUrl] = useState('')
+
+  const [uploadingFavicon, setUploadingFavicon] = useState(false)
+  const [uploadedFaviconUrl, setUploadedFaviconUrl] = useState('')
+
   const form = useForm({ defaultValues })
   const { reset } = form; // Get reset function from useForm
+
   const router = useRouter()
 
   useEffect(() => {
@@ -91,6 +102,46 @@ const Dashboard: React.FC = ({ params }) => {
         className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm"
       >
         <div className="w-full p-4">
+          <div className="space-y-6 mb-8">
+            <div className="flex items-center space-x-4">
+              <div className="">
+                <img
+                  src={uploadedFaviconUrl || data.favicon}
+                  alt="Favicon"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <FileUploadButton
+                  uploading={uploadingFavicon}
+                  setUploading={setUploadingFavicon}
+                  setUploadedFileUrl={setUploadedFaviconUrl}
+                  uploadedFileUrl={uploadedFaviconUrl}
+                />
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12">
+                <img
+                  src={uploadedLogoUrl || data.logo}
+                  alt="Logo"
+                  width={128}
+                  height={128}
+                  className="object-contain w-full h-full"
+                />
+              </div>
+              <div>
+                <FileUploadButton
+                  uploading={uploadingLogo}
+                  setUploading={setUploadingLogo}
+                  setUploadedFileUrl={setUploadedLogoUrl}
+                  uploadedFileUrl={uploadedLogoUrl}
+                />
+              </div>
+            </div>
+          </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -149,11 +200,13 @@ const Dashboard: React.FC = ({ params }) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading &&
+              <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>
+                {(isLoading || uploadingFavicon || uploadingLogo) &&
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 }
-                Save
+                {
+                  (uploadingLogo || uploadingFavicon) ? 'Uploading...' : (isLoading ? 'Saving...' : 'Save')
+                }
               </Button>
             </form>
           </Form>
