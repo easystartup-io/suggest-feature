@@ -277,6 +277,33 @@ const Dashboard: React.FC = ({ params }) => {
       })
   }, 300);
 
+  const deletePostFromView = (id) => {
+    const currentPostIndex = data.findIndex((item) => item.id === id)
+    // Delete post from data list where id matches and set the currentPost to previous one if it exists else no post
+    const newData = data && data.filter((item) => item.id !== id)
+    if (newData && newData.length > 0) {
+      setData(newData)
+    } else {
+      setData([])
+    }
+
+    if (currentPostIndex > 0 && newData && newData.length > 0) {
+      setCurrentPost({
+        post: newData[currentPostIndex - 1],
+        id: newData[currentPostIndex - 1].id
+      })
+    } else if (newData && newData.length > 0) {
+      setCurrentPost({
+        post: newData[0],
+        id: newData[0].id
+      })
+    } else if (newData && newData.length === 0) {
+      setCurrentPost(null)
+    }
+
+
+  }
+
   if (!data) return <Loading />
 
 
@@ -372,7 +399,10 @@ const Dashboard: React.FC = ({ params }) => {
               currentPost && currentPost.id &&
               <PostCard
                 key={currentPost.id}
-                id={currentPost.id} params={params} />
+                id={currentPost.id}
+                params={params}
+                deleteFromParentRender={() => deletePostFromView(currentPost.id)}
+              />
             }
           </ResizablePanel>
         </ResizablePanelGroup>

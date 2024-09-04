@@ -122,6 +122,13 @@ public class PostsRestApi {
 
         validateStatus(req.getStatus());
         validatePriority(req.getPriority());
+        if (StringUtils.isNotBlank(req.getTitle()) && req.getTitle().trim().length() > 500) {
+            throw new UserVisibleException("Title too long. Limit it to 500 characters");
+        }
+
+        if (StringUtils.isNotBlank(req.getDescription()) && req.getDescription().trim().length() > 5000) {
+            throw new UserVisibleException("Description too long. Keep it less than 5000 characters");
+        }
 
         Post existingPost = getPost(req.getPostId(), UserContext.current().getOrgId());
         if (existingPost == null) {
@@ -135,6 +142,14 @@ public class PostsRestApi {
         }
         if (StringUtils.isNotBlank(req.getPriority())) {
             existingPost.setPriority(req.getPriority());
+        }
+        if (StringUtils.isNotBlank(req.getTitle())) {
+            existingPost.setTitle(req.getTitle());
+            // Dont change slug else it can cause issues for people having link to that post or emails which were sent
+//            existingPost.setSlug(Util.fixSlug(req.getTitle()));
+        }
+        if (StringUtils.isNotBlank(req.getDescription())) {
+            existingPost.setDescription(req.getDescription());
         }
 
         mongoConnection.getDefaultMongoTemplate().save(existingPost);
@@ -391,7 +406,8 @@ public class PostsRestApi {
             throw new UserVisibleException("User not part of org");
         }
 
-        mongoConnection.getDefaultMongoTemplate().remove(new Query(Criteria.where(Post.FIELD_ID).is(req.getPostId())), Post.class);
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_ID).is(req.getPostId()).and(Post.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
+        mongoConnection.getDefaultMongoTemplate().remove(new Query(criteriaDefinition), Post.class);
 
         return Response.ok(EMPTY_JSON_RESPONSE).build();
     }
@@ -416,7 +432,8 @@ public class PostsRestApi {
             throw new UserVisibleException("User not part of org");
         }
 
-        mongoConnection.getDefaultMongoTemplate().remove(new Query(Criteria.where(Comment.FIELD_ID).is(req.getCommentId())), Comment.class);
+        Criteria criteriaDefinition = Criteria.where(Comment.FIELD_ID).is(req.getCommentId()).and(Comment.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
+        mongoConnection.getDefaultMongoTemplate().remove(new Query(criteriaDefinition), Comment.class);
 
         return Response.ok(EMPTY_JSON_RESPONSE).build();
     }
