@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import withInit from "@/hoc/withInit";
 import { InitContextProvider, useInit } from "@/context/InitContext";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import LoginDialog from "@/components/LoginDialog";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -49,6 +49,32 @@ function Header({ params }) {
   const [error, setError] = useState(false);
   const { setOrg: setInitOrg, setBoards: setInitBoards } = useInit();
   const router = useRouter();
+  const pathname = usePathname();
+
+
+  useEffect(() => {
+    const updateFavicon = async () => {
+      const linkElements = document.getElementsByTagName('link');
+      for (let i = 0; i < linkElements.length; i++) {
+        const link = linkElements[i];
+        if (link.rel === 'icon' || link.rel === 'shortcut icon') {
+          link.href = org.favicon;
+        }
+      }
+
+      // If no existing favicon link, create a new one
+      if (!document.querySelector("link[rel*='icon']")) {
+        const newLink = document.createElement('link');
+        newLink.rel = 'icon';
+        newLink.href = org.favicon;
+        document.head.appendChild(newLink);
+      }
+    };
+
+    if (org && org.favicon) {
+      updateFavicon();
+    }
+  }, [org, pathname]);
 
   useEffect(() => {
     const host = window.location.host

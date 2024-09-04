@@ -35,6 +35,7 @@ public class Organization {
     @Indexed
     private String customDomain;
     private Long createdAt;
+    private List<String> allowedStatuses = Lists.newArrayList("UNDER REVIEW", "PLANNED", "IN PROGRESS");
     private List<String> allowedProviders = Lists.newArrayList("GOOGLE");
     private RoadmapSettings roadmapSettings;
     private String logo;
@@ -113,5 +114,13 @@ public class Organization {
 
     public void setFavicon(String favicon) {
         this.favicon = favicon;
+    }
+
+    public List<String> getAllowedStatuses() {
+        return allowedStatuses;
+    }
+
+    public void setAllowedStatuses(List<String> allowedStatuses) {
+        this.allowedStatuses = allowedStatuses;
     }
 }

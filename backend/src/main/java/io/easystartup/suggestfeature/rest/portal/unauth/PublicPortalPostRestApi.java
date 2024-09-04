@@ -3,9 +3,10 @@ package io.easystartup.suggestfeature.rest.portal.unauth;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import io.easystartup.suggestfeature.beans.*;
+import io.easystartup.suggestfeature.beans.Board;
+import io.easystartup.suggestfeature.beans.Organization;
+import io.easystartup.suggestfeature.beans.Post;
 import io.easystartup.suggestfeature.dto.SearchPostDTO;
-import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
@@ -20,6 +21,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
@@ -29,10 +31,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.easystartup.suggestfeature.utils.Util.getNameFromEmail;
 import static io.easystartup.suggestfeature.utils.Util.populatePost;
 
 /*
@@ -117,9 +117,11 @@ public class PublicPortalPostRestApi {
             disabledBoards.addAll(org.getRoadmapSettings().getDisabledBoards());
         }
         Set<String> boardIds = boardList.stream().filter((board) -> !board.isPrivateBoard() && !disabledBoards.contains(board.getId())).map(Board::getId).collect(Collectors.toSet());
-        Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds);
-        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
-        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).in(boardIds).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
+        Query query = new Query(criteriaDefinition);
+        query.with(Sort.by(Sort.Direction.DESC, Post.FIELD_CREATED_AT));
+        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        posts = posts.stream().filter(post -> org.getAllowedStatuses().contains(post.getStatus())).collect(Collectors.toList());
 
         for (Post post : posts) {
             post.setBoardSlug(boardIdVsSlug.get(post.getBoardId()));
@@ -128,7 +130,10 @@ public class PublicPortalPostRestApi {
         // Group posts based on status
         Map<String, List<Post>> postsByStatus = posts.stream().collect(Collectors.groupingBy(Post::getStatus));
 
-        return Response.ok().entity(JacksonMapper.toJson(postsByStatus)).build();
+        Map<String, List<Post>> rv = new LinkedHashMap<>();
+        org.getAllowedStatuses().forEach(status -> rv.put(status, postsByStatus.getOrDefault(status, new ArrayList<>())));
+
+        return Response.ok().entity(JacksonMapper.toJson(rv)).build();
     }
 
     @POST

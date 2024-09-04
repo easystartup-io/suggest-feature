@@ -28,7 +28,7 @@ const Voters = ({ voters }) => {
       {voters.length > 0 ? (
         <div className="flex -space-x-2 overflow-hidden">
           {displayedVoters.map((voter, index) => (
-            <div className='relative'>
+            <div className='relative' key={voter.id}>
               <Avatar key={index} className="border-2 border-white dark:border-gray-800">
                 <AvatarImage src={voter.user.profilePic} alt={voter.user.name} />
                 <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
