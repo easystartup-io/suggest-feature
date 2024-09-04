@@ -84,7 +84,9 @@ public class CustomerRestApi {
         }
         if (spam == null || Boolean.TRUE.equals(spam)) {
             customer.setSpam(true);
+            customer.setMarkedSpamByUserId(UserContext.current().getUserId());
         } else {
+            // Not unmarking so that if person was marked spam we will know who marked it for debugging
             customer.setSpam(false);
         }
         mongoConnection.getDefaultMongoTemplate().save(customer);

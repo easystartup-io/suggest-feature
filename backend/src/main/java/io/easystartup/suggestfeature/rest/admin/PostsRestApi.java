@@ -113,6 +113,31 @@ public class PostsRestApi {
 
 
     @POST
+    @Path("/update-comment-details")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response updateCommentDetails(CommentDetailsUpdateDTO req) {
+        String userId = UserContext.current().getUserId();
+        validationService.validate(req);
+
+        if (StringUtils.isNotBlank(req.getContent()) && req.getContent().trim().length() > 5000) {
+            throw new UserVisibleException("Title too long. Limit it to 5000 characters");
+        }
+
+        Comment existingComment = getComment(req.getCommentId(), UserContext.current().getOrgId());
+        if (existingComment == null) {
+            throw new UserVisibleException("Comment not found");
+        }
+        if (StringUtils.isNotBlank(req.getContent())) {
+            existingComment.setContent(req.getContent());
+        }
+        existingComment.setModifiedAt(System.currentTimeMillis());
+
+        mongoConnection.getDefaultMongoTemplate().save(existingComment);
+        return Response.ok(EMPTY_JSON_RESPONSE).build();
+    }
+
+    @POST
     @Path("/update-post-details")
     @Consumes("application/json")
     @Produces("application/json")
@@ -151,6 +176,7 @@ public class PostsRestApi {
         if (StringUtils.isNotBlank(req.getDescription())) {
             existingPost.setDescription(req.getDescription());
         }
+        existingPost.setModifiedAt(System.currentTimeMillis());
 
         mongoConnection.getDefaultMongoTemplate().save(existingPost);
         return Response.ok(EMPTY_JSON_RESPONSE).build();
@@ -186,6 +212,7 @@ public class PostsRestApi {
         if (existingPost == null) {
             post.setId(new ObjectId().toString());
             post.setCreatedAt(System.currentTimeMillis());
+            post.setModifiedAt(System.currentTimeMillis());
             post.setCreatedByUserId(userId);
             post.setApproved(false);
             post.setSlug(Util.fixSlug(post.getTitle()));
@@ -196,6 +223,7 @@ public class PostsRestApi {
             if (!existingPost.getBoardId().equals(boardId)) {
                 throw new UserVisibleException("Cannot change board of a post");
             }
+            post.setModifiedAt(System.currentTimeMillis());
             post.setApproved(existingPost.isApproved());
             post.setSlug(existingPost.getSlug());
             post.setBoardId(existingPost.getBoardId());

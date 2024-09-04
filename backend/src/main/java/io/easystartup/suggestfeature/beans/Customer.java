@@ -34,6 +34,7 @@ public class Customer {
     private Long createdAt;
     private boolean spam;
     private String organizationId;
+    private String markedSpamByUserId;
 
     @Transient
     @Reference // Alternative to skip index
@@ -88,5 +89,13 @@ public class Customer {
 
     public void setSpam(boolean spam) {
         this.spam = spam;
+    }
+
+    public String getMarkedSpamByUserId() {
+        return markedSpamByUserId;
+    }
+
+    public void setMarkedSpamByUserId(String markedSpamByUserId) {
+        this.markedSpamByUserId = markedSpamByUserId;
     }
 }

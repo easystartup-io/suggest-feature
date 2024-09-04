@@ -37,6 +37,7 @@ public class Post {
     public static final String FIELD_APPROVED = "approved";
     public static final String FIELD_CREATED_BY_USER_ID = "createdByUserId";
     public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_MODIFIED_AT = "modifiedAt";
     public static final String FIELD_PRIORITY = "priority";
     public static final String FIELD_SLUG = "slug";
 
@@ -71,6 +72,7 @@ public class Post {
     private boolean approved;
 
     private Long createdAt;
+    private Long modifiedAt;
 
     @Reference
     @Transient
@@ -85,6 +87,7 @@ public class Post {
     private List<Voter> voters;
 
     private List<Attachment> attachments;
+    private List<String> tags;
 
     public Post() {
     }
@@ -256,5 +259,21 @@ public class Post {
         public void setType(String type) {
             this.type = type;
         }
+    }
+
+    public Long getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Long modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

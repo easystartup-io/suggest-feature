@@ -266,25 +266,32 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   const handleEdit = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/auth/posts/update-post-details', {
+      let payload = { title: editTitle, description: editDescription, postId: data.id };
+      if (!data.title) {
+        payload = {
+          content: editDescription,
+          commentId: data.id
+        }
+      }
+      const response = await fetch(`/api/auth/posts/update-${data.title ? 'post' : 'comment'}-details`, {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ title: editTitle, description: editDescription, postId: data.id })
+        body: JSON.stringify(payload)
       })
       const respData = await response.json();
 
       if (response.ok) {
         toast({
-          title: 'Post updated',
+          title: `${data.title ? 'Post' : 'Comment'} updated`,
         })
         refetch();
         setIsEditDialogOpen(false);
       } else {
         toast({
-          title: 'Error updating post',
+          title: `Error updating ${data.title ? 'post' : 'comment'}`,
           description: respData.message,
           variant: 'destructive'
         })
@@ -430,7 +437,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
           <DialogFooter className="mt-6 space-x-2">
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleEdit}
-              disabled={loading || (!editTitle || editTitle.trim().length === 0) || (!editDescription || editDescription.trim().length === 0)}
+              disabled={loading || data.title && ((!editTitle || editTitle.trim().length === 0) || (!editDescription || editDescription.trim().length === 0)) || (!data.title && (!editDescription || editDescription.trim().length === 0))}
             >
               {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
