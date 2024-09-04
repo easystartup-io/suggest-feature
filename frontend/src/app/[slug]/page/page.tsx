@@ -207,8 +207,8 @@ const Dashboard: React.FC = ({ params }) => {
                   <FormItem>
                     <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <div className="grid grid-cols-2 md:grid-cols-6 items-center">
-                        <div className="md:col-span-4">
+                      <div className="flex items-center">
+                        <div className="flex-1">
                           <Input disabled={isLoading} placeholder="slug" {...field} className="inline-block" />
                         </div>
                         <div className="flex items-center">
