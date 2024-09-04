@@ -8,13 +8,38 @@ import withAuth from '@/hoc/withAuth';
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ImageIcon } from "lucide-react";
 import Loading from "@/components/Loading";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 
 import { Avatar } from '@/components/ui/avatar';
 import FileUploadButton from "@/components/FileButton";
+import { Label } from "@/components/ui/label";
+
+const ImagePlaceholder = ({ className }) => (
+  <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
+    <ImageIcon className="w-1/2 h-1/2 text-gray-400" />
+  </div>
+);
+
+const ImageComponent = ({ src, alt, className }) => {
+  if (!src) {
+    return <ImagePlaceholder className={className} />;
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`object-contain ${className}`}
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.style.display = 'none';
+        e.target.nextSibling.style.display = 'flex';
+      }}
+    />
+  );
+};
 
 
 const Dashboard: React.FC = ({ params }) => {
@@ -53,13 +78,16 @@ const Dashboard: React.FC = ({ params }) => {
     setLoading(true)
     try {
 
+      const reqData = { ...data, logo: uploadedLogoUrl || data.logo, favicon: uploadedFaviconUrl || data.favicon }
+      console.log(reqData)
+      console.log(uploadedLogoUrl)
       const resp = await fetch(`/api/auth/pages/edit-org`, {
         method: 'POST',
         headers: {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(reqData)
       });
       const respData = await resp.json();
       if (resp.ok) {
@@ -103,42 +131,54 @@ const Dashboard: React.FC = ({ params }) => {
       >
         <div className="w-full p-4">
           <div className="space-y-6 mb-8">
-            <div className="flex items-center space-x-4">
-              <div className="">
-                <img
-                  src={uploadedFaviconUrl || data.favicon}
-                  alt="Favicon"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-              </div>
+            <div className="flex flex-col space-y-4">
               <div>
-                <FileUploadButton
-                  uploading={uploadingFavicon}
-                  setUploading={setUploadingFavicon}
-                  setUploadedFileUrl={setUploadedFaviconUrl}
-                  uploadedFileUrl={uploadedFaviconUrl}
-                />
+                <Label>
+                  Logo
+                </Label>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 overflow-hidden rounded border border-gray-200">
+                  <ImageComponent
+                    src={uploadedLogoUrl || data.logo}
+                    alt="Logo"
+                    className="w-full h-full"
+                  />
+                  <ImagePlaceholder className="w-full h-full hidden" />
+                </div>
+                <div>
+                  <FileUploadButton
+                    uploading={uploadingLogo}
+                    setUploading={setUploadingLogo}
+                    setUploadedFileUrl={setUploadedLogoUrl}
+                    uploadedFileUrl={uploadedLogoUrl}
+                  />
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12">
-                <img
-                  src={uploadedLogoUrl || data.logo}
-                  alt="Logo"
-                  width={128}
-                  height={128}
-                  className="object-contain w-full h-full"
-                />
-              </div>
+            <div className="flex flex-col space-y-4">
               <div>
-                <FileUploadButton
-                  uploading={uploadingLogo}
-                  setUploading={setUploadingLogo}
-                  setUploadedFileUrl={setUploadedLogoUrl}
-                  uploadedFileUrl={uploadedLogoUrl}
-                />
+                <Label>
+                  Favicon
+                </Label>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 overflow-hidden rounded border border-gray-200">
+                  <ImageComponent
+                    src={uploadedFaviconUrl || data.favicon}
+                    alt="Favicon"
+                    className="w-full h-full"
+                  />
+                  <ImagePlaceholder className="w-full h-full hidden" />
+                </div>
+                <div>
+                  <FileUploadButton
+                    uploading={uploadingFavicon}
+                    setUploading={setUploadingFavicon}
+                    setUploadedFileUrl={setUploadedFaviconUrl}
+                    uploadedFileUrl={uploadedFaviconUrl}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -167,17 +207,26 @@ const Dashboard: React.FC = ({ params }) => {
                   <FormItem>
                     <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <Input disabled={isLoading} placeholder="slug" {...field} />
+                      <div className="grid grid-cols-2 md:grid-cols-6 items-center">
+                        <div className="md:col-span-4">
+                          <Input disabled={isLoading} placeholder="slug" {...field} className="inline-block" />
+                        </div>
+                        <div className="flex items-center">
+                          <div className="text-muted-foreground ml-1">
+                            .suggestfeature.com
+                          </div>
+                          <div>
+                            <a href={`https://${field.value}.suggestfeature.com`} target="_blank"
+                              className="ml-1 pb-2 inline-block hover:text-indigo-700">
+                              <ExternalLink className="h-6 w-6 inline-block" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
                     </FormControl>
                     <FormDescription>
                       <p>
                         This is the org slug. It should be unique and can only contain letters, numbers, and hyphens.
-                      </p>
-                      <p>
-                        Your page will be accessible at <a href={`https://${field.value}.suggestfeature.com`} target="_blank"
-                          className="inline-block hover:text-indigo-700">
-                          https://{field.value}.suggestfeature.com<ExternalLink className="ml-1 h-4 w-4 inline-block" />
-                        </a>
                       </p>
                     </FormDescription>
                     <FormMessage />

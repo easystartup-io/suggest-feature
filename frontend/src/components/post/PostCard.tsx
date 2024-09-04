@@ -17,6 +17,8 @@ import { statusConfig } from '@/app/[slug]/boards/[id]/posts/page';
 import { useToast } from "@/components/ui/use-toast"
 import Voters from '../Voters';
 
+
+
 function FullScreenPostDialog({ id, params, deleteFromParentRender }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -408,7 +410,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
               Edit {data.title ? 'Post' : 'Comment'}
             </DialogTitle>
             <DialogDescription>
-              Make changes to your {data.title ? 'post' : 'comment'} below. Click save when you're done.
+              Make changes to your {data.title ? 'post' : 'comment'} below. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 my-4">
@@ -474,12 +476,12 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
             </DialogTitle>
             <DialogDescription className="space-y-4">
               <p className="font-medium text-red-600">
-                You're about to report this content as spam. Are you certain?
+                You&apos;re about to report this content as spam. Are you certain?
               </p>
               <p>Taking this action will have significant consequences:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>All content from this user will be removed, including posts, comments, and votes</li>
-                <li>The user's account will be suspended, preventing future interactions</li>
+                <li>The user&apos;s account will be suspended, preventing future interactions</li>
               </ul>
             </DialogDescription>
           </DialogHeader>
