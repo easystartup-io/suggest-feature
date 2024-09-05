@@ -13,7 +13,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Badge, Calendar, CheckCircle, Circle, Eye, Loader, Play, Search, Settings, XCircle } from "lucide-react";
+import { Badge, Calendar, CheckCircle, ChevronUp, Circle, Eye, Loader, MessageSquare, Play, Search, Settings, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
@@ -387,6 +387,9 @@ const Dashboard: React.FC = ({ params }) => {
                     </div>
                     <div className="line-clamp-2 text-xs text-muted-foreground">
                       {item.description.substring(0, 300)}
+                    </div>
+                    <div className="flex space-x-4 items-center text-xs font-semibold text-muted-foreground">
+                      <ChevronUp className="h-3 w-3" /> {item.votes || 0}  <MessageSquare className="h-3 w-3" /> {item.commentCount || 0}
                     </div>
                   </button>
                 ))}

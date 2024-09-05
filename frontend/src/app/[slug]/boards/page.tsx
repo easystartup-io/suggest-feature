@@ -15,6 +15,7 @@ import { Eye, Settings, Telescope } from "lucide-react";
 import Link from "next/link";
 import slugify from 'slugify';
 import Loading from "@/components/Loading";
+import { Badge } from "@/components/ui/badge";
 
 slugify.extend({ '@': 'at' })
 
@@ -189,14 +190,21 @@ const Dashboard: React.FC = ({ params }) => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead className="text-center">Posts</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data && data.map((board) => {
               return (
-                <TableRow key={board.id} className="cursor-pointer">
+                <TableRow key={board.id} className="">
                   <TableCell>{board.name}</TableCell>
+
+                  <TableCell className="text-center">
+                    {/* <Badge className="text-sm" variant="secondary"> */}
+                    {board.postCount || 0}
+                    {/* </Badge> */}
+                  </TableCell>
                   <TableCell className="text-right items-center">
                     <div className="flex items-center justify-end gap-4">
                       <Button
