@@ -23,6 +23,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -58,6 +59,9 @@ public class PublicPortalAuthPostRestApi {
     @Produces("application/json")
     @Consumes("application/json")
     public Response upvotePost(@Context HttpServletRequest request, @QueryParam("postId") String postId, @QueryParam("upvote") Boolean upvote) {
+        if (upvote == null){
+            upvote = true;
+        }
         // Find Page.java from request host
         String userId = UserContext.current().getUserId();
         String host = request.getHeader("host");
@@ -89,7 +93,7 @@ public class PublicPortalAuthPostRestApi {
         voter.setOrganizationId(org.getId());
         voter.setCreatedAt(System.currentTimeMillis());
         try {
-            if (upvote == null || upvote) {
+            if (upvote) {
                 mongoConnection.getDefaultMongoTemplate().insert(voter);
             } else {
                 Criteria voterCriteriaDefinition = Criteria
@@ -98,6 +102,7 @@ public class PublicPortalAuthPostRestApi {
                         .and(Voter.FIELD_ORGANIZATION_ID).is(org.getId());
                 mongoConnection.getDefaultMongoTemplate().remove(new Query(voterCriteriaDefinition), Voter.class);
             }
+            mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_VOTES, upvote ? 1 : -1), Post.class);
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Already upvoted");
         }
@@ -186,6 +191,7 @@ public class PublicPortalAuthPostRestApi {
         try {
             if (isNew) {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
+                mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }
@@ -232,6 +238,7 @@ public class PublicPortalAuthPostRestApi {
         post.setTitle(reqPost.getTitle());
         post.setDescription(reqPost.getDescription());
         post.setStatus("OPEN");
+        post.setVotes(1L);
         post.setSlug(Util.fixSlug(reqPost.getTitle()));
         try {
             mongoConnection.getDefaultMongoTemplate().insert(post);
@@ -241,6 +248,16 @@ public class PublicPortalAuthPostRestApi {
             post.setSlug(post.getSlug() + "-" + string.substring(0, 5) + "-" + string.substring(5));
             mongoConnection.getDefaultMongoTemplate().insert(post);
         }
+
+        Voter voter = new Voter();
+        voter.setUserId(userId);
+        voter.setPostId(post.getId());
+        voter.setOrganizationId(board.getOrganizationId());
+        voter.setCreatedAt(System.currentTimeMillis());
+        mongoConnection.getDefaultMongoTemplate().insert(voter);
+
+        mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_ID).is(board.getId())), new Update().inc(Board.FIELD_POST_COUNT, 1), Board.class);
+
         return Response.ok().entity(JacksonMapper.toJson(post)).build();
     }
 

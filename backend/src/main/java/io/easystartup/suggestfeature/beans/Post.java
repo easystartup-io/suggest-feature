@@ -39,6 +39,8 @@ public class Post {
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_MODIFIED_AT = "modifiedAt";
     public static final String FIELD_PRIORITY = "priority";
+    public static final String FIELD_VOTES = "votes";
+    public static final String FIELD_COMMENT_COUNT = "commentCount";
     public static final String FIELD_SLUG = "slug";
 
     @Id
@@ -68,6 +70,7 @@ public class Post {
     private boolean selfVoted;
 
     private long votes;
+    private long commentCount;
 
     private boolean approved;
 
@@ -275,5 +278,13 @@ public class Post {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public long getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(long commentCount) {
+        this.commentCount = commentCount;
     }
 }

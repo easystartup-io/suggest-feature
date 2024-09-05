@@ -214,6 +214,7 @@ public class PostsRestApi {
             post.setCreatedAt(System.currentTimeMillis());
             post.setModifiedAt(System.currentTimeMillis());
             post.setCreatedByUserId(userId);
+            post.setVotes(1L);
             post.setApproved(false);
             post.setSlug(Util.fixSlug(post.getTitle()));
             isNew = true;
@@ -320,6 +321,8 @@ public class PostsRestApi {
         try {
             if (isNew) {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
+
+                mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }
@@ -377,6 +380,9 @@ public class PostsRestApi {
                         .and(Voter.FIELD_ORGANIZATION_ID).is(orgId);
                 mongoConnection.getDefaultMongoTemplate().remove(new Query(criteriaDefinition), Voter.class);
             }
+
+            mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_VOTES, upvote ? 1 : -1), Post.class);
+
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Already upvoted");
         }
@@ -437,6 +443,9 @@ public class PostsRestApi {
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_ID).is(req.getPostId()).and(Post.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
         mongoConnection.getDefaultMongoTemplate().remove(new Query(criteriaDefinition), Post.class);
 
+        // Update post count in board
+        mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_ID).is(post.getBoardId())), new Update().inc(Board.FIELD_POST_COUNT, -1), Board.class);
+
         return Response.ok(EMPTY_JSON_RESPONSE).build();
     }
 
@@ -462,6 +471,9 @@ public class PostsRestApi {
 
         Criteria criteriaDefinition = Criteria.where(Comment.FIELD_ID).is(req.getCommentId()).and(Comment.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
         mongoConnection.getDefaultMongoTemplate().remove(new Query(criteriaDefinition), Comment.class);
+
+        // Update comment count in post
+        mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(comment.getPostId())), new Update().inc(Post.FIELD_COMMENT_COUNT, -1), Post.class);
 
         return Response.ok(EMPTY_JSON_RESPONSE).build();
     }

@@ -42,6 +42,9 @@ public class Organization {
     private String favicon;
     private boolean hideOrgName;
 
+    private boolean onboardingCompleted;
+    private int onboardingStep;
+
     public Organization() {
     }
 
@@ -131,5 +134,21 @@ public class Organization {
 
     public void setHideOrgName(boolean hideOrgName) {
         this.hideOrgName = hideOrgName;
+    }
+
+    public boolean isOnboardingCompleted() {
+        return onboardingCompleted;
+    }
+
+    public void setOnboardingCompleted(boolean onboardingCompleted) {
+        this.onboardingCompleted = onboardingCompleted;
+    }
+
+    public int getOnboardingStep() {
+        return onboardingStep;
+    }
+
+    public void setOnboardingStep(int onboardingStep) {
+        this.onboardingStep = onboardingStep;
     }
 }
