@@ -22,7 +22,7 @@ export default function Footer() {
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
               <ul className="text-gray-600 dark:text-gray-400">
                 <li className="mb-4">
-                  <a href="https://suggestfeature.com/docs" className="hover:underline">Docs</a>
+                  <a href="https://docs.suggestfeature.com" className="hover:underline">Docs</a>
                 </li>
                 <li className="mb-4">
                   <a href="/contact-us" className="hover:underline">Contact us</a>
