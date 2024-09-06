@@ -114,76 +114,79 @@ function AddPostDialog({ params, refetch }) {
         <Button onClick={() => setIsOpen(true)}>Add Post</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>Add post</DialogTitle>
-          <DialogDescription>
-            Create a new post
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-4">
-            <Label htmlFor="title" >
-              Title
-            </Label>
-            <Input
-              id="title"
-              value={title}
-              placeholder="Dark mode"
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={isLoading}
-              className="col-span-3"
-            />
+        <ScrollArea className="max-h-[calc(100dvh-3rem)]">
+          <DialogHeader className="px-2">
+            <DialogTitle>Add post</DialogTitle>
+            <DialogDescription>
+              Create a new post
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4 px-2">
+            <div className="grid gap-4">
+              <Label htmlFor="title" >
+                Title
+              </Label>
+              <Input
+                id="title"
+                value={title}
+                placeholder="Dark mode"
+                onChange={(e) => setTitle(e.target.value)}
+                disabled={isLoading}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid gap-4">
+              <Label htmlFor="description" >
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                value={description}
+                placeholder="Dark mode is required for the app to look cool"
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={isLoading}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid gap-4">
+              <Label htmlFor="status" >
+                Status
+              </Label>
+              <Select onValueChange={
+                val => {
+                  setStatus(val)
+                }} value={status}>
+                <SelectTrigger
+                  id="status"
+                  aria-label="Select status"
+                >
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(statusConfig).map((key) => {
+                    const status = statusConfig[key];
+                    return (
+                      <SelectItem key={key} value={key}>
+                        {status.icon}
+                        {status.label}
+                      </SelectItem>
+                    )
+                  })
+                  }
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="grid gap-4">
-            <Label htmlFor="description" >
-              Description
-            </Label>
-            <Textarea
-              id="description"
-              value={description}
-              placeholder="Dark mode is required for the app to look cool"
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={isLoading}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid gap-4">
-            <Label htmlFor="status" >
-              Status
-            </Label>
-            <Select onValueChange={
-              val => {
-                setStatus(val)
-              }} value={status}>
-              <SelectTrigger
-                id="status"
-                aria-label="Select status"
-              >
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(statusConfig).map((key) => {
-                  const status = statusConfig[key];
-                  return (
-                    <SelectItem key={key} value={key}>
-                      {status.icon}
-                      {status.label}
-                    </SelectItem>
-                  )
-                })
-                }
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={onSubmit} disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Create post
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="px-2">
+            <Button type="submit" onClick={onSubmit} disabled={isLoading} >
+              {isLoading && (
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Create post
+            </Button>
+          </DialogFooter>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
