@@ -7,7 +7,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import withAuth from '@/hoc/withAuth';
-import { ExternalLink, ImageIcon, Sun, Lock } from "lucide-react";
+import { ExternalLink, ImageIcon, Sun, Lock, ChevronLeft, ChevronRight, Home, RotateCw, Moon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,43 +28,61 @@ const BrowserAddressBar = ({ customDomain, slug }) => {
   const displayUrl = customDomain || `${slug}.suggestfeature.com`;
 
   return (
-    <div className="w-full bg-gray-100 border-b border-gray-200 p-2 rounded-t-lg">
-      <div className="flex items-center bg-white rounded-full px-3 py-1 max-w-2xl mx-auto">
-        <Lock className="h-4 w-4 text-green-600 mr-2" />
-        <span className="text-sm text-gray-600 truncate">
-          https://{displayUrl}
-        </span>
+    <div className="w-full bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 rounded-t-lg">
+      <div className="flex items-center w-full">
+        <div className="flex items-center space-x-1 mr-2">
+          {[ChevronLeft, ChevronRight, RotateCw, Home].map((Icon, index) => (
+            <Button
+              key={index}
+              size="icon"
+              variant="ghost"
+              className="w-6 h-6 text-gray-500 dark:text-gray-400"
+              type="button"
+            >
+              <Icon className="h-3 w-3" />
+            </Button>
+          ))}
+        </div>
+        <div className="flex-grow flex items-center bg-white dark:bg-gray-700 rounded-full px-3 py-1">
+          <Lock className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 flex-shrink-0" />
+          <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
+            https://{displayUrl}
+          </span>
+        </div>
       </div>
     </div>
   );
 };
 
-const Navbar = ({ logo, orgName, hideOrgName }) => {
+const Navbar = ({ logo, orgName, hideOrgName, customDomain, slug }) => {
+
   const { user } = useAuth();
   return (
-    <nav className={`flex items-center justify-between p-4 bg-white dark:bg-background text-black'} shadow-sm`}>
-      <div className="flex items-center">
-        {logo && (
-          <div className="w-10 h-10 mr-2">
-            <ImageComponent src={logo} alt="Logo" className="w-[40px] h-[40px] object-contain" />
-          </div>
-        )}
-        {!hideOrgName && <span className="text-lg font-semibold">{orgName}</span>}
-      </div>
-      <div className="flex items-center space-x-4">
-        <Button size="icon" variant="outline"
-          disabled={true}
-          onClick={() => {
-            // Toggle dark
-          }} >
-          <Sun className="h-5 w-5" />
-        </Button>
-        <Avatar>
-          <AvatarImage src={user.profilePic} alt="User" />
-          <AvatarFallback>AB</AvatarFallback>
-        </Avatar>
-      </div>
-    </nav>
+    <div className="w-full rounded-lg overflow-hidden border border-gray-200 shadow-md">
+      <BrowserAddressBar customDomain={customDomain} slug={slug} />
+      <nav className="flex items-center justify-between p-4 bg-white dark:bg-background text-black dark:text-white shadow-sm">
+        <div className="flex items-center">
+          {logo && (
+            <div className="w-10 h-10 mr-2">
+              <ImageComponent src={logo} alt="Logo" className="w-[40px] h-[40px] object-contain" />
+            </div>
+          )}
+          {!hideOrgName && <span className="text-lg font-semibold">{orgName}</span>}
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button size="icon" variant="outline" type="button">
+            <Sun className="h-5 w-5 dark:hidden" />
+            <Moon className="h-5 w-5 hidden dark:block" />
+          </Button>
+          <Avatar>
+            <AvatarImage src={user.profilePic} alt="User" />
+            <AvatarFallback>
+              {user.name ? user.name.substring(0, 2).toUpperCase() : 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      </nav>
+    </div>
   );
 };
 
@@ -320,6 +338,8 @@ const Dashboard: React.FC = ({ params }) => {
                   logo={uploadedLogoUrl || data?.logo}
                   orgName={data?.name}
                   hideOrgName={hideOrgName}
+                  customDomain={form.getValues('customDomain')}
+                  slug={form.getValues('slug')}
                 />
               </div>
               <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>
