@@ -1,28 +1,72 @@
 "use client"
 
 import { Icons } from "@/components/icons";
+import Loading from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import withAuth from '@/hoc/withAuth';
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { ExternalLink, ImageIcon } from "lucide-react";
-import Loading from "@/components/Loading";
+import { ExternalLink, ImageIcon, Sun, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { Avatar } from '@/components/ui/avatar';
 import FileUploadButton from "@/components/FileButton";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/context/AuthContext";
 
 const ImagePlaceholder = ({ className }) => (
   <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
     <ImageIcon className="w-1/2 h-1/2 text-gray-400" />
   </div>
 );
+
+const BrowserAddressBar = ({ customDomain, slug }) => {
+  const displayUrl = customDomain || `${slug}.suggestfeature.com`;
+
+  return (
+    <div className="w-full bg-gray-100 border-b border-gray-200 p-2 rounded-t-lg">
+      <div className="flex items-center bg-white rounded-full px-3 py-1 max-w-2xl mx-auto">
+        <Lock className="h-4 w-4 text-green-600 mr-2" />
+        <span className="text-sm text-gray-600 truncate">
+          https://{displayUrl}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const Navbar = ({ logo, orgName, hideOrgName }) => {
+  const { user } = useAuth();
+  return (
+    <nav className={`flex items-center justify-between p-4 bg-white dark:bg-background text-black'} shadow-sm`}>
+      <div className="flex items-center">
+        {logo && (
+          <div className="w-10 h-10 mr-2">
+            <ImageComponent src={logo} alt="Logo" className="w-[40px] h-[40px] object-contain" />
+          </div>
+        )}
+        {!hideOrgName && <span className="text-lg font-semibold">{orgName}</span>}
+      </div>
+      <div className="flex items-center space-x-4">
+        <Button size="icon" variant="outline"
+          disabled={true}
+          onClick={() => {
+            // Toggle dark
+          }} >
+          <Sun className="h-5 w-5" />
+        </Button>
+        <Avatar>
+          <AvatarImage src={user.profilePic} alt="User" />
+          <AvatarFallback>AB</AvatarFallback>
+        </Avatar>
+      </div>
+    </nav>
+  );
+};
 
 const ImageComponent = ({ src, alt, className }) => {
   if (!src) {
@@ -268,6 +312,15 @@ const Dashboard: React.FC = ({ params }) => {
                 <FormDescription>
                   Select this option if your logo already contains the org name.
                 </FormDescription>
+              </div>
+
+              <div className="rounded-lg border border-dashed shadow-sm mb-4">
+                <h2 className="text-lg font-semibold p-4">Navbar Preview</h2>
+                <Navbar
+                  logo={uploadedLogoUrl || data?.logo}
+                  orgName={data?.name}
+                  hideOrgName={hideOrgName}
+                />
               </div>
               <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>
                 {(isLoading || uploadingFavicon || uploadingLogo) &&
