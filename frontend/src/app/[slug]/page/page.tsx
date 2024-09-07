@@ -17,6 +17,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/context/AuthContext";
+import slugify from 'slugify';
+
+slugify.extend({ '@': 'at' })
 
 const ImagePlaceholder = ({ className }) => (
   <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
@@ -108,7 +111,6 @@ const ImageComponent = ({ src, alt, className }) => {
 const Dashboard: React.FC = ({ params }) => {
   const { toast } = useToast()
 
-  const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
   const [defaultValues, setDefaultValues] = useState({})
   const [uploadingLogo, setUploadingLogo] = useState(false)
@@ -118,6 +120,12 @@ const Dashboard: React.FC = ({ params }) => {
   const [uploadedFaviconUrl, setUploadedFaviconUrl] = useState('')
 
   const [hideOrgName, setHideOrgName] = useState(false)
+
+  const [logo, setLogo] = useState('')
+  const [favicon, setFavicon] = useState('')
+  const [orgName, setOrgName] = useState('')
+  const [orgSlug, setOrgSlug] = useState('')
+  const [customDomain, setCustomDomain] = useState('')
 
   const form = useForm({ defaultValues })
   const { reset } = form; // Get reset function from useForm
@@ -132,19 +140,29 @@ const Dashboard: React.FC = ({ params }) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        setData(data)
+        setLogo(data.logo)
+        setFavicon(data.favicon)
+        setOrgName(data.name)
+        setOrgSlug(data.slug)
+        setCustomDomain(data.customDomain)
         setHideOrgName(data.hideOrgName)
-        reset(data)
         setLoading(false)
       })
 
   }, [params.id, params.slug, reset])
 
-  async function onSubmit(data) {
+  async function onSubmit(dataStale) {
     setLoading(true)
     try {
 
-      const reqData = { ...data, logo: uploadedLogoUrl || data.logo, favicon: uploadedFaviconUrl || data.favicon, hideOrgName }
+      const reqData = {
+        name: orgName,
+        slug: orgSlug,
+        customDomain,
+        logo: uploadedLogoUrl || logo,
+        favicon: uploadedFaviconUrl || favicon,
+        hideOrgName
+      }
       console.log(reqData)
       console.log(uploadedLogoUrl)
       const resp = await fetch(`/api/auth/pages/edit-org`, {
@@ -157,14 +175,17 @@ const Dashboard: React.FC = ({ params }) => {
       });
       const respData = await resp.json();
       if (resp.ok) {
-        setData(respData)
+        setLogo(respData.logo)
+        setFavicon(respData.favicon)
+        setOrgName(respData.name)
+        setOrgSlug(respData.slug)
+        setCustomDomain(respData.customDomain)
         setHideOrgName(respData.hideOrgName)
-        reset(respData)
         toast({
           title: 'Updated successfully',
         })
-        if (data.slug !== params.slug) {
-          router.push(`/${data.slug}/page`)
+        if (respData.slug !== params.slug) {
+          router.push(`/${respData.slug}/page`)
         }
       } else {
         toast({
@@ -185,13 +206,31 @@ const Dashboard: React.FC = ({ params }) => {
     setTimeout(() => { setLoading(false) }, 1000)
   }
 
-  if (!data) return <Loading />
+  const updateSlug = (value: string) => {
+    // Set org slug based on the org name, all lower case and all special characters removed and spaces replaced with -
+    // Example: "Example Org" => "example-org"
+    // Example: "Example Org" => "example-org"
+    // Example: "hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do" => "hello-how-do-you-do"
+    // Example: "-hello-how-do-you-do-" => "hello-how-do-you-do"
+    // Limit max length to 35 characters 
+    // replace all special characters with - and replace multiple - with single -
+    // setSlug(value.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-/g, '').slice(0, 35))
+    const finalSlug = slugify(value, {
+      lower: true,
+      trim: false,
+      strict: true
+    })
+    setOrgSlug(finalSlug.slice(0, 35))
+  }
+
+  if (!orgSlug) return <Loading />
 
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 h-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-2xl">Page - {data && data.name}</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">Page - {orgName}</h1>
       </div>
       <div
         className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm"
@@ -207,7 +246,7 @@ const Dashboard: React.FC = ({ params }) => {
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 overflow-hidden rounded border border-gray-200">
                   <ImageComponent
-                    src={uploadedLogoUrl || data.logo}
+                    src={uploadedLogoUrl || logo}
                     alt="Logo"
                     className="w-full h-full"
                   />
@@ -232,7 +271,7 @@ const Dashboard: React.FC = ({ params }) => {
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 overflow-hidden rounded border border-gray-200">
                   <ImageComponent
-                    src={uploadedFaviconUrl || data.favicon}
+                    src={uploadedFaviconUrl || favicon}
                     alt="Favicon"
                     className="w-full h-full"
                   />
@@ -258,7 +297,11 @@ const Dashboard: React.FC = ({ params }) => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input disabled={isLoading} placeholder="name" {...field} />
+                      <Input
+                        disabled={isLoading} placeholder="name"
+                        value={orgName}
+                        onChange={(e) => setOrgName(e.target.value)}
+                      />
                     </FormControl>
                     <FormDescription>
                       This is the page title.
@@ -276,7 +319,12 @@ const Dashboard: React.FC = ({ params }) => {
                     <FormControl>
                       <div className="flex items-center">
                         <div className="flex-1">
-                          <Input disabled={isLoading} placeholder="slug" {...field} className="inline-block" />
+                          <Input
+                            disabled={isLoading} placeholder="slug"
+                            value={orgSlug}
+                            onChange={(e) => updateSlug(e.target.value)}
+                            className="inline-block"
+                          />
                         </div>
                         <div className="flex items-center">
                           <div className="text-muted-foreground ml-1">
@@ -307,7 +355,17 @@ const Dashboard: React.FC = ({ params }) => {
                   <FormItem>
                     <FormLabel>Custom Domain</FormLabel>
                     <FormControl>
-                      <Input disabled={isLoading} placeholder="feature-request.yourdomain.com" {...field} />
+                      <Input disabled={isLoading} placeholder="feature-request.yourdomain.com"
+                        value={customDomain}
+                        onChange={(e) => {
+                          if (e.target.value.startsWith('http://') || e.target.value.startsWith('https://')) {
+                            e.target.value = e.target.value.replace('http://', '').replace('https://', '')
+
+                          }
+                          setCustomDomain(e.target.value)
+                        }
+                        }
+                      />
                     </FormControl>
                     <FormDescription>
                       This is the custom domain for the page. You have to setup a CNAME mapping in your DNS server to our domain cname.suggestfeature.com before setting it here.
@@ -332,14 +390,14 @@ const Dashboard: React.FC = ({ params }) => {
                 </FormDescription>
               </div>
 
-              <div className="rounded-lg border border-dashed shadow-sm mb-4">
-                <h2 className="text-lg font-semibold p-4">Navbar Preview</h2>
+              <div className="rounded-lg shadow-sm mb-4">
+                <h2 className="text-lg font-semibold py-4 ">Navbar Preview</h2>
                 <Navbar
-                  logo={uploadedLogoUrl || data?.logo}
-                  orgName={data?.name}
+                  logo={uploadedLogoUrl || logo}
+                  orgName={orgName}
                   hideOrgName={hideOrgName}
-                  customDomain={form.getValues('customDomain')}
-                  slug={form.getValues('slug')}
+                  customDomain={customDomain}
+                  slug={orgSlug}
                 />
               </div>
               <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>
