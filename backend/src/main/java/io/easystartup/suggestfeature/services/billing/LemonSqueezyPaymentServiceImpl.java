@@ -142,7 +142,7 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
             variables.put("name", "Suggest Feature - Monthly");
             variables.put("orgId", org.getId());
             variables.put("orgName", org.getName());
-            variables.put("usersName", user.getName());
+            variables.put("usersName", Util.getNameFromEmail(user.getName()));
             variables.put("userEmail", user.getEmail());
 
             // from current url replace query params with empty string

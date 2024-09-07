@@ -125,6 +125,7 @@ public class User {
         this.magicLinkValidTill = magicLinkValidTill;
     }
 
+    // Todo: Wherever using get name replace with get from email method
     public String getName() {
         return name;
     }
