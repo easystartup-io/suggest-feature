@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static io.easystartup.suggestfeature.utils.Util.populatePost;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/auth/posts")

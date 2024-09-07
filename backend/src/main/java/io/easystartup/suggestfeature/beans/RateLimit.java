@@ -3,7 +3,7 @@ package io.easystartup.suggestfeature.beans;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-/*
+/**
  * @author indianBond
  */
 @Document

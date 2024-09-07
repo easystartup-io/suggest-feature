@@ -13,7 +13,7 @@ import java.util.UUID;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
-/*
+/**
  * @author indianBond
  */
 @Provider

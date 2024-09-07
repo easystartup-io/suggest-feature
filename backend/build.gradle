@@ -3,6 +3,7 @@ plugins {
     id 'application'
     id 'org.springframework.boot' version '3.3.2'
     id 'io.spring.dependency-management' version '1.1.6'
+    id "net.ltgt.errorprone" version "4.0.1"
 }
 
 
@@ -73,7 +74,19 @@ dependencies {
     // kubernetes
     implementation group: 'io.kubernetes', name: 'client-java', version: '20.0.1'
 
+    errorprone("com.google.errorprone:error_prone_core:2.31.0")
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Error prone to catch static errors at compile time
+tasks.withType(JavaCompile).configureEach {
+    options.errorprone.disableWarningsInGeneratedCode = true
+    // fix some by default
+    options.errorprone.errorproneArgs.addAll(
+            "-XepPatchChecks:UnnecessaryParentheses,EqualsGetClass,AlmostJavadoc",
+            "-XepPatchLocation:IN_PLACE"
+    )
 }
 
 test {

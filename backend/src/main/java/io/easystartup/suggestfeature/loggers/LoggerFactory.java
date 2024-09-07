@@ -1,6 +1,6 @@
 package io.easystartup.suggestfeature.loggers;
 
-/*
+/**
  * @author indianBond
  */
 public class LoggerFactory {

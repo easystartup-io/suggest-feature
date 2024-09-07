@@ -12,7 +12,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-/*
+/**
  * @author indianBond
  */
 @Configuration

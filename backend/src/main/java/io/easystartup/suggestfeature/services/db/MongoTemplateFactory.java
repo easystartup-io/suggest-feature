@@ -24,7 +24,7 @@ import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentProperty;
 import org.springframework.stereotype.Service;
 
-/*
+/**
  * @author indianBond
  */
 @Service

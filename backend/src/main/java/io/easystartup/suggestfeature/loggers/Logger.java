@@ -6,7 +6,7 @@ import org.slf4j.MDC;
 
 import java.util.concurrent.TimeUnit;
 
-/*
+/**
  * @author indianBond
  */
 public class Logger {

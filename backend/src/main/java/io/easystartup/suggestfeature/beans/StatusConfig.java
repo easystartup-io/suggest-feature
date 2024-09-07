@@ -3,7 +3,7 @@ package io.easystartup.suggestfeature.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-/*
+/**
  * @author indianBond
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

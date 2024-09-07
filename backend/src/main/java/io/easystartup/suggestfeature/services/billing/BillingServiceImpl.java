@@ -7,7 +7,7 @@ import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/*
+/**
  * @author indianBond
  */
 @Service

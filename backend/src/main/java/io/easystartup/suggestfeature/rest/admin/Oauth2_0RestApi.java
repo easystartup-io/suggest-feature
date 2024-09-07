@@ -45,7 +45,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/unauth/oauth2")

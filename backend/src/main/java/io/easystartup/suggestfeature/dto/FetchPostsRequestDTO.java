@@ -2,7 +2,7 @@ package io.easystartup.suggestfeature.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-/*
+/**
  * @author indianBond
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

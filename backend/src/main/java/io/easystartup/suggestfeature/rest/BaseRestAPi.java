@@ -5,7 +5,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import org.springframework.stereotype.Component;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/")

@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import static io.easystartup.suggestfeature.beans.Member.Role.ADMIN;
 import static io.easystartup.suggestfeature.beans.Member.Role.USER;
 
-/*
+/**
  * @author indianBond
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

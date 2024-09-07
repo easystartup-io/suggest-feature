@@ -2,7 +2,7 @@ package io.easystartup.suggestfeature.utils;
 
 import io.easystartup.suggestfeature.ApplicationContextSpring;
 
-/*
+/**
  * @author indianBond
  */
 public class LazyService<T> {

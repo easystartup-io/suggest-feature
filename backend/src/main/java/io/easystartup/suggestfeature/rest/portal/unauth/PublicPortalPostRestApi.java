@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 import static io.easystartup.suggestfeature.utils.Util.populatePost;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/portal/unauth/posts")
@@ -278,7 +278,7 @@ public class PublicPortalPostRestApi {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof SearchPostCacheKey)) return false;
 
             SearchPostCacheKey that = (SearchPostCacheKey) o;
             return Objects.equals(query, that.query) && Objects.equals(boardSlug, that.boardSlug) && Objects.equals(host, that.host);

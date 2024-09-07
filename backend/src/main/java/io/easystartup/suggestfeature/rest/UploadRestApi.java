@@ -39,7 +39,7 @@ import java.nio.file.Files;
 import java.util.Set;
 import java.util.UUID;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/auth/upload")

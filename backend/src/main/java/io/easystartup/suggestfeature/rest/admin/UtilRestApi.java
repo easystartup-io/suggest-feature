@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/auth/util")

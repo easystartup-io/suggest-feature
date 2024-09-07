@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-/*
+/**
  * @author indianBond
  * Mapping of end customer to organization
  */

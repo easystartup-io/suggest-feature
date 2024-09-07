@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static io.easystartup.suggestfeature.utils.Util.WHITE_SPACE;
 
-/*
+/**
  * @author indianBond
  */
 @Service

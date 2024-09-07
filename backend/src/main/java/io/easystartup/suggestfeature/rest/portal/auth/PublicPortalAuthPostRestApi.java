@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 import static io.easystartup.suggestfeature.utils.Util.*;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/portal/auth/posts")

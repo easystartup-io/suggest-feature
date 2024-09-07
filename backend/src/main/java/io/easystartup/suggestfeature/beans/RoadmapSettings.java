@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
-/*
+/**
  * @author indianBond
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

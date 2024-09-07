@@ -23,13 +23,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-/*
+/**
  * @author indianBond
  */
 @Path("/auth/admin/dashboard")
@@ -65,7 +63,6 @@ public class AdminDashboardRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response getDashboardData(GetDashboardDataRequest req) {
-        String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
 
         String boardId = req.getBoardId();

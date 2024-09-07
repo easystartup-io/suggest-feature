@@ -2,7 +2,7 @@ package io.easystartup.suggestfeature.filters;
 
 import jakarta.ws.rs.core.Response.Status;
 
-/*
+/**
  * @author indianBond
  */
 public class UserVisibleException extends RuntimeException {

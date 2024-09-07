@@ -4,7 +4,7 @@ package io.easystartup.suggestfeature.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 
-/*
+/**
  * @author indianBond
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
