@@ -27,12 +27,34 @@ const ImagePlaceholder = ({ className }) => (
   </div>
 );
 
-const BrowserAddressBar = ({ customDomain, slug }) => {
+const BrowserAddressBar = ({ customDomain, slug, favicon, orgName }) => {
   const displayUrl = customDomain || `${slug}.suggestfeature.com`;
 
   return (
-    <div className="w-full bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 rounded-t-lg">
-      <div className="flex items-center w-full">
+    <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-t-lg overflow-hidden">
+      {/* Top line with window controls and tab */}
+      <div className="flex items-center px-2 bg-gray-100 dark:bg-gray-800">
+        {/* macOS-style window controls */}
+        <div className="flex space-x-2 mr-4">
+          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        </div>
+
+        {/* Tab */}
+        <div className="flex items-center bg-white dark:bg-gray-700 rounded-t-lg px-3 py-2 text-xs text-gray-600 dark:text-gray-200">
+          {favicon ? (
+            <img src={favicon} alt="Favicon" className="w-4 h-4 mr-2" />
+          ) : (
+            <div className="w-4 h-4 bg-gray-400 dark:bg-gray-500 rounded-full mr-2"></div>
+          )}
+          <span className="truncate max-w-[140px]">{orgName}</span>
+        </div>
+      </div>
+
+      {/* Address bar line with navigation buttons */}
+      <div className="flex items-center w-full px-2 py-1 bg-white dark:bg-gray-700 border-b">
+        {/* Navigation buttons */}
         <div className="flex items-center space-x-1 mr-2">
           {[ChevronLeft, ChevronRight, RotateCw, Home].map((Icon, index) => (
             <Button
@@ -40,15 +62,18 @@ const BrowserAddressBar = ({ customDomain, slug }) => {
               size="icon"
               variant="ghost"
               className="w-6 h-6 text-gray-500 dark:text-gray-400"
+              disabled
               type="button"
             >
               <Icon className="h-3 w-3" />
             </Button>
           ))}
         </div>
-        <div className="flex-grow flex items-center bg-white dark:bg-gray-700 rounded-full px-3 py-1">
-          <Lock className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 flex-shrink-0" />
-          <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
+
+        {/* Address bar */}
+        <div className="flex-grow flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+          <Lock className="h-4 w-4 text-green-600 dark:text-green-500 mr-2 flex-shrink-0" />
+          <span className="text-sm text-gray-600 dark:text-gray-200 truncate">
             https://{displayUrl}
           </span>
         </div>
@@ -57,12 +82,12 @@ const BrowserAddressBar = ({ customDomain, slug }) => {
   );
 };
 
-const Navbar = ({ logo, orgName, hideOrgName, customDomain, slug }) => {
+const Navbar = ({ logo, orgName, hideOrgName, customDomain, slug, favicon }) => {
 
   const { user } = useAuth();
   return (
     <div className="w-full rounded-lg overflow-hidden border border-gray-200 shadow-md">
-      <BrowserAddressBar customDomain={customDomain} slug={slug} />
+      <BrowserAddressBar customDomain={customDomain} slug={slug} favicon={favicon} orgName={orgName} />
       <nav className="flex items-center justify-between p-4 bg-white dark:bg-background text-black dark:text-white shadow-sm">
         <div className="flex items-center">
           {logo && (
@@ -398,6 +423,7 @@ const Dashboard: React.FC = ({ params }) => {
                   hideOrgName={hideOrgName}
                   customDomain={customDomain}
                   slug={orgSlug}
+                  favicon={uploadedFaviconUrl || favicon}
                 />
               </div>
               <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>

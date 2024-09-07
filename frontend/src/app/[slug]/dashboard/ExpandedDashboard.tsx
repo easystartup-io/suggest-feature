@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Label } from 'recharts';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { SearchX } from 'lucide-react';
-import Loading from '@/components/Loading';
 import { Icons } from '@/components/icons';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from '@/lib/utils';
+import { SearchX } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Label, Pie, PieChart } from 'recharts';
 
-
-const timeframeOptions = [
+export const timeframeOptions = [
   {
     name: "This week",
     value: "THIS_WEEK"
@@ -34,10 +30,9 @@ const timeframeOptions = [
   }
 ]
 
-const PostsOverview = ({ params }) => {
+const PostsOverview = ({ params, boards }) => {
 
   const [data, setData] = useState(null)
-  const [boards, setBoards] = useState([{ name: "All Boards", value: "ALL" }])
   const [timeframe, setTimeframe] = useState("THIS_WEEK")
   const [selectedBoard, setSelectedBoard] = useState("ALL")
   const [loading, setLoading] = useState(true)
@@ -61,29 +56,6 @@ const PostsOverview = ({ params }) => {
         setLoading(false)
       })
   }, [params.slug, selectedBoard, timeframe])
-
-  useEffect(() => {
-    if (!params.slug) {
-      return;
-    }
-    fetch('/api/auth/boards/fetch-boards', {
-      headers: {
-        "x-org-slug": params.slug,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        // set boards as an array of objects with name and value properties
-        // e.g. { name: "Board 1", value: 10 }
-        const boardList = data.map((board) => ({
-          name: board.name,
-          value: board.id
-        }));
-        setBoards([
-          { name: 'All Boards', value: 'ALL' }, ...boardList])
-      })
-  }, [params.slug])
 
   if (!data) return
 
@@ -192,11 +164,9 @@ const PostsOverview = ({ params }) => {
   );
 };
 
-const ExpandedDashboard = ({ params }) => {
+const ExpandedDashboard = ({ params, boards }) => {
   return (
-    <div className="p-4 space-y-8">
-      <PostsOverview params={params} />
-    </div>
+    <PostsOverview params={params} boards={boards} />
   );
 };
 
