@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Icons } from "./icons"
+import { cn } from "@/lib/utils";
 
-export default function Loading() {
+export default function Loading({ className = "" }) {
   const [showLoading, setShowLoading] = useState(false);
 
   // Dont show loading spinner for at least 1.5 seconds
@@ -19,7 +20,7 @@ export default function Loading() {
     return null;
   }
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className={cn("flex items-center justify-center h-screen", className)}>
       <div className="flex flex-col items-center gap-4">
         <Icons.spinner className="h-12 w-12 animate-spin" />
         <p>Loading...</p>

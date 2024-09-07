@@ -6,6 +6,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Label } from
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { SearchX } from 'lucide-react';
+import Loading from '@/components/Loading';
+import { Icons } from '@/components/icons';
+import { cn } from '@/lib/utils';
 
 
 const timeframeOptions = [
@@ -37,11 +40,13 @@ const PostsOverview = ({ params }) => {
   const [boards, setBoards] = useState([{ name: "All Boards", value: "ALL" }])
   const [timeframe, setTimeframe] = useState("THIS_WEEK")
   const [selectedBoard, setSelectedBoard] = useState("ALL")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!params.slug || !timeframe || !selectedBoard) {
       return;
     }
+    setLoading(true)
     fetch('/api/auth/admin/dashboard/get-dashboard-data', {
       method: 'POST',
       headers: {
@@ -53,6 +58,7 @@ const PostsOverview = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        setLoading(false)
       })
   }, [params.slug, selectedBoard, timeframe])
 
@@ -92,7 +98,8 @@ const PostsOverview = ({ params }) => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Posts Overview</span>
-          <div className="flex justify-between mb-4 space-x-2">
+          <div className="flex justify-between mb-4 space-x-2 items-center">
+            {loading && <Icons.spinner className={cn("animate-spin", "w-5 h-5")} />}
             {[boards, timeframeOptions].map((options, index) => (
               <Select key={index} defaultValue={options[0].value} onValueChange={(val) => {
                 if (index === 0) setSelectedBoard(val)
