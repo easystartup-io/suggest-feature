@@ -97,7 +97,6 @@ export default function Dashboard({ params }) {
   const { org, boards } = useInit()
   const router = useRouter();
   const searchParams = useSearchParams()
-
   const roadmapOnly = searchParams.get('roadmapOnly')
   const theme = searchParams.get('theme')
   const { setTheme } = useTheme()
@@ -107,13 +106,6 @@ export default function Dashboard({ params }) {
       setTheme(theme)
     }
   }, [theme])
-
-  useEffect(() => {
-    if (theme) {
-      setTheme(theme)
-    }
-  }, [])
-
 
   useEffect(() => {
     const host = window.location.host

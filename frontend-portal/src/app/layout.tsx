@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { CircleUser } from "lucide-react";
@@ -18,7 +18,6 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Toaster } from "@/components/ui/toaster"
 import { useSearchParams } from 'next/navigation'
-import { useTheme } from 'next-themes'
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -175,15 +174,29 @@ function Header({ params }) {
   )
 }
 
+const SuspenseProvider = ({ children }) => {
+  const [isEmbedded, setIsEmbedded] = useState(false)
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    setIsEmbedded(searchParams.get('isEmbedded'))
+  }, []);
+
+  return (
+    <div className={cn("w-full",
+      isEmbedded ? '' : 'max-w-screen-xl'
+    )}>
+      {children}
+    </div>
+  );
+};
+
 function RootLayout({
   children, params
 }: Readonly<{
   children: React.ReactNode;
 }>) {
 
-  const searchParams = useSearchParams()
-
-  const isEmbedded = searchParams.get('isEmbedded')
   return (
     <html lang="en">
       <body className={cn(inter.className, "bg-muted/40")}>
@@ -198,18 +211,19 @@ function RootLayout({
             <AuthProvider>
               <InitContextProvider>
                 <div className="w-full bg-background flex items-center justify-center">
-                  <div className={cn("w-full",
-                    isEmbedded ? '' : 'max-w-screen-xl ')
-                  }>
-                    <Header params={params} />
-                  </div>
+                  <Suspense>
+                    <SuspenseProvider >
+                      <Header params={params} />
+                    </SuspenseProvider>
+                  </Suspense>
                 </div>
                 <Separator />
-                <div className={cn("w-full",
-                  isEmbedded ? '' : 'max-w-screen-xl'
-                )}>
-                  {children}
-                </div>
+                <Suspense>
+                  <SuspenseProvider >
+                    {/* TODO: Handle it better when doing SSR instead of suspense. Just have a suspense provider which sets after client side load for specific div id */}
+                    {children}
+                  </SuspenseProvider>
+                </Suspense>
               </InitContextProvider>
             </AuthProvider>
           </div>
