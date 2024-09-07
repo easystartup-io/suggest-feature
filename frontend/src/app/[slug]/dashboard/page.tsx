@@ -45,7 +45,7 @@ const Dashboard: React.FC = ({ params }) => {
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <ExpandedDashboard params={params} boards={boards} />
       {/* <ActivityOverview params={params} boards={boards} /> */}
-      <Roadmap />
+      <Roadmap params={params} />
     </div>
   );
 }

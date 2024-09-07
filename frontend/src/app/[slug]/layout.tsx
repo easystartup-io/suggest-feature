@@ -10,6 +10,7 @@ import {
   BookOpenText,
   CircleDollarSign,
   Clipboard,
+  Eye,
   Home,
   Map,
   Menu,
@@ -134,6 +135,7 @@ function ProfileDropdownMenu({ params, logout, router, user }) {
 
 const Dashboard = ({ children, params }) => {
   const { logout, user } = useAuth();
+  const [publicUrl, setPublicUrl] = useState('');
   const [currentSection, setCurrentSection] = useState('dashboard');
   const router = useRouter();
   const pathname = usePathname();
@@ -153,6 +155,23 @@ const Dashboard = ({ children, params }) => {
     const sections = pathname.replace(`/${params.slug}`, '').split('/').filter(Boolean);
     setCurrentSection(sections.length > 0 ? sections[0] : 'dashboard');
   }, [params.slug, pathname])
+
+  useEffect(() => {
+    fetch(`/api/auth/pages/fetch-org`, {
+      headers: {
+        "x-org-slug": params.slug
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.customDomain) {
+          setPublicUrl(`https://${data.customDomain}`)
+        } else if (data && data.slug) {
+          setPublicUrl(`https://${data.slug}.suggestfeature.com`)
+        }
+      })
+
+  }, [params.id, params.slug])
 
   const isActive = (section) => currentSection === section ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary';
 
@@ -249,6 +268,16 @@ const Dashboard = ({ children, params }) => {
                 </SheetContent>
               </Sheet>
               <div className="w-full flex flex-1 items-center justify-end gap-2">
+                <Button variant="outline"
+                  onClick={() => {
+                    // Open in new tab to avoid blocking the current tab
+                    if (publicUrl) {
+                      window.open(publicUrl, '_blank')
+                    }
+                  }}
+                >
+                  <Eye className="mr-2 " /> View Public Url
+                </Button>
                 <ModeToggle />
                 <div className="text-right">
                   <Button className="flex items-center" variant="outline" onClick={() => {

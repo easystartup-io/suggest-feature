@@ -17,6 +17,9 @@ import LoginDialog from "@/components/LoginDialog";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Toaster } from "@/components/ui/toaster"
+import { useSearchParams } from 'next/navigation'
+import { useTheme } from 'next-themes'
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -50,7 +53,9 @@ function Header({ params }) {
   const { setOrg: setInitOrg, setBoards: setInitBoards } = useInit();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams()
 
+  const hideNavBar = searchParams.get('hideNavBar')
 
   useEffect(() => {
     const updateFavicon = async () => {
@@ -99,6 +104,10 @@ function Header({ params }) {
 
   if (!org || error) {
     return <Custom404 />
+  }
+
+  if (hideNavBar) {
+    return null
   }
 
   return (
@@ -172,6 +181,9 @@ function RootLayout({
   children: React.ReactNode;
 }>) {
 
+  const searchParams = useSearchParams()
+
+  const isEmbedded = searchParams.get('isEmbedded')
   return (
     <html lang="en">
       <body className={cn(inter.className, "bg-muted/40")}>
@@ -186,12 +198,16 @@ function RootLayout({
             <AuthProvider>
               <InitContextProvider>
                 <div className="w-full bg-background flex items-center justify-center">
-                  <div className="max-w-screen-xl w-full">
+                  <div className={cn("w-full",
+                    isEmbedded ? '' : 'max-w-screen-xl ')
+                  }>
                     <Header params={params} />
                   </div>
                 </div>
                 <Separator />
-                <div className="max-w-screen-xl w-full">
+                <div className={cn("w-full",
+                  isEmbedded ? '' : 'max-w-screen-xl'
+                )}>
                   {children}
                 </div>
               </InitContextProvider>

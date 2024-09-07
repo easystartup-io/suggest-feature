@@ -6,8 +6,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useInit } from "@/context/InitContext"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import { useTheme } from "next-themes"
 
 export const statusConfig = {
   "OPEN": {
@@ -95,6 +96,24 @@ export default function Dashboard({ params }) {
   const [posts, setPosts] = useState([]);
   const { org, boards } = useInit()
   const router = useRouter();
+  const searchParams = useSearchParams()
+
+  const roadmapOnly = searchParams.get('roadmapOnly')
+  const theme = searchParams.get('theme')
+  const { setTheme } = useTheme()
+
+  useEffect(() => {
+    if (theme) {
+      setTheme(theme)
+    }
+  }, [theme])
+
+  useEffect(() => {
+    if (theme) {
+      setTheme(theme)
+    }
+  }, [])
+
 
   useEffect(() => {
     const host = window.location.host
@@ -117,28 +136,37 @@ export default function Dashboard({ params }) {
       <div className="w-full items-center justify-center flex">
         <div className="w-full">
           <div className="w-full">
-            <div className="flex items-center font-semibold pb-4 text-lg">
-              Boards
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 w-full md:justify-between">
-              {boards && boards.map((board) => {
-                return (
-                  <div key={board.id} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 w-full cursor-pointer hover:bg-gray-100" onClick={() => {
-                    router.push(`/b/${board.slug}`)
-                  }}>
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-semibold">{board.name}</h2>
-                      <Badge>{board.postCount || '0'}</Badge>
+            {
+              !roadmapOnly &&
+              <div className="flex items-center font-semibold pb-4 text-lg">
+                Boards
+              </div>
+            }
+            {
+              !roadmapOnly &&
+              <div className="grid md:grid-cols-3 gap-6 w-full md:justify-between">
+                {boards && boards.map((board) => {
+                  return (
+                    <div key={board.id} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 w-full cursor-pointer hover:bg-gray-100" onClick={() => {
+                      router.push(`/b/${board.slug}`)
+                    }}>
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">{board.name}</h2>
+                        <Badge>{board.postCount || '0'}</Badge>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            }
             {
               org && ((org.roadmapSettings && org.roadmapSettings.enabled) || (!org.roadmapSettings)) && <div className="w-full h-full">
-                <div className="flex items-center font-semibold pt-8 text-lg">
-                  {(org && org.roadmapSettings && org.roadmapSettings.title) || 'Roadmap'}
-                </div>
+                {
+                  !roadmapOnly &&
+                  <div className="flex items-center font-semibold pt-8 text-lg">
+                    {(org && org.roadmapSettings && org.roadmapSettings.title) || 'Roadmap'}
+                  </div>
+                }
                 <div className="grid md:grid-cols-3 gap-6 mt-6">
                   {
                     posts && Object.keys(posts).map((key) => {
