@@ -276,7 +276,7 @@ const Dashboard = ({ children, params }) => {
                     }
                   }}
                 >
-                  <Eye className="mr-2 " /> View Public Url
+                  <Eye className="mr-2 " /> Public View
                 </Button>
                 <ModeToggle />
                 <div className="text-right">

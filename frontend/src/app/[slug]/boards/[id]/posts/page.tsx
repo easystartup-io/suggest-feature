@@ -69,7 +69,29 @@ function AddPostDialog({ params, refetch }) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState('OPEN');
 
+  const [similarPostData, setSimilarPostData] = useState([])
+
   const { toast } = useToast()
+
+  const searchOnDb = useDebouncedCallback((value) => {
+    if (value.trim() === '') {
+      setSimilarPostData([])
+      return
+    }
+    fetch(`/api/auth/posts/search-post`, {
+      method: "POST",
+      headers: {
+        "x-org-slug": params.slug,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ boardSlug: params.id, query: value })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSimilarPostData(data)
+        // setLoading(false)
+      })
+  }, 300);
 
   const onSubmit = async (e) => {
     console.log(params)
@@ -113,7 +135,7 @@ function AddPostDialog({ params, refetch }) {
       <DialogTrigger asChild>
         <Button onClick={() => setIsOpen(true)}>Add Post</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[900px] ">
         <ScrollArea className="max-h-[calc(100dvh-3rem)]">
           <DialogHeader className="px-2">
             <DialogTitle>Add post</DialogTitle>
@@ -121,61 +143,94 @@ function AddPostDialog({ params, refetch }) {
               Create a new post
             </DialogDescription>
           </DialogHeader>
+          <div className="grid md:grid-cols-3 space-x-4">
+            <div className="md:col-span-1">
+              <div className="grid gap-4 py-4 px-2">
+                <div className="grid gap-4">
+                  <Label htmlFor="title" >
+                    Title
+                  </Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    placeholder="Dark mode"
+                    onChange={(e) => {
+                      searchOnDb(e.target.value)
+                      setTitle(e.target.value)
+                    }
+                    }
+                    disabled={isLoading}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid gap-4">
+                  <Label htmlFor="description" >
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    placeholder="Dark mode is required for the app to look cool"
+                    onChange={(e) => setDescription(e.target.value)}
+                    disabled={isLoading}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid gap-4">
+                  <Label htmlFor="status" >
+                    Status
+                  </Label>
+                  <Select onValueChange={
+                    val => {
+                      setStatus(val)
+                    }} value={status}>
+                    <SelectTrigger
+                      id="status"
+                      aria-label="Select status"
+                    >
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(statusConfig).map((key) => {
+                        const status = statusConfig[key];
+                        return (
+                          <SelectItem key={key} value={key}>
+                            {status.icon}
+                            {status.label}
+                          </SelectItem>
+                        )
+                      })
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
 
-          <div className="grid gap-4 py-4 px-2">
-            <div className="grid gap-4">
-              <Label htmlFor="title" >
-                Title
-              </Label>
-              <Input
-                id="title"
-                value={title}
-                placeholder="Dark mode"
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={isLoading}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid gap-4">
-              <Label htmlFor="description" >
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                value={description}
-                placeholder="Dark mode is required for the app to look cool"
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={isLoading}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid gap-4">
-              <Label htmlFor="status" >
-                Status
-              </Label>
-              <Select onValueChange={
-                val => {
-                  setStatus(val)
-                }} value={status}>
-                <SelectTrigger
-                  id="status"
-                  aria-label="Select status"
-                >
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(statusConfig).map((key) => {
-                    const status = statusConfig[key];
-                    return (
-                      <SelectItem key={key} value={key}>
-                        {status.icon}
-                        {status.label}
-                      </SelectItem>
-                    )
-                  })
-                  }
-                </SelectContent>
-              </Select>
+            <div className="md:col-span-2">
+              <ScrollArea className="max-h-[50svh] overflow-y-hidden">
+                {
+                  similarPostData.length > 0 && (
+                    <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                      <h3 className="text-sm font-semibold">Similar posts</h3>
+                      <div className="flex flex-col gap-2">
+                        {similarPostData.map((item) => (
+                          <div key={item.id} className="flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent">
+                            <div className="font-semibold">
+                              {item.title}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(item.createdAt), {
+                                addSuffix: true,
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+              </ScrollArea>
             </div>
           </div>
           <DialogFooter className="px-2">

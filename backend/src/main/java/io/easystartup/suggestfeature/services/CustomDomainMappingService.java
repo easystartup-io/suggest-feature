@@ -35,7 +35,7 @@ public class CustomDomainMappingService {
         }
 
         // Ignore if local testing with cloudflare tunnels. Don't want to go and create custom domain mappings
-        if (!Util.isProdEnv() && customDomain.endsWith(".trycloudflare.com")){
+        if (!Util.isProdEnv() && customDomain.endsWith(".easystartup.io")){
             return;
         }
 
