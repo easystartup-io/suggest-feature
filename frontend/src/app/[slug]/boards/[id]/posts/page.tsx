@@ -22,6 +22,7 @@ import { PostCard } from "@/components/post/PostCard";
 import Cookies from 'js-cookie';
 import { useDebouncedCallback } from 'use-debounce';
 import Loading from "@/components/Loading";
+import { Separator } from "@/components/ui/separator";
 
 
 export const statusConfig = {
@@ -70,6 +71,7 @@ function AddPostDialog({ params, refetch }) {
   const [status, setStatus] = useState('OPEN');
 
   const [similarPostData, setSimilarPostData] = useState([])
+  const [loadingSimilarPosts, setLoadingSimilarPosts] = useState(false)
 
   const { toast } = useToast()
 
@@ -78,6 +80,7 @@ function AddPostDialog({ params, refetch }) {
       setSimilarPostData([])
       return
     }
+    setLoadingSimilarPosts(true)
     fetch(`/api/auth/posts/search-post`, {
       method: "POST",
       headers: {
@@ -89,7 +92,7 @@ function AddPostDialog({ params, refetch }) {
       .then((res) => res.json())
       .then((data) => {
         setSimilarPostData(data)
-        // setLoading(false)
+        setLoadingSimilarPosts(false)
       })
   }, 300);
 
@@ -143,7 +146,7 @@ function AddPostDialog({ params, refetch }) {
               Create a new post
             </DialogDescription>
           </DialogHeader>
-          <div className="grid md:grid-cols-3 space-x-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div className="md:col-span-1">
               <div className="grid gap-4 py-4 px-2">
                 <div className="grid gap-4">
@@ -207,33 +210,45 @@ function AddPostDialog({ params, refetch }) {
               </div>
             </div>
 
+
             <div className="md:col-span-2">
-              <ScrollArea className="max-h-[50svh] overflow-y-hidden">
-                {
-                  similarPostData.length > 0 && (
-                    <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                      <h3 className="text-sm font-semibold">Similar posts</h3>
-                      <div className="flex flex-col gap-2">
-                        {similarPostData.map((item) => (
-                          <div key={item.id} className="flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent">
-                            <div className="font-semibold">
-                              {item.title}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(item.createdAt), {
-                                addSuffix: true,
-                              })}
-                            </div>
-                          </div>
-                        ))}
+              <div className="grid px-2">
+                <Label className="py-4">
+                  Similar posts
+                </Label>
+                <ScrollArea className="h-[calc(65dvh-3rem)] overflow-y-hidden w-full">
+                  {
+                    loadingSimilarPosts && (
+                      <div className="flex items-center justify-center h-full w-full">
+                        <Icons.spinner className="h-12 w-12 animate-spin mt-12" />
                       </div>
-                    </div>
-                  )
-                }
-              </ScrollArea>
+                    )
+                  }
+                  {
+                    !loadingSimilarPosts && similarPostData.length > 0 && (
+                      <div className="bg-background/95 p-4 pt-0 pl-0 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                        <div className="flex flex-col gap-2">
+                          {similarPostData.map((item) => (
+                            <div key={item.id} className="flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent">
+                              <div className="font-semibold">
+                                {item.title}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {formatDistanceToNow(new Date(item.createdAt), {
+                                  addSuffix: true,
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  }
+                </ScrollArea>
+              </div>
             </div>
           </div>
-          <DialogFooter className="px-2">
+          <DialogFooter className="px-2 mt-4">
             <Button type="submit" onClick={onSubmit} disabled={isLoading} >
               {isLoading && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
