@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setOpenLoginDialog(() => setOpenDialog)
   };
 
-  const verifyLoginOrPrompt = async () => {
+  const verifyLoginOrPrompt = () => {
     console.log('verifyLoginOrPrompt')
 
     if (user) {

@@ -124,6 +124,7 @@ export default function Dashboard({ params }) {
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadedFileUrl, setUploadedFileUrl] = useState('')
+  const [suggestedPostsScreen, setSuggestedPostsScreen] = useState(false)
 
   useEffect(() => {
     const host = window.location.host
@@ -165,6 +166,7 @@ export default function Dashboard({ params }) {
         toast({
           title: 'Post created',
         })
+        setSuggestedPostsScreen(false)
       } else {
         toast({
           title: respData.message,
@@ -220,7 +222,9 @@ export default function Dashboard({ params }) {
                       if (verifyLoginOrPrompt()) {
                         return;
                       }
+                      setSuggestedPostsScreen(true)
                       setTitle(e.target.value)
+                      searchOnDb(e.target.value)
                     }
                     }
                     />
@@ -230,7 +234,6 @@ export default function Dashboard({ params }) {
                       Description
                     </Label>
                     <Textarea disabled={loading} value={description} onChange={(e) => {
-
                       if (verifyLoginOrPrompt()) {
                         return;
                       }
@@ -247,16 +250,27 @@ export default function Dashboard({ params }) {
                 </div>
               </div>
               <div className="md:col-span-2 w-full">
-                <div className="bg-background p-4 backdrop-blur supports-[backdrop-filter]:bg-background mb-2 rounded-lg px-8">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search" className="pl-8"
-                      onChange={(e) => {
-                        searchOnDb(e.target.value)
-                      }}
-                    />
+                {
+                  suggestedPostsScreen &&
+                  <div className="bg-background p-4 backdrop-blur supports-[backdrop-filter]:bg-background mb-2 rounded-lg px-8">
+                    <div className="font-medium">
+                      Similar posts - Add vote instead of creating new post
+                    </div>
                   </div>
-                </div>
+                }
+                {
+                  !suggestedPostsScreen &&
+                  <div className="bg-background p-4 backdrop-blur supports-[backdrop-filter]:bg-background mb-2 rounded-lg px-8">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Search" className="pl-8"
+                        onChange={(e) => {
+                          searchOnDb(e.target.value)
+                        }}
+                      />
+                    </div>
+                  </div>
+                }
                 <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2 w-full">
                   {
                     posts && <PostList posts={posts} params={params} />
