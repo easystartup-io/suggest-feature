@@ -387,6 +387,9 @@ const Dashboard: React.FC = ({ params }) => {
                             e.target.value = e.target.value.replace('http://', '').replace('https://', '')
 
                           }
+                          if (e.target.value.endsWith('/')) {
+                            e.target.value = e.target.value.slice(0, -1)
+                          }
                           setCustomDomain(e.target.value)
                         }
                         }

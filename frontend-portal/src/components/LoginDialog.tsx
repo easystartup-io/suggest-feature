@@ -17,7 +17,7 @@ import { useState } from "react"
 import { Icons } from "./icons"
 import { useAuth } from "@/context/AuthContext"
 
-function AuthDialog() {
+function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
   const { verifyCode } = useAuth()
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
@@ -80,10 +80,11 @@ function AuthDialog() {
   }
 
   return (
-    <Dialog>
+    <Dialog open={openLoginDialog} onOpenChange={setOpenLoginDialog}>
       <DialogTrigger asChild>
         <Button variant="outline"
           onClick={() => {
+            setOpenLoginDialog(true)
             // Reset all
             setIsLogin(true);
             setLastName('')
@@ -146,7 +147,7 @@ function AuthDialog() {
                   maxLength={6}
                   pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                   value={verificationCode}
-                  onChange={(value) => setVerificationCode(value)}
+                  onChange={(value) => setVerificationCode(value.toUpperCase())}
                   disabled={isLoading}
                 >
                   <InputOTPGroup>

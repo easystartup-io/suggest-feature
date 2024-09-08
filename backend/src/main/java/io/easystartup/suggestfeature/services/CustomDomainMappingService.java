@@ -33,6 +33,12 @@ public class CustomDomainMappingService {
         if (Util.isSelfHosted()) {
             return; // Skip domain deletion if self hosted
         }
+
+        // Ignore if local testing with cloudflare tunnels. Don't want to go and create custom domain mappings
+        if (!Util.isProdEnv() && customDomain.endsWith(".trycloudflare.com")){
+            return;
+        }
+
         // Validate by checking cname mapping is done to cname.suggestfeature.com
         if (!verifyCustomDomainMapping(customDomain)) {
             throw new UserVisibleException("DNS verification failed for %s. Please add here after your cname mapping is done. It can take some time for DNS to propagate".formatted(customDomain));

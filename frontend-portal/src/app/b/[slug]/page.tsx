@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import FileUploadButton from "@/components/FileButton"
 import { useDebouncedCallback } from 'use-debounce';
+import { useAuth } from "@/context/AuthContext"
 
 export const statusConfig = {
   "OPEN": {
@@ -117,6 +118,7 @@ export default function Dashboard({ params }) {
   const router = useRouter();
   const [board, setBoard] = useState({})
   const { toast } = useToast()
+  const { verifyLoginOrPrompt } = useAuth()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -144,6 +146,9 @@ export default function Dashboard({ params }) {
 
   const onSubmitPost = async (e) => {
     console.log(params)
+    if (verifyLoginOrPrompt()) {
+      return;
+    }
     e.preventDefault();
     setLoading(true)
     try {
@@ -211,14 +216,27 @@ export default function Dashboard({ params }) {
                     <Label>
                       Title
                     </Label>
-                    <Input disabled={loading} value={title} onChange={(e) => setTitle(e.target.value)}
+                    <Input disabled={loading} value={title} onChange={(e) => {
+                      if (verifyLoginOrPrompt()) {
+                        return;
+                      }
+                      setTitle(e.target.value)
+                    }
+                    }
                     />
                   </div>
                   <div>
                     <Label>
                       Description
                     </Label>
-                    <Textarea disabled={loading} value={description} onChange={(e) => setDescription(e.target.value)}
+                    <Textarea disabled={loading} value={description} onChange={(e) => {
+
+                      if (verifyLoginOrPrompt()) {
+                        return;
+                      }
+                      setDescription(e.target.value)
+                    }
+                    }
                     />
                   </div>
                   <FileUploadButton uploading={uploading} setUploading={setUploading} uploadedFileUrl={uploadedFileUrl} setUploadedFileUrl={setUploadedFileUrl} />

@@ -45,7 +45,7 @@ function Custom404() {
 
 function Header({ params }) {
 
-  const { user, loading, logout } = useAuth()
+  const { user, loading, logout, registerSetOpenLoginDialog } = useAuth()
   const [org, setOrg] = useState({});
   const [boards, setBoards] = useState({});
   const [error, setError] = useState(false);
@@ -55,6 +55,12 @@ function Header({ params }) {
   const searchParams = useSearchParams()
 
   const hideNavBar = searchParams.get('hideNavBar')
+
+  const [openLoginDialog, setOpenLoginDialog] = useState(false)
+
+  useEffect(() => {
+    registerSetOpenLoginDialog(setOpenLoginDialog)
+  }, [])
 
   useEffect(() => {
     const updateFavicon = async () => {
@@ -166,7 +172,7 @@ function Header({ params }) {
                 </DropdownMenuContent>
               </DropdownMenu>
               :
-              <LoginDialog />}
+              <LoginDialog openLoginDialog={openLoginDialog} setOpenLoginDialog={setOpenLoginDialog} />}
           </div>
           : ""}
       </header>

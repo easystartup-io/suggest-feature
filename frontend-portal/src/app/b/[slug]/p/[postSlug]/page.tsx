@@ -43,7 +43,7 @@ export default function Dashboard({ params }) {
   const { org, boards } = useInit()
   const router = useRouter();
   const [board, setBoard] = useState({})
-  const { user, loading } = useAuth()
+  const { user, loading, verifyLoginOrPrompt } = useAuth()
 
   function refetchPost() {
     const host = window.location.host

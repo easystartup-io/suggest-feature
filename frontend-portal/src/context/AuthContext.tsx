@@ -15,39 +15,66 @@ interface AuthContextType {
   verifyCode: (username: string, code: string) => Promise<void>;
   oauth2Login: (response: string, redirectToPage: string) => void;
   logout: () => void;
+  verifyLoginOrPrompt: () => boolean
+  registerSetOpenLoginDialog: (setOpenDialog: any) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
+
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [openLoginDialog, setOpenLoginDialog] = useState(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const checkUserLoggedIn = async () => {
-      const token = Cookies.get('token');
-      if (token) {
-        const response = await fetch(`${API_BASE_URL}/api/auth/user`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
+  const checkUserLoggedIn = async () => {
+    const token = Cookies.get('token');
+    if (token) {
+      const response = await fetch(`${API_BASE_URL}/api/auth/user`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
 
-        if (response.ok) {
-          const user = await response.json();
-          console.log(user)
-          setUser(user);
+      if (response.ok) {
+        const user = await response.json();
+        console.log(user)
+        setUser(user);
+
+        if (openLoginDialog) {
+          openLoginDialog(false)
         }
       }
-      setLoading(false);
-    };
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     checkUserLoggedIn();
-
   }, []);
+
+  const registerSetOpenLoginDialog = (setOpenDialog) => {
+    console.log('registerSetOpenLoginDialog')
+    // This is a hack to store a function in a state, because react considers that we are using function to store state when trying to compute value using previous state
+    setOpenLoginDialog(() => setOpenDialog)
+  };
+
+  const verifyLoginOrPrompt = async () => {
+    console.log('verifyLoginOrPrompt')
+
+    if (user) {
+      return false;
+    }
+    if (openLoginDialog) {
+      openLoginDialog(true)
+      checkUserLoggedIn();
+      return true
+    }
+  };
 
   const login = async (username: string) => {
     const response = await fetch(`${API_BASE_URL}/api/unauth/magic-link-generator`, {
@@ -104,7 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login, registerSetOpenLoginDialog, verifyLoginOrPrompt }}>
       {children}
     </AuthContext.Provider>
   );

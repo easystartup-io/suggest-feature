@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/context/AuthContext';
 
 export default function FileUploadButton({ uploading, setUploading, uploadedFileUrl, setUploadedFileUrl }) {
   const [selectedFile, setSelectedFile] = useState(null);
+  const { verifyLoginOrPrompt } = useAuth();
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -11,6 +13,11 @@ export default function FileUploadButton({ uploading, setUploading, uploadedFile
 
   const handleUpload = async (selectedFile) => {
     if (!selectedFile) return;
+
+
+    if (verifyLoginOrPrompt()) {
+      return;
+    }
 
     setUploading(true);
     const formData = new FormData();

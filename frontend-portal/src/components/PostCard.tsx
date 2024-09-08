@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Icons } from './icons';
 import Voters from './Voters';
+import { useAuth } from '@/context/AuthContext';
 
 export const statusConfig = {
   "OPEN": {
@@ -63,10 +64,16 @@ function PostDetails({ params, data, refetch }) {
 }
 
 function TitleHeader({ params, data, refetch }) {
+  const { verifyLoginOrPrompt } = useAuth()
   const user = data.user;
   if (!user) return null;
 
+
   const upVote = (upvote) => {
+    if (verifyLoginOrPrompt()) {
+      return;
+    }
+
     fetch(`/api/portal/auth/posts/upvote-post?postId=${data.id}&upvote=${upvote}`, {
       method: "POST",
       headers: {
@@ -206,8 +213,12 @@ function NewCommentInput({ data, params, refetch }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast()
+  const { user, verifyLoginOrPrompt } = useAuth()
 
   const submitComment = async (e) => {
+    if (verifyLoginOrPrompt()) {
+      return;
+    }
     if (loading) {
       return;
     }
@@ -242,7 +253,14 @@ function NewCommentInput({ data, params, refetch }) {
   return (<div className='mx-14 mt-2 flex flex-col'>
     <Textarea placeholder="Add a comment" value={content}
       disabled={loading}
-      onChange={(e) => setContent(e.target.value)} />
+      onChange={(e) => {
+        setContent(e.target.value)
+        if (e.target.value.trim().length > 0) {
+          if (verifyLoginOrPrompt()) {
+            return;
+          }
+        }
+      }} />
     <div className='mt-2 flex justify-end'>
       <Button onClick={submitComment} disabled={loading || content.trim().length === 0}>
         {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
