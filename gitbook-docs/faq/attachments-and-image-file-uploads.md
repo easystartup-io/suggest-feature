@@ -4,6 +4,8 @@
 
 At Suggest Feature, we allow users to upload multiple files and images to support their feedback and feature requests. To ensure a smooth experience, please follow the guidelines below when uploading attachments or images.
 
+<figure><img src="../.gitbook/assets/Upload on new post.png" alt=""><figcaption></figcaption></figure>
+
 ### Supported File Types
 
 We support the following file types for attachments:
