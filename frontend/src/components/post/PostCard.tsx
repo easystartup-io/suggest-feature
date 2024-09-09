@@ -593,23 +593,46 @@ function NewCommentInputOld({ data, params, refetch }) {
         })
       })
       const outputData = resp.json()
-      refetch()
+      if (resp.ok) {
+        toast({
+          title: 'Comment added successfully'
+        })
+        setTimeout(() => {
+          setContent('');
+          setAttachments([])
+        }, 1000)
+        refetch()
+      } else {
+        toast({
+          title: 'Failed to add comment',
+          description: outputData.message,
+          variant: 'destructive'
+        })
+      }
       console.log(outputData)
     } catch (e) {
       console.log(e)
     }
 
     setTimeout(() => {
-      setContent('');
       setLoading(false);
-      setAttachments([])
     }, 1000)
   }
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: 'File is too large',
+        description: 'Please upload a file that is less than 10MB in size',
+        variant: 'destructive'
+      })
+      return
+    }
 
     setUploading(true);
     const formData = new FormData();
@@ -732,7 +755,7 @@ function NewCommentInputOld({ data, params, refetch }) {
           {(loading || uploading) && <Icons.spinner
             className={
               cn("h-4 w-4 animate-spin",
-                loading ? 'mr-0' : 'mr-2')
+                loading ? 'mx-4' : 'mr-2')
             } />}
           {
             uploading ? 'Uploading...' : (loading ? '' : 'Submit')

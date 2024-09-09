@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,6 +209,7 @@ public class PublicPortalAuthPostRestApi {
     @Consumes("application/json")
     public Response initPage(@Context HttpServletRequest request, Post reqPost) {
         // Find Page.java from request host
+        validationService.validate(reqPost);
         String userId = UserContext.current().getUserId();
         String host = request.getHeader("host");
         Organization org = getOrg(host);
@@ -230,7 +232,12 @@ public class PublicPortalAuthPostRestApi {
             return Response.status(Response.Status.NOT_FOUND).entity("Board not found").build();
         }
 
+        if (CollectionUtils.isNotEmpty(reqPost.getAttachments()) && reqPost.getAttachments().size() > 50) {
+            throw new UserVisibleException("Too many attachments");
+        }
+
         Post post = new Post();
+        post.setAttachments(reqPost.getAttachments());
         post.setOrganizationId(org.getId());
         post.setBoardId(board.getId());
         post.setCreatedByUserId(userId);

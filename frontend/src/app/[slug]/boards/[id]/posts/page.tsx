@@ -146,13 +146,19 @@ function AddPostDialog({ params, refetch }) {
         toast({
           title: 'Post created',
         })
+        refetch();
+        setTimeout(() => {
+          setAttachments([])
+          setTitle('')
+          setDescription('')
+          searchOnDb('')
+        }, 1000)
       } else {
         toast({
           title: respData.message,
           variant: 'destructive'
         })
       }
-      refetch();
 
     } catch (err) {
       console.log(err)
@@ -163,10 +169,21 @@ function AddPostDialog({ params, refetch }) {
     }, 1000)
   }
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: 'File is too large',
+        description: 'Please upload a file that is less than 10MB in size',
+        variant: 'destructive'
+      })
+      return;
+    }
 
     setUploading(true);
     const formData = new FormData();
@@ -340,7 +357,15 @@ function AddPostDialog({ params, refetch }) {
                     onClick={handleButtonClick}
                     disabled={uploading || isLoading}
                   >
-                    <Paperclip className='h-4 w-4 text-gray-500' />
+                    {(uploading || isLoading) ? (
+                      <Icons.spinner
+                        className={
+                          cn("h-4 w-4 animate-spin")
+                        }
+                      />
+                    ) :
+                      <Paperclip className='h-4 w-4 text-gray-500' />
+                    }
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -391,11 +416,21 @@ function AddPostDialog({ params, refetch }) {
             </div>
           </div>
           <DialogFooter className="px-2 mt-4">
-            <Button type="submit" onClick={onSubmit} disabled={isLoading} >
-              {isLoading && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            <Button type="submit" onClick={onSubmit}
+              disabled={isLoading || uploading || title.trim() === ''}
+            >
+              {(uploading || isLoading) && (
+                <Icons.spinner
+
+                  className={
+                    cn("h-4 w-4 animate-spin",
+                      isLoading ? 'mx-4' : 'mr-2')
+                  }
+                />
               )}
-              Create post
+              {
+                uploading ? 'Uploading...' : (isLoading ? '' : 'Create post')
+              }
             </Button>
           </DialogFooter>
         </ScrollArea>
