@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import withAuth from '@/hoc/withAuth';
-import { ComponentProps, useContext, useEffect, useState } from "react";
+import { ComponentProps, useContext, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { Icons } from "@/components/icons";
@@ -13,7 +13,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Badge, Calendar, CheckCircle, ChevronUp, Circle, Eye, Loader, MessageSquare, Play, Search, Settings, XCircle } from "lucide-react";
+import { Badge, Calendar, CheckCircle, ChevronUp, Circle, Eye, FileAudio, FileImage, File, FileText, FileVideo, Loader, MessageSquare, Play, Search, Settings, XCircle, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
@@ -23,7 +23,26 @@ import Cookies from 'js-cookie';
 import { useDebouncedCallback } from 'use-debounce';
 import Loading from "@/components/Loading";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 
+const getFileIcon = (type) => {
+  switch (type) {
+    case 'pdf':
+      return <FileText className="h-8 w-8" />;
+    case 'image':
+      return <FileImage className="h-8 w-8" />;
+    case 'audio':
+      return <FileAudio className="h-8 w-8" />;
+    case 'video':
+      return <FileVideo className="h-8 w-8" />;
+    default:
+      return <File className="h-8 w-8" />;
+  }
+};
+
+const handleFileClick = (url) => {
+  window.open(url, '_blank');
+};
 
 export const statusConfig = {
   "OPEN": {
@@ -73,6 +92,11 @@ function AddPostDialog({ params, refetch }) {
   const [similarPostData, setSimilarPostData] = useState([])
   const [loadingSimilarPosts, setLoadingSimilarPosts] = useState(false)
 
+
+  const [uploading, setUploading] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const fileInputRef = useRef(null);
+
   const { toast } = useToast()
 
   const searchOnDb = useDebouncedCallback((value) => {
@@ -107,7 +131,13 @@ function AddPostDialog({ params, refetch }) {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ title, description, boardSlug: params.id, status })
+        body: JSON.stringify({
+          title,
+          description,
+          boardSlug: params.id,
+          status,
+          attachments: attachments
+        })
       })
       const respData = await response.json();
 
@@ -133,6 +163,70 @@ function AddPostDialog({ params, refetch }) {
     }, 1000)
   }
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`/api/auth/upload/upload-file`, {
+        method: 'POST',
+        body: formData,
+      });
+
+
+      const respData = await response.json();
+
+      if (!response.ok) {
+        toast({
+          title: respData.message,
+          variant: 'destructive'
+        })
+        throw new Error('Upload failed');
+      }
+
+      setAttachments([
+        ...attachments,
+        {
+          "type": respData.type,
+          "url": respData.url,
+          "name": respData.name,
+          "contentType": respData.contentType,
+        }
+      ]);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setUploading(false);
+    }
+
+  }
+
+  const handleButtonClick = () => {
+    if (isLoading || uploading) return;
+    if (attachments.length >= 50) {
+      toast({
+        title: 'Too many attachments',
+        variant: 'destructive'
+      })
+      return;
+    }
+    fileInputRef.current.click();
+  };
+
+  const handleRemoveFile = (index) => {
+    setAttachments((prevFiles) => {
+      const newFiles = [...prevFiles];
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
+  };
+
+
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen} >
       <DialogTrigger asChild>
@@ -146,7 +240,7 @@ function AddPostDialog({ params, refetch }) {
               Create a new post
             </DialogDescription>
           </DialogHeader>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-1">
               <div className="grid gap-4 py-4 px-2">
                 <div className="grid gap-4">
@@ -207,11 +301,59 @@ function AddPostDialog({ params, refetch }) {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {attachments.length > 0 &&
+                    attachments.map((attachment, index) => (
+                      <div key={index} className="relative overflow-hidden rounded-md">
+                        {attachment.type === 'image' ? (
+                          <img
+                            src={attachment.url}
+                            alt="attachment"
+                            className="h-24 w-full object-cover"
+                          />
+                        ) :
+                          <Card
+                            className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
+                            onClick={() => handleFileClick(attachment.url)}
+                          >
+                            <CardContent className="flex flex-col items-center justify-center h-full p-2">
+                              {getFileIcon(attachment.type)}
+                              <p className="text-xs mt-2 truncate w-full text-center">
+                                {attachment.name || attachment.url.split('/').pop()}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        }
+                        <Button
+                          variant="ghost"
+                          className="absolute top-1 right-1 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          <XCircle className="h-4 w-4 text-white" />
+                        </Button>
+                      </div>
+                    ))}
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <Button variant="outline" size="icon"
+                    onClick={handleButtonClick}
+                    disabled={uploading || isLoading}
+                  >
+                    <Paperclip className='h-4 w-4 text-gray-500' />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </Button>
+                </div>
               </div>
             </div>
 
 
-            <div className="md:col-span-2">
+            <div className="md:col-span-1">
               <div className="grid px-2">
                 <Label className="py-4">
                   Similar posts

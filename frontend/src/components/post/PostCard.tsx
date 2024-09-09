@@ -16,9 +16,6 @@ import { Textarea } from '../ui/textarea';
 import { statusConfig } from '@/app/[slug]/boards/[id]/posts/page';
 import { useToast } from "@/components/ui/use-toast"
 import Voters from '../Voters';
-import NewCommentInput from '../NewCommentInput';
-import { toast } from 'sonner';
-import { attachReactRefresh } from 'next/dist/build/webpack-config';
 import { Card, CardContent } from '../ui/card';
 
 

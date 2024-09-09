@@ -59,7 +59,7 @@ public class UploadRestApi {
             "png", "jpeg", "jpg", "gif", "webp", "svg",
             "txt", "rtf", "csv", "md", "yaml", "pdf", "doc", "docx", "odt",
             "xls", "xlsx", "ods", "ppt", "pptx", "odp", "key",
-            "json", "xml", "mp4", "avi", "mov", "wmv", "flv", "zip"
+            "json", "xml", "mp4", "avi", "mov", "wmv", "flv", "zip", "rar"
     );
 
     @Autowired
