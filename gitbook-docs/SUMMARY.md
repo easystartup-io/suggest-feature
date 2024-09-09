@@ -11,3 +11,7 @@
 ## Basics
 
 * [Integrations](basics/integrations.md)
+
+## FAQ
+
+* [Attachments and Image File Uploads](faq/attachments-and-image-file-uploads.md)
