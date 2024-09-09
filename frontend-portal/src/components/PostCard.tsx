@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Icons } from './icons';
 import Voters from './Voters';
 import { useAuth } from '@/context/AuthContext';
+import NewCommentInput from './NewCommentInput';
 
 export const statusConfig = {
   "OPEN": {
@@ -209,7 +210,7 @@ function PostContent({ data }) {
   )
 }
 
-function NewCommentInput({ data, params, refetch }) {
+function NewCommentInputOld({ data, params, refetch }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast()
@@ -287,7 +288,7 @@ export const PostCard = ({ post, params, disableExpand = false, refetch }) => {
         <div>
           <UserHeader user={post.user} />
           <PostContent data={post} />
-          <NewCommentInput data={post} params={params} refetch={refetch} />
+          <NewCommentInputOld data={post} params={params} refetch={refetch} />
           <Separator className='my-6' />
           {/* <ActionButtons data={post} /> */}
           <CommentSection comments={post.comments} refetch={refetch} params={params} />

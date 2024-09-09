@@ -11,6 +11,7 @@ import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -316,6 +317,9 @@ public class PostsRestApi {
             // Todo: For normal page view, only allow to comment if same user trying to edit comment
             existingComment.setContent(comment.getContent());
             existingComment.setModifiedAt(System.currentTimeMillis());
+        }
+        if (CollectionUtils.isNotEmpty(comment.getAttachments()) && comment.getAttachments().size() > 50){
+            throw new UserVisibleException("Attachments limit exceeded");
         }
         comment.setOrganizationId(UserContext.current().getOrgId());
         try {

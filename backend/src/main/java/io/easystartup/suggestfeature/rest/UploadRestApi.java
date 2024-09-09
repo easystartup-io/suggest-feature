@@ -3,10 +3,12 @@ package io.easystartup.suggestfeature.rest;
 
 import com.google.common.collect.Sets;
 import io.easystartup.suggestfeature.filters.UserContext;
+import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
+import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -16,6 +18,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -36,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -75,7 +80,7 @@ public class UploadRestApi {
         UserContext userContext = UserContext.current();
 
         if (fileInputStream == null || fileMetaData == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("File not found").build();
+            throw new UserVisibleException("File not found", Response.Status.BAD_REQUEST);
         }
 
         String orgId = null;
@@ -88,7 +93,7 @@ public class UploadRestApi {
 
         // Check file size does not exceed 100mb
         if (fileMetaData.getSize() > 100 * 1024 * 1024) {
-            return Response.status(Response.Status.REQUEST_ENTITY_TOO_LARGE).entity("File size should not be so large").build();
+            throw new UserVisibleException("File size should not be so large", Response.Status.REQUEST_ENTITY_TOO_LARGE);
         }
 
         String bucketName = Util.getEnvVariable("S3_BUCKET", "suggest-feature"); // Replace with your bucket name
@@ -96,12 +101,12 @@ public class UploadRestApi {
         // Extract file extension from name
         String[] fileNameParts = fileMetaData.getFileName().split("\\.");
         if (fileNameParts.length < 2) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("File name should have an extension").build();
+            throw new UserVisibleException("File name should have an extension", Response.Status.BAD_REQUEST);
         }
         // only allow pdf, word doc, excel, image, jpeg, video, png
         String extension = fileNameParts[fileNameParts.length - 1].toLowerCase();
         if (!allowedExtensions.contains(extension)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("File type not allowed").build();
+            throw new UserVisibleException("File type not allowed", Response.Status.BAD_REQUEST);
         }
 
         String key = userContext.getUserId() + "/" + UUID.randomUUID() + "." + extension;
@@ -120,8 +125,12 @@ public class UploadRestApi {
 
             PutObjectResponse putObjectResponse = s3Client().putObject(putObjectRequest, RequestBody.fromFile(tempFile));
             String url = Util.getEnvVariable("S3_CDN_URL", "https://assets.suggestfeature.com/") + key;
-            String jsonResponse = String.format("{\"url\": \"%s\"}", url);
-            return Response.ok(jsonResponse).build();
+            Map<String, String> rv = new HashMap<>();
+            rv.put("url", url);
+            rv.put("name", fileMetaData.getFileName());
+            rv.put("type", getFileType(bodyPart.getMediaType().toString()));
+            rv.put("contentType", bodyPart.getMediaType().toString());
+            return Response.ok(JacksonMapper.toJson(rv)).build();
         } catch (Throwable e) {
             throw new RuntimeException("File upload failed.", e);
         } finally {
@@ -131,6 +140,32 @@ public class UploadRestApi {
                 // ignored
             }
         }
+    }
+
+    private String getFileType(String string) {
+        if (StringUtils.isBlank(string)) {
+            return null;
+        }
+        if (string.startsWith("application/json")) {
+            return "json";
+        } else if (string.startsWith("application/xml")) {
+            return "xml";
+        } else if (string.startsWith("text")) {
+            return "text";
+        } else if (string.startsWith("image")) {
+            return "image";
+        } else if (string.startsWith("video")) {
+            return "video";
+        } else if (string.startsWith("application/pdf")) {
+            return "pdf";
+        } else if (string.startsWith("application/msword") || string.startsWith("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+            return "doc";
+        } else if (string.startsWith("application/vnd.ms-excel") || string.startsWith("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+            return "xls";
+        } else if (string.startsWith("application/vnd.ms-powerpoint") || string.startsWith("application/vnd.openxmlformats-officedocument.presentationml.presentation")) {
+            return "ppt";
+        }
+        return null;
     }
 
     private static File getFile(InputStream fileInputStream, String extension) {

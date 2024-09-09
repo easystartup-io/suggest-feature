@@ -46,6 +46,8 @@ public class Comment {
     @Transient
     private List<Comment> comments;
 
+    private List<Attachment> attachments;
+
     @Reference
     @Transient
     private User user;
@@ -142,5 +144,13 @@ public class Comment {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }

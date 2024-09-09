@@ -1,14 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertTriangle, Edit, Trash } from 'lucide-react';
+import { AlertTriangle, Edit, FileAudio, FileImage, FileText, FileVideo, File, Paperclip, Trash } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Calendar, CheckCircle, ChevronUp, Circle, Expand, Eye, Flag, Loader, Play, Star, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
@@ -16,7 +16,30 @@ import { Textarea } from '../ui/textarea';
 import { statusConfig } from '@/app/[slug]/boards/[id]/posts/page';
 import { useToast } from "@/components/ui/use-toast"
 import Voters from '../Voters';
+import NewCommentInput from '../NewCommentInput';
+import { toast } from 'sonner';
+import { attachReactRefresh } from 'next/dist/build/webpack-config';
+import { Card, CardContent } from '../ui/card';
 
+
+const getFileIcon = (type) => {
+  switch (type) {
+    case 'pdf':
+      return <FileText className="h-8 w-8" />;
+    case 'image':
+      return <FileImage className="h-8 w-8" />;
+    case 'audio':
+      return <FileAudio className="h-8 w-8" />;
+    case 'video':
+      return <FileVideo className="h-8 w-8" />;
+    default:
+      return <File className="h-8 w-8" />;
+  }
+};
+
+const handleFileClick = (url) => {
+  window.open(url, '_blank');
+};
 
 
 function FullScreenPostDialog({ id, params, deleteFromParentRender }) {
@@ -264,6 +287,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   const [editDescription, setEditDescription] = useState(data.description || data.content);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast()
+  const [expandedImage, setExpandedImage] = useState(null)
 
   const handleEdit = async () => {
     setLoading(true)
@@ -370,6 +394,55 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
     <div className="ml-16">
       {/* One for post and another for comment */}
       <p className=''>{data.description || data.content}</p>
+
+      <div className="grid grid-cols-4 gap-2 mt-2">
+        {data.attachments && data.attachments.length > 0 &&
+          data.attachments.map((attachment, index) => (
+            <div key={index} className="overflow-hidden rounded-md">
+              {attachment.type === 'image' ? (
+                <img
+                  src={attachment.url}
+                  alt="attachment"
+                  onClick={() => setExpandedImage(attachment.url)}
+                  className="h-24 w-full object-cover cursor-pointer"
+                />
+              ) :
+                <Card
+                  className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleFileClick(attachment.url)}
+                >
+                  <CardContent className="flex flex-col items-center justify-center h-full p-2">
+                    {getFileIcon(attachment.type)}
+                    <p className="text-xs mt-2 truncate w-full text-center">
+                      {attachment.name || attachment.url.split('/').pop()}
+                    </p>
+                  </CardContent>
+                </Card>
+              }
+            </div>
+          ))}
+      </div>
+
+      <Dialog open={!!expandedImage} onOpenChange={() => setExpandedImage(null)}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-fit h-fit p-0">
+          <div className="relative w-full h-full max-w-[80vw] max-h-[80vh]">
+            <img
+              src={expandedImage}
+              alt="Expanded view"
+              className="w-full h-full object-contain"
+            />
+            <Button
+              variant="ghost"
+              className="absolute top-2 right-2 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
+              onClick={() => setExpandedImage(null)}
+            >
+              <XCircle className="h-6 w-6 text-white" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div
         className={cn(
           "text-xs text-muted-foreground",
@@ -495,9 +568,14 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   )
 }
 
-function NewCommentInput({ data, params, refetch }) {
+function NewCommentInputOld({ data, params, refetch }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [isEditorFocused, setIsEditorFocused] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const fileInputRef = useRef(null);
+  const { toast } = useToast()
 
   const submitComment = async (e) => {
     if (loading) {
@@ -513,7 +591,8 @@ function NewCommentInput({ data, params, refetch }) {
         },
         body: JSON.stringify({
           postId: data.id,
-          content: content
+          content: content,
+          attachments: attachments
         })
       })
       const outputData = resp.json()
@@ -526,21 +605,144 @@ function NewCommentInput({ data, params, refetch }) {
     setTimeout(() => {
       setContent('');
       setLoading(false);
+      setAttachments([])
     }, 1000)
   }
 
-  return (<div className='mx-14 mt-2 flex flex-col'>
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`/api/auth/upload/upload-file`, {
+        method: 'POST',
+        body: formData,
+      });
+
+
+      const respData = await response.json();
+
+      if (!response.ok) {
+        toast({
+          title: respData.message,
+          variant: 'destructive'
+        })
+        throw new Error('Upload failed');
+      }
+
+      setAttachments([
+        ...attachments,
+        {
+          "type": respData.type,
+          "url": respData.url,
+          "name": respData.name,
+          "contentType": respData.contentType,
+        }
+      ]);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    } finally {
+      setUploading(false);
+    }
+
+  }
+
+  const handleButtonClick = () => {
+    if (loading || uploading) return;
+    if (attachments.length >= 50) {
+      toast({
+        title: 'Too many attachments',
+        variant: 'destructive'
+      })
+      return;
+    }
+    fileInputRef.current.click();
+  };
+
+  const handleRemoveFile = (index) => {
+    setAttachments((prevFiles) => {
+      const newFiles = [...prevFiles];
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
+  };
+
+
+  return (<div className='mx-14 mt-2 flex flex-col'
+    onFocus={() => setIsEditorFocused(true)}
+  // onBlur={() => setIsEditorFocused(false)}
+  >
     <Textarea placeholder="Add a comment" value={content}
       disabled={loading}
       onChange={(e) => setContent(e.target.value)} />
-    <div className='mt-2 flex justify-end'>
-      {content.trim().length === 0 ? '' :
-        <Button onClick={submitComment} disabled={loading || content.trim().length === 0}>
-          {loading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-          Submit
-        </Button>
-      }
+    <div className="grid grid-cols-4 gap-2 mt-2">
+      {attachments.length > 0 &&
+        attachments.map((attachment, index) => (
+          <div key={index} className="relative overflow-hidden rounded-md">
+            {attachment.type === 'image' ? (
+              <img
+                src={attachment.url}
+                alt="attachment"
+                className="h-24 w-full object-cover"
+              />
+            ) :
+              <Card
+                className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleFileClick(attachment.url)}
+              >
+                <CardContent className="flex flex-col items-center justify-center h-full p-2">
+                  {getFileIcon(attachment.type)}
+                  <p className="text-xs mt-2 truncate w-full text-center">
+                    {attachment.name || attachment.url.split('/').pop()}
+                  </p>
+                </CardContent>
+              </Card>
+            }
+            <Button
+              variant="ghost"
+              className="absolute top-1 right-1 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
+              onClick={() => handleRemoveFile(index)}
+            >
+              <XCircle className="h-4 w-4 text-white" />
+            </Button>
+          </div>
+        ))}
     </div>
+
+
+    {(content.trim().length === 0 && !isEditorFocused) ? '' :
+      <div className='mt-2 flex justify-end items-center space-x-2'>
+        <Button variant="outline" size="icon"
+          onClick={handleButtonClick}
+          disabled={uploading || loading}
+        >
+          <Paperclip className='h-4 w-4 text-gray-500' />
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </Button>
+        <Button onClick={submitComment}
+          disabled={loading || content.trim().length === 0 || uploading}
+        >
+          {(loading || uploading) && <Icons.spinner
+            className={
+              cn("h-4 w-4 animate-spin",
+                loading ? 'mr-0' : 'mr-2')
+            } />}
+          {
+            uploading ? 'Uploading...' : (loading ? '' : 'Submit')
+          }
+        </Button>
+      </div>
+    }
   </div>)
 }
 
@@ -596,7 +798,7 @@ export const PostCard = ({ id, params, disableExpand = false, deleteFromParentRe
               <div className='flex-1 h-full'>
                 <UserHeader user={data.user} />
                 <PostContent data={data} params={params} refetch={refetch} deleteFromParentRender={deleteFromParentRender} />
-                <NewCommentInput data={data} params={params} refetch={refetch} />
+                <NewCommentInputOld data={data} params={params} refetch={refetch} />
                 <Separator className='my-6' />
                 {/* <ActionButtons data={data} /> */}
                 <CommentSection comments={data.comments} refetch={refetch} params={params} deleteFromParentRender={deleteFromParentRender} />
