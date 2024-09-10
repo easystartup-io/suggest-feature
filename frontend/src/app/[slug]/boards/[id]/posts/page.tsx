@@ -22,27 +22,8 @@ import { PostCard } from "@/components/post/PostCard";
 import Cookies from 'js-cookie';
 import { useDebouncedCallback } from 'use-debounce';
 import Loading from "@/components/Loading";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent } from "@/components/ui/card";
-
-const getFileIcon = (type) => {
-  switch (type) {
-    case 'pdf':
-      return <FileText className="h-8 w-8" />;
-    case 'image':
-      return <FileImage className="h-8 w-8" />;
-    case 'audio':
-      return <FileAudio className="h-8 w-8" />;
-    case 'video':
-      return <FileVideo className="h-8 w-8" />;
-    default:
-      return <File className="h-8 w-8" />;
-  }
-};
-
-const handleFileClick = (url) => {
-  window.open(url, '_blank');
-};
+import AttachmentComponent from "@/components/AttachmentComponent";
+import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButton";
 
 export const statusConfig = {
   "OPEN": {
@@ -92,10 +73,8 @@ function AddPostDialog({ params, refetch }) {
   const [similarPostData, setSimilarPostData] = useState([])
   const [loadingSimilarPosts, setLoadingSimilarPosts] = useState(false)
 
-
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
-  const fileInputRef = useRef(null);
 
   const { toast } = useToast()
 
@@ -168,81 +147,6 @@ function AddPostDialog({ params, refetch }) {
       setLoading(false);
     }, 1000)
   }
-
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: 'File is too large',
-        description: 'Please upload a file that is less than 10MB in size',
-        variant: 'destructive'
-      })
-      return;
-    }
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch(`/api/auth/upload/upload-file`, {
-        method: 'POST',
-        body: formData,
-      });
-
-
-      const respData = await response.json();
-
-      if (!response.ok) {
-        toast({
-          title: respData.message,
-          variant: 'destructive'
-        })
-        throw new Error('Upload failed');
-      }
-
-      setAttachments([
-        ...attachments,
-        {
-          "type": respData.type,
-          "url": respData.url,
-          "name": respData.name,
-          "contentType": respData.contentType,
-        }
-      ]);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    } finally {
-      setUploading(false);
-    }
-
-  }
-
-  const handleButtonClick = () => {
-    if (isLoading || uploading) return;
-    if (attachments.length >= 50) {
-      toast({
-        title: 'Too many attachments',
-        variant: 'destructive'
-      })
-      return;
-    }
-    fileInputRef.current.click();
-  };
-
-  const handleRemoveFile = (index) => {
-    setAttachments((prevFiles) => {
-      const newFiles = [...prevFiles];
-      newFiles.splice(index, 1);
-      return newFiles;
-    });
-  };
-
 
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen} >
@@ -318,61 +222,19 @@ function AddPostDialog({ params, refetch }) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {attachments.length > 0 &&
-                    attachments.map((attachment, index) => (
-                      <div key={index} className="relative overflow-hidden rounded-md">
-                        {attachment.type === 'image' ? (
-                          <img
-                            src={attachment.url}
-                            alt="attachment"
-                            className="h-24 w-full object-cover"
-                          />
-                        ) :
-                          <Card
-                            className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={() => handleFileClick(attachment.url)}
-                          >
-                            <CardContent className="flex flex-col items-center justify-center h-full p-2">
-                              {getFileIcon(attachment.type)}
-                              <p className="text-xs mt-2 truncate w-full text-center">
-                                {attachment.name || attachment.url.split('/').pop()}
-                              </p>
-                            </CardContent>
-                          </Card>
-                        }
-                        <Button
-                          variant="ghost"
-                          className="absolute top-1 right-1 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
-                          onClick={() => handleRemoveFile(index)}
-                        >
-                          <XCircle className="h-4 w-4 text-white" />
-                        </Button>
-                      </div>
-                    ))}
-                </div>
+
+                <AttachmentComponent attachments={attachments} setAttachments={setAttachments} allowDelete={true} />
 
                 <div className="flex items-center justify-end">
-                  <Button variant="outline" size="icon"
-                    onClick={handleButtonClick}
-                    disabled={uploading || isLoading}
-                  >
-                    {(uploading || isLoading) ? (
-                      <Icons.spinner
-                        className={
-                          cn("h-4 w-4 animate-spin")
-                        }
-                      />
-                    ) :
-                      <Paperclip className='h-4 w-4 text-gray-500' />
-                    }
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </Button>
+
+                  <MultiAttachmentUploadButton
+                    attachments={attachments}
+                    setAttachments={setAttachments}
+                    uploading={uploading}
+                    setUploading={setUploading}
+                    loading={isLoading}
+                  />
+
                 </div>
               </div>
             </div>
