@@ -263,13 +263,20 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   const [isSpamDialogOpen, setIsSpamDialogOpen] = useState(false);
   const [editTitle, setEditTitle] = useState(data.title);
   const [editDescription, setEditDescription] = useState(data.description || data.content);
+  const [attachments, setAttachments] = useState(data.attachments);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast()
 
   const handleEdit = async () => {
     setLoading(true)
     try {
-      let payload = { title: editTitle, description: editDescription, postId: data.id };
+      let payload = {
+        title: editTitle,
+        description: editDescription,
+        postId: data.id,
+        attachments: attachments
+      };
       if (!data.title) {
         payload = {
           content: editDescription,
@@ -372,7 +379,9 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
       {/* One for post and another for comment */}
       <p className=''>{data.description || data.content}</p>
 
-      <AttachmentComponent attachments={data.attachments} />
+      <AttachmentComponent
+        attachments={attachments}
+      />
 
       <div
         className={cn(
@@ -440,7 +449,15 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
               />
             </div>
           </div>
+          <AttachmentComponent attachments={attachments} setAttachments={setAttachments} allowDelete={true} />
           <DialogFooter className="mt-6 space-x-2">
+            <MultiAttachmentUploadButton
+              attachments={attachments}
+              setAttachments={setAttachments}
+              loading={loading}
+              uploading={uploading}
+              setUploading={setUploading}
+            />
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleEdit}
               disabled={loading || data.title && ((!editTitle || editTitle.trim().length === 0) || (!editDescription || editDescription.trim().length === 0)) || (!data.title && (!editDescription || editDescription.trim().length === 0))}

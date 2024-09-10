@@ -132,6 +132,7 @@ public class PostsRestApi {
         if (StringUtils.isNotBlank(req.getContent())) {
             existingComment.setContent(req.getContent());
         }
+        existingComment.setAttachments(req.getAttachments());
         existingComment.setModifiedAt(System.currentTimeMillis());
 
         mongoConnection.getDefaultMongoTemplate().save(existingComment);
@@ -177,6 +178,7 @@ public class PostsRestApi {
         if (StringUtils.isNotBlank(req.getDescription())) {
             existingPost.setDescription(req.getDescription());
         }
+        existingPost.setAttachments(req.getAttachments());
         existingPost.setModifiedAt(System.currentTimeMillis());
 
         mongoConnection.getDefaultMongoTemplate().save(existingPost);

@@ -2,7 +2,10 @@ package io.easystartup.suggestfeature.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.easystartup.suggestfeature.beans.Attachment;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
 
 /**
  * @author indianBond
@@ -12,6 +15,7 @@ public class CommentDetailsUpdateDTO {
     @NotBlank
     private String commentId;
     private String content;
+    private List<Attachment> attachments;
 
     public CommentDetailsUpdateDTO() {
     }
@@ -30,5 +34,13 @@ public class CommentDetailsUpdateDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }
