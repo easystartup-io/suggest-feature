@@ -13,27 +13,9 @@ import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useDebouncedCallback } from 'use-debounce';
 import { useAuth } from "@/context/AuthContext"
-import { Card, CardContent } from "@/components/ui/card"
 import { Icons } from "@/components/icons"
-
-export const getFileIcon = (type) => {
-  switch (type) {
-    case 'pdf':
-      return <FileText className="h-8 w-8" />;
-    case 'image':
-      return <FileImage className="h-8 w-8" />;
-    case 'audio':
-      return <FileAudio className="h-8 w-8" />;
-    case 'video':
-      return <FileVideo className="h-8 w-8" />;
-    default:
-      return <File className="h-8 w-8" />;
-  }
-};
-
-export const handleFileClick = (url) => {
-  window.open(url, '_blank');
-};
+import AttachmentComponent from "@/components/AttachmentComponent"
+import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButton"
 
 export const statusConfig = {
   "OPEN": {
@@ -135,7 +117,6 @@ export default function Dashboard({ params }) {
   const [posts, setPosts] = useState([]);
   const [tempPosts, setTempPosts] = useState([]);
   const { org, boards } = useInit()
-  const router = useRouter();
   const [board, setBoard] = useState({})
   const { toast } = useToast()
   const { verifyLoginOrPrompt } = useAuth()
@@ -143,11 +124,8 @@ export default function Dashboard({ params }) {
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [uploadedFileUrl, setUploadedFileUrl] = useState('')
   const [suggestedPostsScreen, setSuggestedPostsScreen] = useState(false)
-  const [isEditorFocused, setIsEditorFocused] = useState(false);
   const [attachments, setAttachments] = useState([]);
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const host = window.location.host
@@ -237,91 +215,6 @@ export default function Dashboard({ params }) {
   }, 300);
 
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-
-    if (verifyLoginOrPrompt()) {
-      return;
-    }
-
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: 'File is too large',
-        description: 'Please upload a file that is less than 10MB in size',
-        variant: 'destructive'
-      })
-      return
-    }
-
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch(`/api/auth/upload/upload-file`, {
-        method: 'POST',
-        body: formData,
-      });
-
-
-      const respData = await response.json();
-
-      if (!response.ok) {
-        toast({
-          title: respData.message,
-          variant: 'destructive'
-        })
-        throw new Error('Upload failed');
-      }
-
-      setAttachments([
-        ...attachments,
-        {
-          "type": respData.type,
-          "url": respData.url,
-          "name": respData.name,
-          "contentType": respData.contentType,
-        }
-      ]);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    } finally {
-      setUploading(false);
-    }
-
-  }
-
-  const handleButtonClick = () => {
-
-    if (verifyLoginOrPrompt()) {
-      return;
-    }
-
-    if (loading || uploading) return;
-    if (attachments.length >= 50) {
-      toast({
-        title: 'Too many attachments',
-        variant: 'destructive'
-      })
-      return;
-    }
-    fileInputRef.current.click();
-  };
-
-  const handleRemoveFile = (index) => {
-    setAttachments((prevFiles) => {
-      const newFiles = [...prevFiles];
-      newFiles.splice(index, 1);
-      return newFiles;
-    });
-  };
-
-
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
       <div className="w-full">
@@ -366,53 +259,19 @@ export default function Dashboard({ params }) {
                     />
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 mt-2">
-                    {attachments.length > 0 &&
-                      attachments.map((attachment, index) => (
-                        <div key={index} className="relative overflow-hidden rounded-md">
-                          {attachment.type === 'image' ? (
-                            <img
-                              src={attachment.url}
-                              alt="attachment"
-                              className="h-24 w-full object-cover"
-                            />
-                          ) :
-                            <Card
-                              className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
-                              onClick={() => handleFileClick(attachment.url)}
-                            >
-                              <CardContent className="flex flex-col items-center justify-center h-full p-2">
-                                {getFileIcon(attachment.type)}
-                                <p className="text-xs mt-2 truncate w-full text-center">
-                                  {attachment.name || attachment.url.split('/').pop()}
-                                </p>
-                              </CardContent>
-                            </Card>
-                          }
-                          <Button
-                            variant="ghost"
-                            className="absolute top-1 right-1 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
-                            onClick={() => handleRemoveFile(index)}
-                          >
-                            <XCircle className="h-4 w-4 text-white" />
-                          </Button>
-                        </div>
-                      ))}
-                  </div>
+                  <AttachmentComponent
+                    attachments={attachments}
+                  />
+
                   <div className="flex justify-end w-full space-x-2">
 
-                    <Button variant="outline" size="icon"
-                      onClick={handleButtonClick}
-                      disabled={uploading || loading}
-                    >
-                      <Paperclip className='h-4 w-4 text-gray-500' />
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                    </Button>
+                    <MultiAttachmentUploadButton
+                      attachments={attachments}
+                      setAttachments={setAttachments}
+                      uploading={uploading}
+                      setUploading={setUploading}
+                      loading={loading}
+                    />
 
                     <Button onClick={onSubmitPost} disabled={loading || uploading}
                     >

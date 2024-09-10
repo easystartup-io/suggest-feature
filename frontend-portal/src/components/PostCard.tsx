@@ -1,20 +1,17 @@
+import AttachmentComponent from '@/components/AttachmentComponent';
+import MultiAttachmentUploadButton from '@/components/MultiAttachmentUploadButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { Calendar, CheckCircle, ChevronUp, Circle, Expand, Eye, Flag, Loader, Paperclip, Play, Star, XCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { useToast } from "@/components/ui/use-toast"
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Calendar, CheckCircle, ChevronUp, Circle, Eye, Flag, Loader, Play, Star, XCircle } from 'lucide-react';
+import { useState } from 'react';
 import { Icons } from './icons';
 import Voters from './Voters';
-import { useAuth } from '@/context/AuthContext';
-import NewCommentInput from './NewCommentInput';
-import { Card, CardContent } from './ui/card';
-import { handleFileClick, getFileIcon } from '@/app/b/[slug]/page';
 
 export const statusConfig = {
   "OPEN": {
@@ -201,53 +198,7 @@ function PostContent({ data }) {
     <div className="ml-16">
       <p className=''>{data.description || data.content}</p>
 
-      <div className="grid grid-cols-4 gap-2 mt-2">
-        {data.attachments && data.attachments.length > 0 &&
-          data.attachments.map((attachment, index) => (
-            <div key={index} className="overflow-hidden rounded-md">
-              {attachment.type === 'image' ? (
-                <img
-                  src={attachment.url}
-                  alt="attachment"
-                  onClick={() => setExpandedImage(attachment.url)}
-                  className="h-24 w-full object-cover cursor-pointer"
-                />
-              ) :
-                <Card
-                  className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleFileClick(attachment.url)}
-                >
-                  <CardContent className="flex flex-col items-center justify-center h-full p-2">
-                    {getFileIcon(attachment.type)}
-                    <p className="text-xs mt-2 truncate w-full text-center">
-                      {attachment.name || attachment.url.split('/').pop()}
-                    </p>
-                  </CardContent>
-                </Card>
-              }
-            </div>
-          ))}
-      </div>
-
-      <Dialog open={!!expandedImage} onOpenChange={() => setExpandedImage(null)}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] w-fit h-fit p-0">
-          <div className="relative w-full h-full max-w-[80vw] max-h-[80vh]">
-            <img
-              src={expandedImage}
-              alt="Expanded view"
-              className="w-full h-full object-contain"
-            />
-            <Button
-              variant="ghost"
-              className="absolute top-2 right-2 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
-              onClick={() => setExpandedImage(null)}
-            >
-              <XCircle className="h-6 w-6 text-white" />
-              <span className="sr-only">Close</span>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AttachmentComponent attachments={data.attachments} />
 
       <div
         className={cn(
@@ -269,7 +220,6 @@ function NewCommentInputOld({ data, params, refetch }) {
   const { user, verifyLoginOrPrompt } = useAuth()
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
-  const fileInputRef = useRef(null);
 
   const submitComment = async (e) => {
     if (verifyLoginOrPrompt()) {
@@ -319,88 +269,6 @@ function NewCommentInputOld({ data, params, refetch }) {
     }, 1000)
   }
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-
-    if (verifyLoginOrPrompt()) {
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: 'File is too large',
-        description: 'Please upload a file that is less than 10MB in size',
-        variant: 'destructive'
-      })
-      return
-    }
-
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch(`/api/auth/upload/upload-file`, {
-        method: 'POST',
-        body: formData,
-      });
-
-
-      const respData = await response.json();
-
-      if (!response.ok) {
-        toast({
-          title: respData.message,
-          variant: 'destructive'
-        })
-        throw new Error('Upload failed');
-      }
-
-      setAttachments([
-        ...attachments,
-        {
-          "type": respData.type,
-          "url": respData.url,
-          "name": respData.name,
-          "contentType": respData.contentType,
-        }
-      ]);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    } finally {
-      setUploading(false);
-    }
-
-  }
-
-  const handleButtonClick = () => {
-
-    if (verifyLoginOrPrompt()) {
-      return;
-    }
-
-    if (loading || uploading) return;
-    if (attachments.length >= 50) {
-      toast({
-        title: 'Too many attachments',
-        variant: 'destructive'
-      })
-      return;
-    }
-    fileInputRef.current.click();
-  };
-
-  const handleRemoveFile = (index) => {
-    setAttachments((prevFiles) => {
-      const newFiles = [...prevFiles];
-      newFiles.splice(index, 1);
-      return newFiles;
-    });
-  };
 
   return (<div className='mx-14 mt-2 flex flex-col'>
     <Textarea placeholder="Add a comment" value={content}
@@ -415,53 +283,15 @@ function NewCommentInputOld({ data, params, refetch }) {
       }} />
 
 
-    <div className="grid grid-cols-4 gap-2 mt-2">
-      {attachments.length > 0 &&
-        attachments.map((attachment, index) => (
-          <div key={index} className="relative overflow-hidden rounded-md">
-            {attachment.type === 'image' ? (
-              <img
-                src={attachment.url}
-                alt="attachment"
-                className="h-24 w-full object-cover"
-              />
-            ) :
-              <Card
-                className="h-24 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => handleFileClick(attachment.url)}
-              >
-                <CardContent className="flex flex-col items-center justify-center h-full p-2">
-                  {getFileIcon(attachment.type)}
-                  <p className="text-xs mt-2 truncate w-full text-center">
-                    {attachment.name || attachment.url.split('/').pop()}
-                  </p>
-                </CardContent>
-              </Card>
-            }
-            <Button
-              variant="ghost"
-              className="absolute top-1 right-1 p-1 h-auto bg-black bg-opacity-50 hover:bg-opacity-75 transition-opacity"
-              onClick={() => handleRemoveFile(index)}
-            >
-              <XCircle className="h-4 w-4 text-white" />
-            </Button>
-          </div>
-        ))}
-    </div>
     <div className='mt-2 flex justify-end space-x-2'>
+      <MultiAttachmentUploadButton
+        attachments={attachments}
+        setAttachments={setAttachments}
+        loading={loading}
+        uploading={uploading}
+        setUploading={setUploading}
+      />
 
-      <Button variant="outline" size="icon"
-        onClick={handleButtonClick}
-        disabled={uploading || loading}
-      >
-        <Paperclip className='h-4 w-4 text-gray-500' />
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </Button>
       <Button onClick={submitComment} disabled={loading || uploading || content.trim().length === 0}>
         {(loading || uploading) && <Icons.spinner
           className={
