@@ -24,10 +24,6 @@ export const handleFileClick = (url) => {
 };
 export default function AttachmentComponent({ attachments, setAttachments = null, loading = false, uploading = false, allowDelete = false }) {
 
-  if (!attachments) {
-    return null;
-  }
-
   const [expandedImage, setExpandedImage] = useState(null);
 
   const handleRemoveFile = (index) => {
@@ -37,6 +33,11 @@ export default function AttachmentComponent({ attachments, setAttachments = null
       return newFiles;
     });
   };
+
+  if (!attachments) {
+    return null;
+  }
+
 
   return <div>
     <div className="grid grid-cols-4 gap-2 mt-2">

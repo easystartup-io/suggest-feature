@@ -25,7 +25,6 @@ const handleFileClick = (url) => {
 
 export default function AttachmentComponent({ attachments, setAttachments = null, allowDelete = false }) {
 
-  if (!attachments) return null;
 
   const [expandedImage, setExpandedImage] = useState(null);
 
@@ -36,6 +35,8 @@ export default function AttachmentComponent({ attachments, setAttachments = null
       return newFiles;
     });
   };
+
+  if (!attachments) return null;
 
   return (
     <div className="my-2">
