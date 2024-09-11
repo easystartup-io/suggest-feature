@@ -30,13 +30,13 @@ export default function Layout({
       <div className="w-full">
         <div className="w-full">
           <div className="flex items-center w-full space-x-1">
-            <Button variant="outline" className="rounded-r-none" size="icon" onClick={() => {
+            <Button variant="outline" className="rounded-r-none font-bold" size="icon" onClick={() => {
               router.push('/')
             }}>
-              <Home className="h-5 w-5" />
+              <Home className="font-bold h-5 w-5" />
             </Button>
-            <Button variant="outline" className="rounded-l-none rounded-r-none">
-              <div className="font-bold" onClick={() => {
+            <Button variant="outline" className="rounded-l-none rounded-r-none ">
+              <div className="font-bold " onClick={() => {
                 router.push('/b/' + currentBoard.slug)
               }}>
                 {currentBoard && currentBoard.name}
@@ -45,7 +45,7 @@ export default function Layout({
             <Select onValueChange={(val) => {
               router.push('/b/' + val)
             }}>
-              <SelectTrigger className="w-[40px] px-2 flex items-center justify-center rounded-l-none">
+              <SelectTrigger className="w-[40px] px-2 flex items-center justify-center rounded-l-none ">
                 {""}
               </SelectTrigger>
               <SelectContent>

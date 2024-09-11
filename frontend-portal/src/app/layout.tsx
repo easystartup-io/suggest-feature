@@ -148,7 +148,15 @@ function Header({ params }) {
           <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
 
             {
-              org.enableReturnToSiteUrl && org.returnToSiteUrl && <Button variant="ghost" type="button" className="text-xs text-muted-foreground">
+              org.enableReturnToSiteUrl && org.returnToSiteUrl &&
+              <Button
+                variant="ghost"
+                type="button"
+                className="text-xs text-muted-foreground"
+                onClick={() => {
+                  window.open(org.returnToSiteUrl, '_blank');
+                }}
+              >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 {org.returnToSiteUrlText || `Return to ${org.name}`}
               </Button>
