@@ -194,7 +194,7 @@ function TitleHeader({ params, data, refetch, id, disableExpand, deleteFromParen
 function CommentSection({ params, refetch, comments, deleteFromParentRender }) {
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <div className="flex flex-col">
       {comments && comments.length > 0 && comments.map(comment => (
         <CommentCard key={comment.id} comment={comment} params={params} refetch={refetch} deleteFromParentRender={deleteFromParentRender} />
       ))}
@@ -670,25 +670,21 @@ export const PostCard = ({ id, params, disableExpand = false, deleteFromParentRe
   return (
     <div className="flex flex-1 w-full flex-col h-full">
       <TitleHeader data={data} refetch={refetch} params={params} id={id} disableExpand={disableExpand} deleteFromParentRender={deleteFromParentRender} />
-      <div className="flex flex-1 w-full h-full">
-        <ScrollArea className="h-full overflow-y-auto w-full">
-          <div className='h-full'>
-            <div className='flex gap-2 flex-col md:flex-row h-full'>
-              <div className='flex-1 h-full'>
-                <UserHeader user={data.user} />
-                <PostContent data={data} params={params} refetch={refetch} deleteFromParentRender={deleteFromParentRender} />
-                <NewCommentInputOld data={data} params={params} refetch={refetch} />
-                <Separator className='my-6' />
-                {/* <ActionButtons data={data} /> */}
-                <CommentSection comments={data.comments} refetch={refetch} params={params} deleteFromParentRender={deleteFromParentRender} />
-              </div>
-              <div className='md:w-1/4 md:flex md:justify-center'>
-                <PostDetails data={data} params={params} refetch={refetch} key={data.id} />
-              </div>
-            </div>
+      <ScrollArea className="overflow-y-auto w-full">
+        <div className='grid gap-2 md:grid-cols-4'>
+          <div className='md:col-span-3 h-full'>
+            <UserHeader user={data.user} />
+            <PostContent data={data} params={params} refetch={refetch} deleteFromParentRender={deleteFromParentRender} />
+            <NewCommentInputOld data={data} params={params} refetch={refetch} />
+            <Separator className='my-6' />
+            {/* <ActionButtons data={data} /> */}
+            <CommentSection comments={data.comments} refetch={refetch} params={params} deleteFromParentRender={deleteFromParentRender} />
           </div>
-        </ScrollArea>
-      </div>
+          <div className='md:flex md:justify-center'>
+            <PostDetails data={data} params={params} refetch={refetch} key={data.id} />
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 };
