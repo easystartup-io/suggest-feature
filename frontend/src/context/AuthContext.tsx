@@ -13,6 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  failed: boolean;
   login: (username: string) => Promise<void>;
   verifyCode: (username: string, code: string) => Promise<void>;
   oauth2Login: (response: string) => void;
@@ -26,6 +27,7 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -33,21 +35,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkUserLoggedIn = async () => {
       const token = Cookies.get('token');
       if (token) {
-        const response = await fetch(`${API_BASE_URL}/api/auth/user`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/auth/user`, {
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
 
-        if (response.ok) {
-          const user = await response.json();
-          setUser(user);
-        } else {
-          setUser(null);
-          Cookies.remove('token');
-          if (response.status === 401) {
+          if (response.ok) {
+            const user = await response.json();
+            setUser(user);
+          } else if (response.status === 401) {
+            setUser(null);
+            Cookies.remove('token');
             router.push('/login');
+          } else {
+            setFailed(true);
           }
+        } catch (err) {
+          console.log(err)
+          setFailed(true);
+          toast({
+            title: 'Error',
+            description: 'Failed to fetch user data. Please check internet connection and reload again',
+            variant: 'destructive'
+          })
         }
       }
       setLoading(false);
@@ -122,7 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login, failed }}>
       {children}
     </AuthContext.Provider>
   );
