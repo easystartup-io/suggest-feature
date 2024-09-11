@@ -89,7 +89,7 @@ function TitleHeader({ params, data, refetch }) {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between h-full w-full">
-        <div className="m-4 flex items-center h-full flex-1">
+        <div className="m-4 ml-0 flex items-center h-full flex-1">
           <div className={(data.selfVoted ? "bg-indigo-600 text-white" : "") + " flex items-center flex-col justify-center border px-4 py-2  text-lg rounded-xl cursor-pointer font-bold"}
             onClick={() => upVote(!data.selfVoted)}
           >
@@ -197,42 +197,49 @@ function PostContent({ data, refetch, params }) {
   const [openReplyComment, setOpenReplyComment] = useState(false);
 
   return (
-    <div className="ml-16">
-      <p className=''>{data.description || data.content}</p>
+    <div >
+      <div className="ml-16">
+        <p className=''>{data.description || data.content}</p>
 
-      <AttachmentComponent
-        attachments={data.attachments}
-      />
-      <div className='flex items-center space-x-2'>
-        <div
-          className={cn(
-            "text-xs text-muted-foreground flex items-center",
-          )}
-        >
-          {formatDistanceToNow(new Date(data.createdAt), {
-            addSuffix: true,
-          })}
-        </div>
-        {
-          !data.title &&
-          <div className='flex items-center text-xs'>
-            <Button variant='ghost' className='' size="sm"
-              onClick={() => setOpenReplyComment(true)}>
-              <Reply className='h-4 w-4 mr-2' />
-              Reply
-            </Button>
+        <AttachmentComponent
+          attachments={data.attachments}
+        />
+        <div className='flex items-center space-x-2'>
+          <div
+            className={cn(
+              "text-xs text-muted-foreground flex items-center",
+            )}
+          >
+            {formatDistanceToNow(new Date(data.createdAt), {
+              addSuffix: true,
+            })}
           </div>
-        }
+          {
+            !data.title &&
+            <div className='flex items-center text-xs'>
+              <Button variant='ghost' className='' size="sm"
+                onClick={() => setOpenReplyComment(true)}>
+                <Reply className='h-4 w-4 mr-2' />
+                Reply
+              </Button>
+            </div>
+          }
+        </div>
       </div>
-
       {openReplyComment && !data.title &&
-        <NewCommentInputOld inReplyToComment={true} data={data} refetch={refetch} params={params} />
+        <NewCommentInputOld
+          postSubmitAction={() => setOpenReplyComment(false)}
+          inReplyToComment={true}
+          data={data}
+          refetch={refetch}
+          params={params}
+        />
       }
     </div>
   )
 }
 
-function NewCommentInputOld({ data, params, refetch, inReplyToComment }) {
+function NewCommentInputOld({ data, params, refetch, inReplyToComment, postSubmitAction = null }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast()
@@ -266,12 +273,17 @@ function NewCommentInputOld({ data, params, refetch, inReplyToComment }) {
         setTimeout(() => {
           setContent('');
           setAttachments([]);
+          if (postSubmitAction) {
+            postSubmitAction();
+          }
         }, 1000)
 
         refetch()
         toast({
           title: 'Comment added',
         })
+
+
       } else {
         toast({
           title: 'Error adding comment',

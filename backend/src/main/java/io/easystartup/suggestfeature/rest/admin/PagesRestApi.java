@@ -118,6 +118,11 @@ public class PagesRestApi {
         existingOrg.setSlug(organization.getSlug().trim());
         existingOrg.setLogo(organization.getLogo());
         existingOrg.setFavicon(organization.getFavicon());
+
+        existingOrg.setReturnToSiteUrl(organization.getReturnToSiteUrl());
+        existingOrg.setReturnToSiteUrlText(organization.getReturnToSiteUrlText());
+        existingOrg.setEnableReturnToSiteUrl(organization.isEnableReturnToSiteUrl());
+
         if (StringUtils.isNotBlank(organization.getCustomDomain()) && (organization.getCustomDomain().endsWith(".suggestfeature.com") || organization.getCustomDomain().equals("suggestfeature.com") )) {
             throw new UserVisibleException("Custom domain cannot end with suggestfeature.com");
         }

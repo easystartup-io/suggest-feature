@@ -124,7 +124,7 @@ export default function Dashboard({ params }) {
   }, [params]);
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-6 w-full">
       <div className="w-full items-center justify-center flex">
         <div className="w-full">
           <div className="w-full">

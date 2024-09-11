@@ -216,13 +216,10 @@ export default function Dashboard({ params }) {
 
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-2 w-full">
       <div className="w-full">
         <div className="w-full">
           <div className="w-full">
-            <div className="font-bold text-xl">
-              {board && board.name}
-            </div>
             <div className="w-full mt-6 grid md:grid-cols-3 gap-4">
               <div className="w-full">
                 <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4 w-full">

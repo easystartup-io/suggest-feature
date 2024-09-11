@@ -3,10 +3,10 @@ import { ThemeProvider } from "@/components/theme-provider"
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { CircleUser } from "lucide-react";
+import { ArrowLeft, CircleUser } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import withInit from "@/hoc/withInit";
@@ -57,6 +57,19 @@ function Header({ params }) {
   const hideNavBar = searchParams.get('hideNavBar')
 
   const [openLoginDialog, setOpenLoginDialog] = useState(false)
+
+  const mainContentRef = useRef(null);
+
+  useEffect(() => {
+    console.log('hello reached')
+    if (mainContentRef.current) {
+      try {
+        window.scroll(0, 0);
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }, [params, pathname]);
 
   useEffect(() => {
     registerSetOpenLoginDialog(setOpenLoginDialog)
@@ -116,7 +129,7 @@ function Header({ params }) {
   }
 
   return (
-    <div className="w-full px-4 md:px-10">
+    <div className="w-full px-4 md:px-10" ref={mainContentRef}>
       <title>{org.name}</title>
       <header className="flex h-16 items-center justify-between gap-4 w-full">
         <div onClick={() => {
@@ -133,6 +146,13 @@ function Header({ params }) {
         </div>
         {!loading ?
           <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
+
+            {
+              org.enableReturnToSiteUrl && org.returnToSiteUrl && <Button variant="ghost" type="button" className="text-xs text-muted-foreground">
+                <ArrowLeft className="h-5 w-5 mr-2" />
+                {org.returnToSiteUrlText || `Return to ${org.name}`}
+              </Button>
+            }
             <ModeToggle />
             {user ?
               <DropdownMenu>

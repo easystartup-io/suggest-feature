@@ -7,7 +7,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import withAuth from '@/hoc/withAuth';
-import { ExternalLink, ImageIcon, Sun, Lock, ChevronLeft, ChevronRight, Home, RotateCw, Moon } from "lucide-react";
+import { ExternalLink, ImageIcon, Sun, Lock, ChevronLeft, ChevronRight, Home, RotateCw, Moon, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/context/AuthContext";
 import slugify from 'slugify';
+import { Separator } from "@/components/ui/separator";
 
 slugify.extend({ '@': 'at' })
 
@@ -82,7 +83,17 @@ const BrowserAddressBar = ({ customDomain, slug, favicon, orgName }) => {
   );
 };
 
-const Navbar = ({ logo, orgName, hideOrgName, customDomain, slug, favicon }) => {
+const Navbar = ({
+  logo,
+  orgName,
+  hideOrgName,
+  customDomain,
+  slug,
+  favicon,
+  returnToSiteUrl,
+  returnToSiteUrlText,
+  enableReturnToSiteUrl,
+}) => {
 
   const { user } = useAuth();
   return (
@@ -98,6 +109,15 @@ const Navbar = ({ logo, orgName, hideOrgName, customDomain, slug, favicon }) => 
           {!hideOrgName && <span className="text-lg font-semibold">{orgName}</span>}
         </div>
         <div className="flex items-center space-x-4">
+
+
+          {
+            enableReturnToSiteUrl && returnToSiteUrl && <Button variant="ghost" type="button" className="text-xs text-muted-foreground">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              {returnToSiteUrlText || `Return to ${orgName}`}
+            </Button>
+          }
+
           <Button size="icon" variant="outline" type="button">
             <Sun className="h-5 w-5 dark:hidden" />
             <Moon className="h-5 w-5 hidden dark:block" />
@@ -152,6 +172,10 @@ const Dashboard: React.FC = ({ params }) => {
   const [orgSlug, setOrgSlug] = useState('')
   const [customDomain, setCustomDomain] = useState('')
 
+  const [enableReturnToSiteUrl, setEnableReturnToSiteUrl] = useState(false)
+  const [returnToSiteUrl, setReturnToSiteUrl] = useState('')
+  const [returnToSiteUrlText, setReturnToSiteUrlText] = useState('')
+
   const form = useForm({ defaultValues })
   const { reset } = form; // Get reset function from useForm
 
@@ -171,6 +195,11 @@ const Dashboard: React.FC = ({ params }) => {
         setOrgSlug(data.slug)
         setCustomDomain(data.customDomain)
         setHideOrgName(data.hideOrgName)
+
+        setEnableReturnToSiteUrl(data.enableReturnToSiteUrl)
+        setReturnToSiteUrl(data.returnToSiteUrl)
+        setReturnToSiteUrlText(data.returnToSiteUrlText)
+
         setLoading(false)
       })
 
@@ -186,7 +215,10 @@ const Dashboard: React.FC = ({ params }) => {
         customDomain,
         logo: uploadedLogoUrl || logo,
         favicon: uploadedFaviconUrl || favicon,
-        hideOrgName
+        hideOrgName,
+        enableReturnToSiteUrl,
+        returnToSiteUrl,
+        returnToSiteUrlText,
       }
       console.log(reqData)
       console.log(uploadedLogoUrl)
@@ -206,6 +238,11 @@ const Dashboard: React.FC = ({ params }) => {
         setOrgSlug(respData.slug)
         setCustomDomain(respData.customDomain)
         setHideOrgName(respData.hideOrgName)
+
+        setEnableReturnToSiteUrl(respData.enableReturnToSiteUrl)
+        setReturnToSiteUrl(respData.returnToSiteUrl)
+        setReturnToSiteUrlText(respData.returnToSiteUrlText)
+
         toast({
           title: 'Updated successfully',
         })
@@ -418,6 +455,52 @@ const Dashboard: React.FC = ({ params }) => {
                 </FormDescription>
               </div>
 
+              <Separator />
+
+
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="private-board">Enable return to site url</Label>
+                  <Switch id="hide-org-name"
+                    className="ml-4 data-[state=checked]:bg-yellow-500"
+                    disabled={isLoading}
+                    checked={enableReturnToSiteUrl}
+                    onCheckedChange={(checked) => setEnableReturnToSiteUrl(checked)}
+                  />
+                </div>
+              </div>
+
+              <div className="">
+                <Label htmlFor="private-board">Site url</Label>
+                <Input
+                  disabled={isLoading} placeholder="https://yourdomain.com"
+                  value={returnToSiteUrl}
+                  onChange={(e) => setReturnToSiteUrl(e.target.value)}
+                  className="my-2"
+                />
+                <FormDescription>
+                  <p>
+                    Url to redirect users to when they click on the return to site button.
+                  </p>
+                </FormDescription>
+              </div>
+
+              <div className="">
+                <Label htmlFor="private-board">Return to site text</Label>
+                <Input
+                  disabled={isLoading} placeholder={`Return to ${orgName}`}
+                  value={returnToSiteUrlText}
+                  onChange={(e) => setReturnToSiteUrlText(e.target.value)}
+                  className="my-2"
+                />
+                <FormDescription>
+                  <p>
+                    The text to display on the return to site button.
+                  </p>
+                </FormDescription>
+              </div>
+
+
               <div className="rounded-lg shadow-sm mb-4">
                 <h2 className="text-lg font-semibold py-4 ">Navbar Preview</h2>
                 <Navbar
@@ -427,6 +510,9 @@ const Dashboard: React.FC = ({ params }) => {
                   customDomain={customDomain}
                   slug={orgSlug}
                   favicon={uploadedFaviconUrl || favicon}
+                  returnToSiteUrl={returnToSiteUrl}
+                  returnToSiteUrlText={returnToSiteUrlText}
+                  enableReturnToSiteUrl={enableReturnToSiteUrl}
                 />
               </div>
               <Button type="submit" disabled={isLoading || uploadingLogo || uploadingFavicon}>

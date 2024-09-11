@@ -42,6 +42,10 @@ public class Organization {
     private String favicon;
     private boolean hideOrgName;
 
+    private boolean enableReturnToSiteUrl;
+    private String returnToSiteUrl;
+    private String returnToSiteUrlText;
+
     private boolean onboardingCompleted;
     private int onboardingStep;
 
@@ -150,5 +154,29 @@ public class Organization {
 
     public void setOnboardingStep(int onboardingStep) {
         this.onboardingStep = onboardingStep;
+    }
+
+    public boolean isEnableReturnToSiteUrl() {
+        return enableReturnToSiteUrl;
+    }
+
+    public void setEnableReturnToSiteUrl(boolean enableReturnToSiteUrl) {
+        this.enableReturnToSiteUrl = enableReturnToSiteUrl;
+    }
+
+    public String getReturnToSiteUrl() {
+        return returnToSiteUrl;
+    }
+
+    public void setReturnToSiteUrl(String returnToSiteUrl) {
+        this.returnToSiteUrl = returnToSiteUrl;
+    }
+
+    public String getReturnToSiteUrlText() {
+        return returnToSiteUrlText;
+    }
+
+    public void setReturnToSiteUrlText(String returnToSiteUrlText) {
+        this.returnToSiteUrlText = returnToSiteUrlText;
     }
 }

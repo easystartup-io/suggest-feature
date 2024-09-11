@@ -376,53 +376,60 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   };
 
   return (
-    <div className="ml-16">
-      {/* One for post and another for comment */}
-      <p className=''>{data.description || data.content}</p>
+    <div>
+      <div className="ml-16">
+        {/* One for post and another for comment */}
+        <p className=''>{data.description || data.content}</p>
 
-      <AttachmentComponent
-        attachments={attachments}
-      />
+        <AttachmentComponent
+          attachments={attachments}
+        />
 
-      <div
-        className={cn(
-          "text-xs text-muted-foreground",
-          "flex items-center space-x-2"
-        )}
-      >
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className='inline-block'>
-                {formatDistanceToNow(new Date(data.createdAt), {
-                  addSuffix: true,
-                })}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <span className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                {format(data.createdAt, "MMMM d, yyyy 'at' h:mm a")}
-              </span>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <Button variant="ghost" size="icon" onClick={() => setIsEditDialogOpen(true)}>
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={() => setIsDeleteDialogOpen(true)}>
-          <Trash className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={() => setIsSpamDialogOpen(true)}>
-          <Flag className="h-4 w-4" />
-        </Button>
-        {
-          !data.title && <Button variant="ghost" size="icon" onClick={() => setReplyToCommentOpen(true)}>
-            <Reply className="h-4 w-4" />
+        <div
+          className={cn(
+            "text-xs text-muted-foreground",
+            "flex items-center space-x-2"
+          )}
+        >
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className='inline-block'>
+                  {formatDistanceToNow(new Date(data.createdAt), {
+                    addSuffix: true,
+                  })}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                  {format(data.createdAt, "MMMM d, yyyy 'at' h:mm a")}
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Button variant="ghost" size="icon" onClick={() => setIsEditDialogOpen(true)}>
+            <Edit className="h-4 w-4" />
           </Button>
-        }
+          <Button variant="ghost" size="icon" onClick={() => setIsDeleteDialogOpen(true)}>
+            <Trash className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setIsSpamDialogOpen(true)}>
+            <Flag className="h-4 w-4" />
+          </Button>
+          {
+            !data.title && <Button variant="ghost" size="icon" onClick={() => setReplyToCommentOpen(true)}>
+              <Reply className="h-4 w-4" />
+            </Button>
+          }
+        </div>
       </div>
       {
-        replyToCommentOpen && <NewCommentInputOld isReplyToComment={true} data={data} params={params} refetch={refetch} />
+        replyToCommentOpen && <NewCommentInputOld
+          postSubmitAction={() => setReplyToCommentOpen(false)}
+          isReplyToComment={true}
+          data={data}
+          params={params}
+          refetch={refetch} />
       }
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
@@ -525,7 +532,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   )
 }
 
-function NewCommentInputOld({ data, params, refetch, isReplyToComment = false }) {
+function NewCommentInputOld({ data, params, refetch, isReplyToComment = false, postSubmitAction = null }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -560,6 +567,9 @@ function NewCommentInputOld({ data, params, refetch, isReplyToComment = false })
         setTimeout(() => {
           setContent('');
           setAttachments([])
+          if (postSubmitAction) {
+            postSubmitAction()
+          };
         }, 1000)
         refetch()
       } else {

@@ -24,6 +24,10 @@ export const handleFileClick = (url) => {
 };
 export default function AttachmentComponent({ attachments, setAttachments = null, loading = false, uploading = false, allowDelete = false }) {
 
+  if (!attachments) {
+    return null;
+  }
+
   const [expandedImage, setExpandedImage] = useState(null);
 
   const handleRemoveFile = (index) => {

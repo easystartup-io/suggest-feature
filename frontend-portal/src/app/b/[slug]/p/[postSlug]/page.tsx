@@ -4,7 +4,7 @@ import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucid
 import { PostCard } from "@/components/PostCard"
 import { useInit } from "@/context/InitContext"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 
 export const statusConfig = {
@@ -77,7 +77,7 @@ export default function Dashboard({ params }) {
   }, [params, boards, user, loading])
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 md:gap-8 md:p-10 w-full">
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-2 w-full">
       <div className="w-full">
         <PostCard params={params} post={post} refetch={refetchPost} />
       </div>
