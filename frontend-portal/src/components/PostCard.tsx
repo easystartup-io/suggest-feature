@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { Calendar, CheckCircle, ChevronUp, Circle, Eye, Flag, Loader, Play, Star, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, ChevronUp, Circle, Eye, Flag, Loader, Play, Reply, Star, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Icons } from './icons';
 import Voters from './Voters';
@@ -141,7 +141,7 @@ function CommentCard({ comment, refetch, params }) {
   return (
     <div className="ml-16">
       <UserHeader user={comment.user} />
-      <PostContent data={comment} />
+      <PostContent data={comment} refetch={refetch} params={params} />
       {/* <CommentContent content={comment.content} /> */}
       {/* <CommentActions commentId={comment.id} /> */}
       {comment.comments && comment.comments.length > 0 &&
@@ -192,28 +192,47 @@ function UserHeader({ user }) {
   )
 }
 
-function PostContent({ data }) {
-  const [expandedImage, setExpandedImage] = useState(null)
+function PostContent({ data, refetch, params }) {
+
+  const [openReplyComment, setOpenReplyComment] = useState(false);
+
   return (
     <div className="ml-16">
       <p className=''>{data.description || data.content}</p>
 
-      <AttachmentComponent attachments={data.attachments} />
-
-      <div
-        className={cn(
-          "mt-2 text-xs text-muted-foreground"
-        )}
-      >
-        {formatDistanceToNow(new Date(data.createdAt), {
-          addSuffix: true,
-        })}
+      <AttachmentComponent
+        attachments={data.attachments}
+      />
+      <div className='flex items-center space-x-2'>
+        <div
+          className={cn(
+            "text-xs text-muted-foreground flex items-center",
+          )}
+        >
+          {formatDistanceToNow(new Date(data.createdAt), {
+            addSuffix: true,
+          })}
+        </div>
+        {
+          !data.title &&
+          <div className='flex items-center text-xs'>
+            <Button variant='ghost' className='' size="sm"
+              onClick={() => setOpenReplyComment(true)}>
+              <Reply className='h-4 w-4 mr-2' />
+              Reply
+            </Button>
+          </div>
+        }
       </div>
+
+      {openReplyComment && !data.title &&
+        <NewCommentInputOld inReplyToComment={true} data={data} refetch={refetch} params={params} />
+      }
     </div>
   )
 }
 
-function NewCommentInputOld({ data, params, refetch }) {
+function NewCommentInputOld({ data, params, refetch, inReplyToComment }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast()
@@ -236,7 +255,8 @@ function NewCommentInputOld({ data, params, refetch }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          postId: data.id,
+          postId: inReplyToComment ? data.postId : data.id,
+          replyToCommentId: inReplyToComment ? data.id : null,
           content: content,
           attachments: attachments
         })
@@ -282,6 +302,11 @@ function NewCommentInputOld({ data, params, refetch }) {
         }
       }} />
 
+    <AttachmentComponent
+      attachments={attachments}
+      setAttachments={setAttachments}
+      allowDelete={true}
+    />
 
     <div className='mt-2 flex justify-end space-x-2'>
       <MultiAttachmentUploadButton
@@ -322,8 +347,8 @@ export const PostCard = ({ post, params, disableExpand = false, refetch }) => {
         <TitleHeader data={post} refetch={refetch} params={params} />
         <div>
           <UserHeader user={post.user} />
-          <PostContent data={post} />
-          <NewCommentInputOld data={post} params={params} refetch={refetch} />
+          <PostContent data={post} refetch={refetch} params={params} />
+          <NewCommentInputOld data={post} params={params} refetch={refetch} inReplyToComment={false} />
           <Separator className='my-6' />
           {/* <ActionButtons data={post} /> */}
           <CommentSection comments={post.comments} refetch={refetch} params={params} />

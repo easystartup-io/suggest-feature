@@ -67,7 +67,7 @@ export default function MultiAttachmentUploadButton({ attachments, setAttachment
 
   const handleButtonClick = () => {
     if (loading || uploading) return;
-    if (attachments.length >= 50) {
+    if (attachments && attachments.length >= 50) {
       toast({
         title: 'Too many attachments',
         variant: 'destructive'

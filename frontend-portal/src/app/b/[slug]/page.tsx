@@ -261,6 +261,10 @@ export default function Dashboard({ params }) {
 
                   <AttachmentComponent
                     attachments={attachments}
+                    setAttachments={setAttachments}
+                    uploading={uploading}
+                    setUploading={setUploading}
+                    allowDelete={true}
                   />
 
                   <div className="flex justify-end w-full space-x-2">

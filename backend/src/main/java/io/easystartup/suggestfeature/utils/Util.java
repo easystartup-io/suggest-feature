@@ -292,11 +292,10 @@ public class Util {
 
     @NotNull
     private static List<Comment> getComments(Post post) {
-        Criteria criteriaDefinition1 = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
-        Query query1 = new Query(criteriaDefinition1);
-        query1.with(Sort.by(Sort.Direction.ASC, Comment.FIELD_CREATED_AT));
-        List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(query1, Comment.class);
-        return comments;
+        Criteria criteriaDefinition = Criteria.where(Comment.FIELD_POST_ID).is(post.getId());
+        Query query = new Query(criteriaDefinition);
+        query.with(Sort.by(Sort.Direction.ASC, Comment.FIELD_CREATED_AT));
+        return mongoConnection.get().getDefaultMongoTemplate().find(query, Comment.class);
     }
 
     @NotNull

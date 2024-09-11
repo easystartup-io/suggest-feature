@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertTriangle, Edit, FileAudio, FileImage, FileText, FileVideo, File, Paperclip, Trash } from 'lucide-react';
+import { AlertTriangle, Edit, FileAudio, FileImage, FileText, FileVideo, File, Paperclip, Trash, Reply } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -266,6 +266,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   const [attachments, setAttachments] = useState(data.attachments);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [replyToCommentOpen, setReplyToCommentOpen] = useState(false);
   const { toast } = useToast()
 
   const handleEdit = async () => {
@@ -414,7 +415,15 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
         <Button variant="ghost" size="icon" onClick={() => setIsSpamDialogOpen(true)}>
           <Flag className="h-4 w-4" />
         </Button>
+        {
+          !data.title && <Button variant="ghost" size="icon" onClick={() => setReplyToCommentOpen(true)}>
+            <Reply className="h-4 w-4" />
+          </Button>
+        }
       </div>
+      {
+        replyToCommentOpen && <NewCommentInputOld isReplyToComment={true} data={data} params={params} refetch={refetch} />
+      }
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -516,7 +525,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   )
 }
 
-function NewCommentInputOld({ data, params, refetch }) {
+function NewCommentInputOld({ data, params, refetch, isReplyToComment = false }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -537,7 +546,8 @@ function NewCommentInputOld({ data, params, refetch }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          postId: data.id,
+          postId: isReplyToComment ? data.postId : data.id,
+          replyToCommentId: isReplyToComment ? data.id : null,
           content: content,
           attachments: attachments
         })

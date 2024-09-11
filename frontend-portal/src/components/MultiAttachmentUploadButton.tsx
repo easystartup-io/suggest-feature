@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
-
 export default function MultiAttachmentUploadButton({ attachments, setAttachments, loading, uploading, setUploading }) {
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
