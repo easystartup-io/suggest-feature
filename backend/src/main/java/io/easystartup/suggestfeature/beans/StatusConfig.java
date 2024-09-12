@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StatusConfig {
-    private static final String FIELD_STATUS = "status";
-    private static final String FIELD_COLOR = "color";
 
     private String status;
     private String color;

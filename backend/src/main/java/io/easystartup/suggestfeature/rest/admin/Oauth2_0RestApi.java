@@ -44,6 +44,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author indianBond
@@ -65,7 +66,7 @@ public class Oauth2_0RestApi {
     @GET
     @Path("/start/{provider}")
     public Response startLogin(@QueryParam("host") @NotBlank String host, @PathParam("provider") @NotBlank String provider) throws URISyntaxException {
-        provider = provider.toUpperCase();
+        provider = provider.toUpperCase(Locale.ROOT);
         URI uri = new URI(host);
         // extract domain name
         String domain = uri.getAuthority();
@@ -163,6 +164,10 @@ public class Oauth2_0RestApi {
                     String profilePic = getProfilePic(userInfo, provider);
                     String firstName = getData(userInfo, "given_name");
                     String lastName = getData(userInfo, "family_name");
+
+                    if (name == null || name.isEmpty()) {
+                        name = firstName + " " + lastName;
+                    }
 
                     User existingUser = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where("email").is(email)), User.class);
                     if (existingUser == null) {

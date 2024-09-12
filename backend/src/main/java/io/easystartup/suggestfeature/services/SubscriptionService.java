@@ -22,15 +22,13 @@ import java.util.concurrent.TimeUnit;
 public class SubscriptionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionService.class);
-    private final AuthService authService;
     private final MongoTemplateFactory mongoConnection;
     private Cache<String, SubscriptionDetails> orgVsSubscriptionDetails =
             CacheBuilder.newBuilder().concurrencyLevel(32).expireAfterWrite(15, TimeUnit.SECONDS).maximumSize(10_000).build();
 
 
     @Autowired
-    public SubscriptionService(AuthService authService, MongoTemplateFactory mongoConnection) {
-        this.authService = authService;
+    public SubscriptionService(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
     }
 

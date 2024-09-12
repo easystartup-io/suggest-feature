@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,13 +47,11 @@ public class PaymentWebhookRestApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentWebhookRestApi.class);
     private final MongoTemplateFactory mongoConnection;
     private final BillingService billingService;
-    private final AuthService authService;
 
     @Autowired
-    public PaymentWebhookRestApi(MongoTemplateFactory mongoConnection, BillingService billingService, AuthService authService) {
+    public PaymentWebhookRestApi(MongoTemplateFactory mongoConnection, BillingService billingService) {
         this.mongoConnection = mongoConnection;
         this.billingService = billingService;
-        this.authService = authService;
     }
 
     @POST
@@ -79,8 +78,6 @@ public class PaymentWebhookRestApi {
             }
             JsonNode metadataNode = metaNode.get("custom_data");
             if (metadataNode != null){
-                String orgId = metadataNode.get("orgId").asText();
-                String userId = metadataNode.get("userId").asText();
             }
 
             if ("subscription_created".equals(eventName) || "subscription_updated".equals(eventName)) {
@@ -88,7 +85,7 @@ public class PaymentWebhookRestApi {
                 String userId = metadataNode.get("userId").asText();
                 String subscriptionId = dataNode.get("id").asText();
                 JsonNode dataAttributes = dataNode.get("attributes");
-                String plan = dataAttributes.get("variant_name").asText().toLowerCase();
+                String plan = dataAttributes.get("variant_name").asText().toLowerCase(Locale.ROOT);
                 LocalDateTime nextBillingDate = parseDate(dataAttributes.get("renews_at").asText());
                 long epochSecond = nextBillingDate.toEpochSecond(ZoneOffset.UTC);
                 mongoConnection.getDefaultMongoTemplate().findAndModify(

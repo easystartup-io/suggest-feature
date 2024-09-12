@@ -32,7 +32,7 @@ public class MongoTemplateFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoTemplateFactory.class);
 
-    private static MongoTemplate mongoTemplate;
+    private static volatile MongoTemplate mongoTemplate;
 
     @EventListener(ContextRefreshedEvent.class)
     public void initIndicesAfterStartup() {
@@ -63,7 +63,7 @@ public class MongoTemplateFactory {
 
     private MongoTemplate getMongoTemplate() {
         if (mongoTemplate == null) {
-            synchronized (this) {
+            synchronized (MongoTemplateFactory.class) {
                 if (mongoTemplate == null) {
                     String mongoUrl = Util.getEnvVariable("MONGO_URL", "mongodb://localhost:27017");
                     String databaseName = "SUGGEST_FEATURE_DB";

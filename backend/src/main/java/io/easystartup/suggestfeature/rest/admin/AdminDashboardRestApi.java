@@ -39,8 +39,6 @@ import java.util.stream.Collectors;
 @Component
 public class AdminDashboardRestApi {
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
-    private final SubscriptionService subscriptionService;
 
     // Contrasty colors
     private static final List<String> colors = List.of(
@@ -57,10 +55,8 @@ public class AdminDashboardRestApi {
     );
 
     @Autowired
-    public AdminDashboardRestApi(MongoTemplateFactory mongoConnection, AuthService authService, SubscriptionService subscriptionService) {
+    public AdminDashboardRestApi(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
-        this.subscriptionService = subscriptionService;
     }
 
     @POST

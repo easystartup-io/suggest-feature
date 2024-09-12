@@ -43,10 +43,7 @@ import static io.easystartup.suggestfeature.utils.Util.populatePost;
 public class PublicPortalPostRestApi {
 
     private static final String EMPTY_JSON_LIST = "[]";
-    private static final String EMPTY_JSON = "{}";
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublicPortalPostRestApi.class);
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
     // Loading cache of host vs page
     private final Cache<String, String> hostOrgCache = CacheBuilder.newBuilder()
             .maximumSize(20_000)
@@ -59,9 +56,8 @@ public class PublicPortalPostRestApi {
             .build();
 
     @Autowired
-    public PublicPortalPostRestApi(MongoTemplateFactory mongoConnection, AuthService authService) {
+    public PublicPortalPostRestApi(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
     }
 
     @GET

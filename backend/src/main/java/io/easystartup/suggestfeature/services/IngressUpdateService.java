@@ -39,14 +39,12 @@ public class IngressUpdateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngressUpdateService.class);
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
     private final AtomicBoolean podRunning = new AtomicBoolean(true);
     private static final String SERVER_ALIAS_ANNOTATION = "nginx.ingress.kubernetes.io/server-alias";
 
     @Autowired
-    public IngressUpdateService(MongoTemplateFactory mongoConnection, AuthService authService) {
+    public IngressUpdateService(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
 
         // Every 30 seconds fetch allIngresses from mongo and patch ingress
         new Thread(() -> {

@@ -45,8 +45,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
  */
 public class Util {
 
-    private static final Pattern NON_LATIN = Pattern.compile("[^\\w_-]");
-    private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}&&[^-]]");
     public static final String WHITE_SPACE = " ";
     public static final Map<String, String> SLUGIFY_MAP;
     private static final Dotenv dotenv;
@@ -73,6 +71,7 @@ public class Util {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException ignore) {
+            // ignore
         }
     }
 
@@ -81,7 +80,7 @@ public class Util {
         String to = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, split[split.length - 1]);
         String[] s = to.split("_");
         StringBuilder stringBuilder1 = new StringBuilder();
-        Arrays.stream(s).filter(StringUtils::isNotBlank).forEach(vale -> stringBuilder1.append(vale.toLowerCase()).append(" "));
+        Arrays.stream(s).filter(StringUtils::isNotBlank).forEach(vale -> stringBuilder1.append(vale.toLowerCase(Locale.ROOT)).append(" "));
         return StringUtils.capitalize(stringBuilder1.toString().trim());
     }
 
@@ -184,7 +183,7 @@ public class Util {
                         .build();
 
                 try (S3Client s3Client = S3Client.create()) {
-                    PutObjectResponse putObjectResponse = s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
+                    s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
                     return Util.getEnvVariable("S3_CDN_URL", "https://assets.suggestfeature.com/") + key;
                 }
             } catch (IOException e) {
@@ -212,7 +211,7 @@ public class Util {
 
     private static String getExtensionFromFileName(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
-        return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
+        return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase(Locale.ROOT);
     }
 
     /*

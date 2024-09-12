@@ -40,18 +40,13 @@ import static io.easystartup.suggestfeature.utils.Util.*;
 @Component
 public class PublicPortalAuthPostRestApi {
 
-    private static final String EMPTY_JSON_LIST = "[]";
-    private static final String EMPTY_JSON = "{}";
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublicPortalAuthPostRestApi.class);
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
     private final ValidationService validationService;
 
 
     @Autowired
-    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService) {
+    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
         this.validationService = validationService;
     }
 

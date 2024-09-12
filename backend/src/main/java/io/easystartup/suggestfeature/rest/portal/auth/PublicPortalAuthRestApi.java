@@ -27,15 +27,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class PublicPortalAuthRestApi {
 
-    private static final String EMPTY_JSON_LIST = "[]";
     private static final String EMPTY_JSON = "{}";
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
 
     @Autowired
-    public PublicPortalAuthRestApi(MongoTemplateFactory mongoConnection, AuthService authService) {
+    public PublicPortalAuthRestApi(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
     }
 
     @POST
@@ -47,7 +44,6 @@ public class PublicPortalAuthRestApi {
             throw new UserVisibleException("Name is required");
         }
         String userId = UserContext.current().getUserId();
-        String host = request.getHeader("host");
 
         Update update = new Update();
         if (user.getName() != null) {

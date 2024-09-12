@@ -54,7 +54,6 @@ public class PostsRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response searchPost(SearchPostDTO req) {
-        String userId = UserContext.current().getUserId();
 
         if (StringUtils.isBlank(req.getQuery())) {
             throw new UserVisibleException("Search query is required");
@@ -118,7 +117,6 @@ public class PostsRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response updateCommentDetails(CommentDetailsUpdateDTO req) {
-        String userId = UserContext.current().getUserId();
         validationService.validate(req);
 
         if (StringUtils.isNotBlank(req.getContent()) && req.getContent().trim().length() > 5000) {
@@ -144,7 +142,6 @@ public class PostsRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response updatePostDetails(PostDetailsUpdateDTO req) {
-        String userId = UserContext.current().getUserId();
         validationService.validate(req);
 
         validateStatus(req.getStatus());
@@ -400,7 +397,6 @@ public class PostsRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response fetchPosts(FetchPostsRequestDTO req) {
-        String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         Criteria criteriaDefinition = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId);
         if (StringUtils.isNotBlank(req.getBoardSlug())) {

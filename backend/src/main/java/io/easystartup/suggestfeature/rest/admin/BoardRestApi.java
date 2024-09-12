@@ -30,13 +30,11 @@ import java.util.List;
 public class BoardRestApi {
 
     private final MongoTemplateFactory mongoConnection;
-    private final AuthService authService;
     private final ValidationService validationService;
 
     @Autowired
-    public BoardRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService) {
+    public BoardRestApi(MongoTemplateFactory mongoConnection,ValidationService validationService) {
         this.mongoConnection = mongoConnection;
-        this.authService = authService;
         this.validationService = validationService;
     }
 
@@ -84,7 +82,6 @@ public class BoardRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response fetchBoard(@QueryParam("boardId") String boardId, @QueryParam("boardSlug") String boardSlug) {
-        String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         if (StringUtils.isNotBlank(boardSlug)){
             Board one = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
@@ -99,7 +96,6 @@ public class BoardRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response fetchBoards() {
-        String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         List<Board> boards = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
         Collections.sort(boards, Comparator.comparing(Board::getId));

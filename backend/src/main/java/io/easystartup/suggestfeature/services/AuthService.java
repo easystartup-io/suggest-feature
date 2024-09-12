@@ -5,6 +5,8 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.LoginResponse;
 import io.easystartup.suggestfeature.loggers.Logger;
@@ -312,6 +314,9 @@ public class AuthService {
     public String getOrgIdFromHost(String host) {
         Criteria criteriaDefinition = null;
         if (host.endsWith(".suggestfeature.com")) {
+            Splitter splitter = Splitter.on(".").trimResults();
+            Iterable<String> split = splitter.split(host);
+            String slug = Iterables.get(split, 0);
             criteriaDefinition = Criteria.where(Organization.FIELD_SLUG).is(host.split("\\.")[0]);
         } else {
             criteriaDefinition = Criteria.where(Organization.FIELD_CUSTOM_DOMAIN).is(host);

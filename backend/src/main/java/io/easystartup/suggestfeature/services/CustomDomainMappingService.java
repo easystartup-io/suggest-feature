@@ -52,7 +52,7 @@ public class CustomDomainMappingService {
                 .uri(URI.create("https://api.cloudflare.com/client/v4/zones/%s/custom_hostnames".formatted(getCloudflareZoneId())))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + getCloudflareAuthKey())
-                .method("POST", HttpRequest.BodyPublishers.ofString(getCloudflareRequestBody(customDomain, orgId)))
+                .method("POST", HttpRequest.BodyPublishers.ofString(getCloudflareRequestBody(customDomain)))
                 .build();
         HttpResponse<String> response = null;
         try (HttpClient httpClient = HttpClient.newHttpClient()) {
@@ -63,7 +63,7 @@ public class CustomDomainMappingService {
         LOGGER.error(response.body());
     }
 
-    private String getCloudflareRequestBody(String customDomain, String orgId) {
+    private String getCloudflareRequestBody(String customDomain) {
         return """
                 {
                   "hostname": "%s",

@@ -22,11 +22,21 @@ public class SubscriptionDetails {
     }
 
     public enum Plan {
-        self_hosted,
-        basic,
-        pro,
-        team,
-        enterprise,
+        self_hosted(10),
+        basic(20),
+        pro(30),
+        team(40),
+        enterprise(50);
+
+        private final int index;
+
+        Plan(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
     }
 
     public static final String FIELD_ORGANIZATION_ID = "organizationId";

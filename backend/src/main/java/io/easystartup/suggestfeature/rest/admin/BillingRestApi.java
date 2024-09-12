@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -83,7 +84,7 @@ public class BillingRestApi {
         if (StringUtils.isBlank(checkoutRequestDTO.getPlan())){
             throw new UserVisibleException("Plan is required");
         }
-        checkoutRequestDTO.setPlan(checkoutRequestDTO.getPlan().toLowerCase().trim());
+        checkoutRequestDTO.setPlan(checkoutRequestDTO.getPlan().toLowerCase(Locale.ROOT).trim());
         UserContext userContext = UserContext.current();
         if (userContext.getOrgId() == null) {
             throw new UserVisibleException("Organization id is not valid");
@@ -116,7 +117,7 @@ public class BillingRestApi {
         if (StringUtils.isBlank(checkoutRequestDTO.getPlan())) {
             throw new UserVisibleException("Plan is required");
         }
-        checkoutRequestDTO.setPlan(checkoutRequestDTO.getPlan().toLowerCase().trim());
+        checkoutRequestDTO.setPlan(checkoutRequestDTO.getPlan().toLowerCase(Locale.ROOT).trim());
         UserContext userContext = UserContext.current();
         if (userContext.getOrgId() == null) {
             throw new UserVisibleException("Organization id is not valid");
@@ -138,7 +139,7 @@ public class BillingRestApi {
         // Compare based on enum SubscriptionDetails.Plan
         String currentSubscriptionPlan = existingSubscriptionDetails.getSubscriptionPlan();
         String newPlan = checkoutRequestDTO.getPlan();
-        if (SubscriptionDetails.Plan.valueOf(currentSubscriptionPlan).ordinal() > SubscriptionDetails.Plan.valueOf(newPlan).ordinal()) {
+        if (SubscriptionDetails.Plan.valueOf(currentSubscriptionPlan).getIndex() > SubscriptionDetails.Plan.valueOf(newPlan).getIndex()) {
             throw new UserVisibleException("Contact support to downgrade the plan", Response.Status.BAD_REQUEST);
         }
 

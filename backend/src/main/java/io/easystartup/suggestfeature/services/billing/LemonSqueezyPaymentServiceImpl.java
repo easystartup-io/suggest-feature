@@ -56,13 +56,11 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
             throw new RuntimeException("Subscription not found for orgId: " + orgId);
         }
 
-        Organization org = authService.getOrgById(orgId);
-        User user = authService.getUserByUserId(userId);
-        upgradeSub(org, existingSubscription.getSubscriptionId(), plan);
+        upgradeSub(existingSubscription.getSubscriptionId(), plan);
         return "";
     }
 
-    private void upgradeSub(Organization org, String subscriptionId, String plan) {
+    private void upgradeSub(String subscriptionId, String plan) {
         try (HttpClient client = HttpClient.newHttpClient()) {
             String variantId = getVariantId(plan);
 

@@ -39,10 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author indianBond
@@ -53,7 +50,6 @@ public class UploadRestApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadRestApi.class);
 
-    private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
     private static final Set<String> allowedExtensions = Sets.newHashSet(
             "png", "jpeg", "jpg", "gif", "webp", "svg",
@@ -63,8 +59,7 @@ public class UploadRestApi {
     );
 
     @Autowired
-    public UploadRestApi(MongoTemplateFactory mongoConnection, AuthService authService) {
-        this.mongoConnection = mongoConnection;
+    public UploadRestApi(AuthService authService) {
         this.authService = authService;
     }
 
@@ -104,7 +99,7 @@ public class UploadRestApi {
             throw new UserVisibleException("File name should have an extension", Response.Status.BAD_REQUEST);
         }
         // only allow pdf, word doc, excel, image, jpeg, video, png
-        String extension = fileNameParts[fileNameParts.length - 1].toLowerCase();
+        String extension = fileNameParts[fileNameParts.length - 1].toLowerCase(Locale.ROOT);
         if (!allowedExtensions.contains(extension)) {
             throw new UserVisibleException("File type not allowed", Response.Status.BAD_REQUEST);
         }
@@ -123,7 +118,7 @@ public class UploadRestApi {
                 .build();
         try {
 
-            PutObjectResponse putObjectResponse = s3Client().putObject(putObjectRequest, RequestBody.fromFile(tempFile));
+            s3Client().putObject(putObjectRequest, RequestBody.fromFile(tempFile));
             String url = Util.getEnvVariable("S3_CDN_URL", "https://assets.suggestfeature.com/") + key;
             Map<String, String> rv = new HashMap<>();
             rv.put("url", url);

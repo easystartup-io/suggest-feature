@@ -41,7 +41,6 @@ public class AuthenticationRestApi {
     private static final int CODE_LENGTH = 6;
 
     //  RFC 5322 Official Standard. DOes not support non unicode characters in email
-    private static final Pattern EMAIL_VALIDATION_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
 
     @Autowired
     public AuthenticationRestApi(ValidationService validationService, MongoTemplateFactory mongoConnection, AuthService authService) {

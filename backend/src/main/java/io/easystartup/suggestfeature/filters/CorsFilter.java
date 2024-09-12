@@ -10,7 +10,6 @@ import java.io.IOException;
 
 public class CorsFilter implements Filter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CorsFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,

@@ -2,6 +2,8 @@ package io.easystartup.suggestfeature.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.annotation.Nullable;
+
 /**
  * @author indianBond
  */

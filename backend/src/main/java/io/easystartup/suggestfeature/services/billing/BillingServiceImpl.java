@@ -12,16 +12,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BillingServiceImpl implements BillingService {
-    private final AuthService authService;
-    private final SubscriptionService subscriptionService;
-    private final MongoTemplateFactory mongoConnection;
     private final LemonSqueezyPaymentService lemonSqueezyPaymentService;
 
     @Autowired
-    public BillingServiceImpl(AuthService authService, SubscriptionService subscriptionService, MongoTemplateFactory mongoConnection, LemonSqueezyPaymentService lemonSqueezyPaymentService) {
-        this.authService = authService;
-        this.subscriptionService = subscriptionService;
-        this.mongoConnection = mongoConnection;
+    public BillingServiceImpl(SubscriptionService subscriptionService, MongoTemplateFactory mongoConnection, LemonSqueezyPaymentService lemonSqueezyPaymentService) {
         this.lemonSqueezyPaymentService = lemonSqueezyPaymentService;
     }
 

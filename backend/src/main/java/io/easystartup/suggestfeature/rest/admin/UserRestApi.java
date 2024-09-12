@@ -24,10 +24,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -115,7 +112,7 @@ public class UserRestApi {
             safeReturn.add(safeOrganization);
         });
         safeReturn.sort(Comparator.comparing(org ->
-                org.getName() != null ? org.getName().toLowerCase() : org.getCreatedAt().toString())
+                org.getName() != null ? org.getName().toLowerCase(Locale.ROOT) : org.getCreatedAt().toString())
         );
         return Response.ok(JacksonMapper.toJson(safeReturn)).build();
     }

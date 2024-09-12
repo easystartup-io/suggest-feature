@@ -73,7 +73,6 @@ public class PagesRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response editRoadmap(Organization organization) {
-        String userId = UserContext.current().getUserId();
         if (organization.getRoadmapSettings() == null){
             throw new UserVisibleException("Invalid settings");
         }
@@ -90,7 +89,6 @@ public class PagesRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response editOrg(Organization organization) {
-        String userId = UserContext.current().getUserId();
         validationService.validate(organization);
         organization.setId(UserContext.current().getOrgId());
         organization.setSlug(validateAndFix(organization.getSlug()));
@@ -169,7 +167,6 @@ public class PagesRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response fetchOrg() {
-        String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         Organization org = authService.getOrgById(orgId);
         return Response.ok(JacksonMapper.toJson(org)).build();

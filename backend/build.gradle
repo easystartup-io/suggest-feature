@@ -79,13 +79,17 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+
 // Error prone to catch static errors at compile time
 tasks.withType(JavaCompile).configureEach {
     options.errorprone.disableWarningsInGeneratedCode = true
     // fix some by default
+//    options.errorprone.errorproneArgs.addAll(
+//            "-XepPatchChecks:UnnecessaryParentheses,EqualsGetClass,AlmostJavadoc",
+//            "-XepPatchLocation:IN_PLACE"
+//    )
     options.errorprone.errorproneArgs.addAll(
-            "-XepPatchChecks:UnnecessaryParentheses,EqualsGetClass,AlmostJavadoc",
-            "-XepPatchLocation:IN_PLACE"
+            "-Xep:MissingSummary:OFF"
     )
 }
 

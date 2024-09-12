@@ -41,7 +41,6 @@ public class CustomerRestApi {
     @Path("/fetch-customers")
     @Produces("application/json")
     public Response fetchCustomers(FetchCustomersRequest req) {
-        String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
         Criteria criteria = Criteria.where(Customer.FIELD_ORGANIZATION_ID).is(orgId);
         if (req.getCursor() != null){
