@@ -12,3 +12,5 @@ To create a new organization, click the **+** button located at the top of the m
 
 * Each organization will have its own unique subdomain, boards, changelog, admin team, and more.
 * Billing is managed separately for each organization.
+
+{% embed url="https://asssets-docs.suggestfeature.com/add-org-feature.mp4" %}
