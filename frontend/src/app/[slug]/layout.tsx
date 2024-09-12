@@ -229,19 +229,40 @@ const Dashboard = ({ children, params }) => {
   }, [params.slug, pathname])
 
   useEffect(() => {
-    fetch(`/api/auth/pages/fetch-org`, {
-      headers: {
-        "x-org-slug": params.slug
-      }
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.customDomain) {
-          setPublicUrl(`https://${data.customDomain}`)
-        } else if (data && data.slug) {
-          setPublicUrl(`https://${data.slug}.suggestfeature.com`)
+    const fetchOrg = async () => {
+      try {
+        const resp = await fetch(`/api/auth/pages/fetch-org`, {
+          headers: {
+            "x-org-slug": params.slug
+          }
+        });
+
+
+        if (resp.status == 401) {
+          router.push('/')
+          return;
         }
-      })
+
+        const data = await resp.json();
+
+        if (resp.status == 200) {
+          if (data && data.customDomain) {
+            setPublicUrl(`https://${data.customDomain}`)
+          } else if (data && data.slug) {
+            setPublicUrl(`https://${data.slug}.suggestfeature.com`)
+          }
+
+          // Set cookie to use this as the default org. Latest org is default org when going to home page
+          Cookies.set('defaultOrg', data.slug, { expires: 365 });
+        }
+
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchOrg();
+
 
   }, [params.id, params.slug])
 

@@ -4,7 +4,6 @@ import React, { createContext, useState, useEffect, ReactNode, useContext } from
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { useToast } from '@/components/ui/use-toast';
-import { Toaster } from '@/components/ui/toaster';
 
 interface User {
   username: string;

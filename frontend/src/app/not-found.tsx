@@ -8,7 +8,7 @@ export default function NotFound() {
   // Need to do this because else giving error that location is not defined. Might be because trying to run router before its mounted
   useEffect(() => {
     if (typeof window !== "undefined") {
-      router.push('/login');
+      router.push('/');
     }
   }, [router]);
 

@@ -1,4 +1,5 @@
 "use client"
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
 import slugify from 'slugify';
-import { useState } from "react";
 
 slugify.extend({ '@': 'at' });
 
@@ -47,7 +47,7 @@ const OnboardingWorkflow = ({ params }) => {
 
       if (response.ok) {
         toast({ title: 'Board created successfully!' });
-        setBoardSlug(respData.slug)
+        setBoardSlug(respData.slug); // Update board slug from response
         setStep(2);
       } else {
         toast({ title: respData.message, variant: 'destructive' });
@@ -94,7 +94,7 @@ const OnboardingWorkflow = ({ params }) => {
   };
 
   return (
-    <Dialog open={true}>
+    <Dialog open={true} onOpenChange={() => { }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{step === 1 ? "Create Your First Board" : "Create Your First Post"}</DialogTitle>
@@ -123,7 +123,7 @@ const OnboardingWorkflow = ({ params }) => {
                 id="boardDescription"
                 value={boardDescription}
                 onChange={(e) => setBoardDescription(e.target.value)}
-                placeholder="A place to collect all project ideas"
+                placeholder="A place to collect all feature ideas"
                 className="col-span-3"
               />
             </div>
@@ -146,7 +146,7 @@ const OnboardingWorkflow = ({ params }) => {
                 id="postTitle"
                 value={postTitle}
                 onChange={(e) => setPostTitle(e.target.value)}
-                placeholder="e.g., Dark mode"
+                placeholder="e.g., 🌙 Dark Mode"
               />
             </div>
             <div className="grid gap-2">
@@ -155,7 +155,7 @@ const OnboardingWorkflow = ({ params }) => {
                 id="postDescription"
                 value={postDescription}
                 onChange={(e) => setPostDescription(e.target.value)}
-                placeholder="Dark mode to make it look soothing to eyes."
+                placeholder="Implement a dark mode option for better nighttime viewing"
                 rows={4}
               />
             </div>
