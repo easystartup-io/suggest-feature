@@ -16,6 +16,7 @@ import {
   Menu,
   MessageCircleMore,
   Moon,
+  Plus,
   Sun,
   UserRoundCog,
   Users
@@ -93,6 +94,36 @@ function Navigation({ items, isActive, setCurrentSection, params, isCollapsed })
 }
 
 function ProfileDropdownMenu({ params, logout, router, user }) {
+
+  const [orgs, setOrgs] = useState([]);
+
+  useEffect(() => {
+    const fetchOrgs = async () => {
+      try {
+        const resp = await fetch(`/api/auth/user/fetch-orgs-for-user`, {
+          headers: {
+            "x-org-slug": params.slug,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const res = await resp.json();
+        if (resp.status !== 200) {
+          console.log(res)
+          return;
+        }
+        setOrgs(res)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    if (user) {
+      fetchOrgs();
+    }
+
+  }, [params.id, params.slug, user])
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -114,20 +145,61 @@ function ProfileDropdownMenu({ params, logout, router, user }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel className="text-center">{user && user.name}</DropdownMenuLabel>
+        <DropdownMenuLabel className="flex items-center justify-between">
+          Organizations
+          <Button
+            variant="outline" size="icon"
+            onClick={() => router.push(`/create-org`)}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </DropdownMenuLabel>
+        {orgs.map((org) => {
+          return (
+            <DropdownMenuItem key={org.id}
+              className="cursor-pointer"
+              onClick={() => {
+                router.push(`/${org.slug}/dashboard`)
+              }}>
+              <Avatar className="mr-1">
+                <AvatarImage src={org.logo} />
+                <AvatarFallback >
+                  {(() => {
+                    const name = org.name || org.slug;
+                    const words = name.split(' ');
+                    let initials = words.length > 1
+                      ? words.map(word => word[0]).join('').toUpperCase()
+                      : name.slice(0, 2).toUpperCase();
+                    return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+                  })()}
+                </AvatarFallback>
+              </Avatar>
+              {org.name}
+            </DropdownMenuItem>
+          )
+        })}
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="">{user && user.name}</DropdownMenuLabel>
         <DropdownMenuItem>{user && user.email}</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push(`/${params.slug}/profile`)}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => router.push(`/${params.slug}/profile`)}>
           Profile Settings
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => {
-          openCrisp({ user, params });
-        }}>Support</DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => {
+            openCrisp({ user, params });
+          }}>Support</DropdownMenuItem>
+
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={async () => {
-          await logout();
-          router.push('/login');
-        }}>Logout</DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={async () => {
+            await logout();
+            router.push('/login');
+          }}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

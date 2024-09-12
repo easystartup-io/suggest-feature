@@ -12,7 +12,6 @@ import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
-import io.easystartup.suggestfeature.utils.Util;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -25,8 +24,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author indianBond
@@ -88,6 +91,33 @@ public class UserRestApi {
         safeUser.setProfilePic(user.getProfilePic());
         safeUser.setVerifiedEmail(true);
         return Response.ok(JacksonMapper.toJson(safeUser)).build();
+    }
+
+    @GET
+    @Path("/fetch-orgs-for-user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response fetchOrgsForUser() {
+        String userId = UserContext.current().getUserId();
+        Criteria criteria = Criteria.where(Member.FIELD_USER_ID).is(userId);
+        Query query = new Query(criteria);
+        List<Member> members = mongoConnection.getDefaultMongoTemplate().find(query, Member.class);
+        Set<String> orgsIds = members.stream().map(Member::getOrganizationId).collect(Collectors.toSet());
+        List<Organization> orgsByIds = authService.getOrgsByIds(orgsIds);
+        List<Organization> safeReturn = new ArrayList<>();
+        orgsByIds.stream().forEach(org -> {
+            Organization safeOrganization = new Organization();
+            safeOrganization.setName(org.getName());
+            safeOrganization.setSlug(org.getSlug());
+            safeOrganization.setCreatedAt(org.getCreatedAt());
+            safeOrganization.setLogo(org.getLogo());
+            safeOrganization.setFavicon(org.getFavicon());
+            safeReturn.add(safeOrganization);
+        });
+        safeReturn.sort(Comparator.comparing(org ->
+                org.getName() != null ? org.getName().toLowerCase() : org.getCreatedAt().toString())
+        );
+        return Response.ok(JacksonMapper.toJson(safeReturn)).build();
     }
 
     @POST

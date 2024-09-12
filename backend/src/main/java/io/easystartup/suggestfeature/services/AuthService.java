@@ -256,6 +256,11 @@ public class AuthService {
                 .findOne(new Query(Criteria.where(Organization.FIELD_ID).is(orgId)), Organization.class);
     }
 
+    public List<Organization> getOrgsByIds(Set<String> orgIds) {
+        return mongoTemplateFactory.getDefaultMongoTemplate()
+                .find(new Query(Criteria.where(Organization.FIELD_ID).in(orgIds)), Organization.class);
+    }
+
     public User getUserByUserId(String userId) {
         return mongoTemplateFactory.getDefaultMongoTemplate()
                 .findOne(new Query(Criteria.where(User.FIELD_ID).is(userId)), User.class);
