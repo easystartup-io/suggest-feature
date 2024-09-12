@@ -15,3 +15,7 @@
 ## FAQ
 
 * [Attachments and Image File Uploads](faq/attachments-and-image-file-uploads.md)
+
+***
+
+* [Add and Manage Organizations](add-and-manage-organizations.md)
