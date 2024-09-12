@@ -1,10 +1,10 @@
 package io.easystartup.suggestfeature.filters;
 
-import io.easystartup.suggestfeature.services.AuthService;
-import io.easystartup.suggestfeature.utils.LazyService;
 import io.easystartup.suggestfeature.beans.Member;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.utils.LazyService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
@@ -38,6 +38,12 @@ public class AuthFilter implements Filter {
                 this.includes[i] = this.includes[i].trim();
             }
         }
+    }
+
+    public String getScreenStudioLicenseKey() {
+        // https://www.screen.studio/
+        String LICENSE_KEY = "";
+        return LICENSE_KEY;
     }
 
     @Override
@@ -78,6 +84,7 @@ public class AuthFilter implements Filter {
             return;
         }
         token = split[1];
+
         Claims claims = authService.get().decodeJWT(token);
         if (claims == null || StringUtils.isBlank(claims.getId()) || claims.getExpiration() == null || new Date()
                 .after(claims.getExpiration())) {
