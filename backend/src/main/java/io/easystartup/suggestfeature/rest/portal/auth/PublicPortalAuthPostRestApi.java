@@ -174,7 +174,6 @@ public class PublicPortalAuthPostRestApi {
             comment.setCreatedByUserId(userId);
             comment.setOrganizationId(org.getId());
             comment.setPostId(post.getId());
-            comment.setBoardId(post.getBoardId());
             isNew = true;
         } else {
             if (!existingComment.getCreatedByUserId().equals(userId)) {

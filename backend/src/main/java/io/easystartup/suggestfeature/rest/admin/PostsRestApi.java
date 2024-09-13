@@ -310,7 +310,6 @@ public class PostsRestApi {
             comment.setCreatedByUserId(userId);
             comment.setOrganizationId(UserContext.current().getOrgId());
             comment.setPostId(post.getId());
-            comment.setBoardId(post.getBoardId());
             isNew = true;
         } else {
             // Todo: For normal page view, only allow to comment if same user trying to edit comment

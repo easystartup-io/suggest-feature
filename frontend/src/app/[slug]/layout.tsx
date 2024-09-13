@@ -15,6 +15,7 @@ import {
   Map,
   Menu,
   MessageCircleMore,
+  MessagesSquare,
   Moon,
   Plus,
   Sun,
@@ -45,6 +46,7 @@ export const SidebarContext = createContext()
 const navigationItems = [
   { href: 'dashboard', icon: Home, label: 'Dashboard' },
   { href: 'page', icon: BookOpenText, label: 'Page Settings' },
+  { href: 'all-posts', icon: MessagesSquare, label: 'All posts' },
   { href: 'boards', icon: Clipboard, label: 'Boards' },
   { href: 'roadmap', icon: Map, label: 'Roadmap' },
   { href: 'members', icon: UserRoundCog, label: 'Team Members' },

@@ -13,11 +13,11 @@ import { Icons } from '../icons';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Textarea } from '../ui/textarea';
-import { statusConfig } from '@/app/[slug]/boards/[id]/posts/page';
 import { useToast } from "@/components/ui/use-toast"
 import Voters from '../Voters';
 import AttachmentComponent from '@/components/AttachmentComponent';
 import MultiAttachmentUploadButton from '../MultiAttachmentUploadButton';
+import { statusConfig } from '@/components/post/PostsScreen';
 
 
 function FullScreenPostDialog({ id, params, deleteFromParentRender }) {

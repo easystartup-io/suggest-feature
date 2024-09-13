@@ -40,7 +40,6 @@ public class Comment {
     private String replyToCommentId;
     private String organizationId;
     private String createdByUserId;
-    private String boardId;
 
     @Reference
     @Transient
@@ -96,14 +95,6 @@ public class Comment {
 
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getBoardId() {
-        return boardId;
-    }
-
-    public void setBoardId(String boardId) {
-        this.boardId = boardId;
     }
 
     public String getPostId() {
