@@ -1,29 +1,33 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import withAuth from '@/hoc/withAuth';
-import { ComponentProps, useContext, useEffect, useRef, useState } from "react";
-import { Input } from "@/components/ui/input"
-import { useForm } from "react-hook-form"
-import { Icons } from "@/components/icons";
-import { useToast } from "@/components/ui/use-toast"
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Badge, Calendar, CheckCircle, ChevronUp, Circle, Eye, FileAudio, FileImage, File, FileText, FileVideo, Loader, MessageSquare, Play, Search, Settings, XCircle, Paperclip } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
-import { PostCard } from "@/components/post/PostCard";
-import Cookies from 'js-cookie';
-import { useDebouncedCallback } from 'use-debounce';
-import Loading from "@/components/Loading";
 import AttachmentComponent from "@/components/AttachmentComponent";
+import { Icons } from "@/components/icons";
+import Loading from "@/components/Loading";
 import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButton";
+import { PostCard } from "@/components/post/PostCard";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import withAuth from '@/hoc/withAuth';
+import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
+import Cookies from 'js-cookie';
+import { ArrowUpDown, Calendar, Check, CheckCircle, ChevronsUpDown, ChevronUp, Circle, Eye, Filter, Loader, MessageSquare, Play, Search, Settings, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDebouncedCallback } from 'use-debounce';
+import { SortOptionsComboBox } from "@/components/SortComboBox";
+import { StatusFilterComboBox } from "@/components/StatusFilterComboBox";
 
 export const statusConfig = {
   "OPEN": {
@@ -347,6 +351,9 @@ const PostsScreen: React.FC = ({ params }) => {
   const [allPostsScreen, setAllPostsScreen] = useState(false)
   const [allBoards, setAllBoards] = useState([])
 
+  const [postsSort, setPostsSort] = useState('trending')
+  const [postsStatusFilter, setPostsStatusFilter] = useState([])
+
   const defaultLayout = layout ? JSON.parse(layout) : [35, 65]
 
   const refetchPosts = async () => {
@@ -501,7 +508,7 @@ const PostsScreen: React.FC = ({ params }) => {
         >
           <ResizablePanel defaultSize={defaultLayout[0]} minSize={30} className="">
             <ScrollArea className="pb-4 h-full overflow-y-auto">
-              <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="bg-background/95 p-4 pb-0 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input placeholder="Search" className="pl-8"
@@ -510,6 +517,10 @@ const PostsScreen: React.FC = ({ params }) => {
                     }}
                   />
                 </div>
+              </div>
+              <div className="flex items-center justify-end px-4 my-2 space-x-2">
+                <StatusFilterComboBox postsStatusFilter={postsStatusFilter} setPostsStatusFilter={setPostsStatusFilter} />
+                <SortOptionsComboBox postsSort={postsSort} setPostsSort={setPostsSort} />
               </div>
               <div className="flex flex-col gap-2 px-4 pt-0">
                 {data && data.length > 0 && data.map((item) => (
