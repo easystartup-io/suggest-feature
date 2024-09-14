@@ -5,7 +5,7 @@ export default function Header() {
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <a href="/" className="flex items-center">
             {/* <img src="/logo.jpeg" className="mr-3 h-6 sm:h-9" alt="Suggest Feature Logo" /> */}
-            <img src="/logo-light.png" className="mr-3 h-6 sm:h-9" alt="Suggest Feature Logo" />
+            <img src="/logo-light.jpeg" className="mr-3 h-6 sm:h-9" alt="Suggest Feature Logo" />
             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Suggest Feature</span>
           </a>
           <div className="flex items-center lg:order-2">
