@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Welcome](README.md)
+* [🙏 Welcome](README.md)
 
 ## Getting Started
 
@@ -15,7 +15,4 @@
 ## FAQ
 
 * [Attachments and Image File Uploads](faq/attachments-and-image-file-uploads.md)
-
-***
-
-* [Add and Manage Organizations](add-and-manage-organizations.md)
+* [Add and Manage Organizations](faq/add-and-manage-organizations.md)

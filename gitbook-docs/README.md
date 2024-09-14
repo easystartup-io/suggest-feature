@@ -1,11 +1,5 @@
 ---
-cover: >-
-  https://images.unsplash.com/photo-1494548162494-384bba4ab999?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwxfHxzdW5yaXNlfGVufDB8fHx8MTcyNTQ5MTYxNHww&ixlib=rb-4.0.3&q=85
-coverY: 0
 layout:
-  cover:
-    visible: true
-    size: full
   title:
     visible: true
   description:
@@ -18,7 +12,7 @@ layout:
     visible: true
 ---
 
-# Welcome
+# 🙏 Welcome
 
 Welcome to Suggest Feature! Here, you can explore all the incredible tools Suggest Feature provides to help you gather and organize feature requests, giving you a clearer understanding of customer needs and enabling you to prioritize your product roadmap effectively.
 

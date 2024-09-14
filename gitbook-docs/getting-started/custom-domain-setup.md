@@ -1,3 +1,7 @@
+---
+icon: globe-pointer
+---
+
 # Custom Domain Setup
 
 **Setting Up Your Custom Domain for Suggest Feature**

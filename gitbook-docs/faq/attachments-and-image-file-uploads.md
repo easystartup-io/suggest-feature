@@ -1,3 +1,7 @@
+---
+icon: folder-image
+---
+
 # Attachments and Image File Uploads
 
 ## Requirements for Attachments and Image Uploads
