@@ -1,5 +1,5 @@
 "use client"
-import { Calendar, CheckCircle, Circle, Eye, File, FileAudio, FileImage, FileText, FileVideo, Loader, Paperclip, Play, Search, XCircle } from "lucide-react"
+import { Calendar, CheckCircle, ChevronUp, Circle, Eye, File, FileAudio, FileImage, FileText, FileVideo, Loader, Paperclip, Play, Search, XCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -64,8 +64,37 @@ function Custom404() {
   );
 }
 
-const PostList = ({ posts, params }) => {
+const PostList = ({ posts, setPosts, params }) => {
   const router = useRouter();
+  const { user, verifyLoginOrPrompt } = useAuth()
+
+  const upVote = (upvote, id) => {
+    if (verifyLoginOrPrompt()) {
+      return;
+    }
+
+    fetch(`/api/portal/auth/posts/upvote-post?postId=${id}&upvote=${upvote}`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setPosts((prev) => {
+          return prev.map((item) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                votes: data.votes,
+                selfVoted: upvote
+              }
+            }
+            return item
+          })
+        })
+      })
+  }
 
   return (
     <div className="flex flex-col gap-2 px-4 pt-0 w-full">
@@ -73,39 +102,59 @@ const PostList = ({ posts, params }) => {
         <button
           key={item.id}
           className={cn(
-            "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
+            "flex items-center justify-between space-x-8 rounded-lg border dark:border-white p-3 text-left text-sm transition-all hover:bg-accent"
           )}
           onClick={() => {
             router.push(`/b/${params.slug}/p/${item.slug}`)
           }}
         >
-          <div className="flex w-full flex-col gap-1">
-            <div className="flex items-center" >
-              <div className="flex items-center gap-2">
-                <div className="font-semibold">
-                  {(() => {
-                    const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                    return st.icon
-                  })()
-                  }
-                  {item.title}
-                </div>
-              </div>
-              <div
-                className={cn(
-                  "ml-auto text-xs",
-                  "text-muted-foreground"
-                )}
-              >
-                {formatDistanceToNow(new Date(item.createdAt), {
-                  addSuffix: true,
-                })}
-                {/* <Badge className="ml-2">{item.votes}</Badge> */}
-              </div>
+          <div>
+            <div className={cn(item.selfVoted && "bg-indigo-600 text-white",
+              "flex items-center flex-col justify-center border dark:border-white px-4 py-2  text-lg rounded-xl cursor-pointer font-bold",
+              "hover:shadow-indigo-600 dark:hover:shadow-red-600 hover:shadow"
+            )}
+              onClick={(e) => {
+                e.stopPropagation()
+                upVote(!item.selfVoted, item.id)
+              }}
+            >
+              <ChevronUp />
+              {item.votes}
             </div>
           </div>
-          <div className="line-clamp-2 text-xs text-muted-foreground">
-            {item.description.substring(0, 300)}
+          <div
+            className={cn(
+              "flex flex-col items-start gap-2 text-left w-full"
+            )}
+          >
+            <div className="flex w-full flex-col gap-1">
+              <div className="flex items-center" >
+                <div className="flex items-center gap-2">
+                  <div className="font-semibold">
+                    {(() => {
+                      const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
+                      return st.icon
+                    })()
+                    }
+                    {item.title}
+                  </div>
+                </div>
+                <div
+                  className={cn(
+                    "ml-auto text-xs",
+                    "text-muted-foreground"
+                  )}
+                >
+                  {formatDistanceToNow(new Date(item.createdAt), {
+                    addSuffix: true,
+                  })}
+                  {/* <Badge className="ml-2">{item.votes}</Badge> */}
+                </div>
+              </div>
+            </div>
+            <div className="line-clamp-2 text-xs text-muted-foreground">
+              {item.description.substring(0, 300)}
+            </div>
           </div>
         </button>
       ))}
@@ -119,7 +168,7 @@ export default function Dashboard({ params }) {
   const { org, boards } = useInit()
   const [board, setBoard] = useState({})
   const { toast } = useToast()
-  const { verifyLoginOrPrompt } = useAuth()
+  const { user, verifyLoginOrPrompt, loading: userLoading } = useAuth()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -128,10 +177,13 @@ export default function Dashboard({ params }) {
   const [attachments, setAttachments] = useState([]);
 
   useEffect(() => {
+    if (userLoading) {
+      return
+    }
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
 
-    fetch(`${protocol}//${host}/api/portal/unauth/posts/get-posts-by-board?slug=${params.slug}`)
+    fetch(`${protocol}//${host}/api/portal/${user ? 'auth' : 'unauth'}/posts/get-posts-by-board?slug=${params.slug}`)
       .then((res) => res.json())
       .then((data) => {
         setPosts(data)
@@ -144,7 +196,7 @@ export default function Dashboard({ params }) {
       const b = boards.find((item) => item.slug === params.slug);
       setBoard(b)
     }
-  }, [params, boards])
+  }, [params, boards, user, userLoading]);
 
   const onSubmitPost = async (e) => {
     console.log(params)
@@ -313,7 +365,7 @@ export default function Dashboard({ params }) {
                 }
                 <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2 w-full">
                   {
-                    posts && <PostList posts={posts} params={params} />
+                    posts && <PostList posts={posts} setPosts={setPosts} params={params} />
                   }
                 </div>
               </div>

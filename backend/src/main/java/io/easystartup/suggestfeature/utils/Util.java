@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.slugify.Slugify;
 import com.google.common.base.CaseFormat;
 import io.easystartup.suggestfeature.beans.*;
-import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort;
@@ -22,7 +22,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -327,4 +325,24 @@ public class Util {
         }
     }
 
+    public static Double calculateTrendingScore(long votes, Long createdAt) {
+        long timeScore = System.currentTimeMillis() - createdAt;
+        return votes / Math.pow(timeScore, 1.5);
+    }
+
+    public static void populateSelfVotedInPosts(List<Post> posts, String orgId, String userId) {
+        if (CollectionUtils.isEmpty(posts)) {
+            return;
+        }
+
+        List<String> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+
+        Criteria criteriaDefinition = Criteria.where(Voter.FIELD_POST_ID).in(postIds);
+        criteriaDefinition.and(Voter.FIELD_USER_ID).is(userId);
+        Query query = new Query(criteriaDefinition);
+        List<Voter> voters = mongoConnection.get().getDefaultMongoTemplate().find(query, Voter.class);
+        Set<String> postsWhichAreSelfVoted = voters.stream().map(Voter::getPostId).collect(Collectors.toSet());
+
+        posts.forEach(post -> post.setSelfVoted(postsWhichAreSelfVoted.contains(post.getId())));
+    }
 }

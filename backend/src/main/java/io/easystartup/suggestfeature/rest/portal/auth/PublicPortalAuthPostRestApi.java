@@ -4,9 +4,6 @@ package io.easystartup.suggestfeature.rest.portal.auth;
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
-import io.easystartup.suggestfeature.loggers.Logger;
-import io.easystartup.suggestfeature.loggers.LoggerFactory;
-import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
@@ -21,17 +18,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import static io.easystartup.suggestfeature.utils.Util.*;
+import static io.easystartup.suggestfeature.utils.Util.populatePost;
+import static io.easystartup.suggestfeature.utils.Util.populateSelfVotedInPosts;
 
 /**
  * @author indianBond
@@ -91,12 +88,14 @@ public class PublicPortalAuthPostRestApi {
         try {
             if (upvote) {
                 mongoConnection.getDefaultMongoTemplate().insert(voter);
+                post.setVotes(post.getVotes() + 1);
             } else {
                 Criteria voterCriteriaDefinition = Criteria
                         .where(Voter.FIELD_POST_ID).is(postId)
                         .and(Voter.FIELD_USER_ID).is(userId)
                         .and(Voter.FIELD_ORGANIZATION_ID).is(org.getId());
                 mongoConnection.getDefaultMongoTemplate().remove(new Query(voterCriteriaDefinition), Voter.class);
+                post.setVotes(post.getVotes() - 1);
             }
             mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_VOTES, upvote ? 1 : -1), Post.class);
         } catch (DuplicateKeyException e) {
@@ -126,6 +125,30 @@ public class PublicPortalAuthPostRestApi {
         populatePost(post, org.getId(), UserContext.current().getUserId(), false);
 
         return Response.ok().entity(JacksonMapper.toJson(post)).build();
+    }
+
+    @GET
+    @Path("/get-posts-by-board")
+    @Produces("application/json")
+    public Response getPostsByBoard(@Context HttpServletRequest request, @QueryParam("slug") @NotBlank String slug) {
+        String host = request.getHeader("host");
+        Organization org = getOrg(host);
+        if (org == null) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+        Criteria criteriaDefinition1 = Criteria.where(Board.FIELD_SLUG).is(slug).and(Board.FIELD_ORGANIZATION_ID).is(org.getId());
+        Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition1), Board.class);
+        if (board == null || board.isPrivateBoard()) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+        Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId());
+        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
+        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        posts.forEach(post -> post.setBoardSlug(slug));
+
+        populateSelfVotedInPosts(posts, org.getId(), UserContext.current().getUserId());
+
+        return Response.ok().entity(JacksonMapper.toJson(posts)).build();
     }
 
     @POST

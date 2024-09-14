@@ -417,7 +417,16 @@ public class PostsRestApi {
         String field = req.getSort().getField();
 
         query.with(org.springframework.data.domain.Sort.by(getOrder(req), field));
-        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        List<Post> posts;
+        if (StringUtils.isNotBlank(req.getSortString()) && req.getSortString().equals("trending")) {
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+            posts.forEach(post -> {
+                post.setTrendingScore(Util.calculateTrendingScore(post.getVotes(), post.getCreatedAt()));
+            });
+            posts.sort(Comparator.comparing(Post::getTrendingScore).reversed());
+        } else {
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        }
         return Response.ok(JacksonMapper.toJson(posts)).build();
     }
 

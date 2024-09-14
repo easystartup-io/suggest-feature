@@ -57,6 +57,8 @@ public class Post {
     @Indexed
     private String boardId;
 
+    private Double trendingScore;
+
     // Just used in request DTO
     @NotBlank
     @Transient
@@ -261,5 +263,13 @@ public class Post {
 
     public void setCommentCount(long commentCount) {
         this.commentCount = commentCount;
+    }
+
+    public Double getTrendingScore() {
+        return trendingScore;
+    }
+
+    public void setTrendingScore(Double trendingScore) {
+        this.trendingScore = trendingScore;
     }
 }
