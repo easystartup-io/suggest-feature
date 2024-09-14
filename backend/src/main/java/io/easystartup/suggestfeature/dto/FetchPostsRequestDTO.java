@@ -2,16 +2,18 @@ package io.easystartup.suggestfeature.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.annotation.Nullable;
-
 /**
  * @author indianBond
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FetchPostsRequestDTO {
     private String boardSlug;
+    private String sortString;
+    private String statusFilter;
     private Page page;
-    private Sort sort;
+
+    // Use it for internal request adapatation only
+    private transient Sort sort;
 
     public FetchPostsRequestDTO() {
     }
@@ -38,5 +40,21 @@ public class FetchPostsRequestDTO {
 
     public void setBoardSlug(String boardSlug) {
         this.boardSlug = boardSlug;
+    }
+
+    public String getSortString() {
+        return sortString;
+    }
+
+    public void setSortString(String sortString) {
+        this.sortString = sortString;
+    }
+
+    public String getStatusFilter() {
+        return statusFilter;
+    }
+
+    public void setStatusFilter(String statusFilter) {
+        this.statusFilter = statusFilter;
     }
 }

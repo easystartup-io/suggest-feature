@@ -403,6 +403,10 @@ public class PostsRestApi {
             Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(boardFetch), Board.class);
             criteriaDefinition.and(Post.FIELD_BOARD_ID).is(board.getId());
         }
+        if(StringUtils.isNotBlank(req.getStatusFilter())){
+            criteriaDefinition.and(Post.FIELD_STATUS).is(req.getStatusFilter());
+        }
+        adaptSort(req);
         Query query = new Query(criteriaDefinition);
         if (req.getSort() == null) {
             req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.DESC));
@@ -411,13 +415,23 @@ public class PostsRestApi {
             req.setPage(new Page(0, 20));
         }
         String field = req.getSort().getField();
-        if (!ALLOWED_SORT_FIELDS.contains(field)) {
-            throw new UserVisibleException("Invalid sort field");
-        }
+
         query.with(org.springframework.data.domain.Sort.by(getOrder(req), field));
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
-        Collections.sort(posts, Comparator.comparing(Post::getId));
         return Response.ok(JacksonMapper.toJson(posts)).build();
+    }
+
+    private void adaptSort(FetchPostsRequestDTO req) {
+        String sortString = req.getSortString();
+        if (StringUtils.isBlank(sortString)) {
+            return;
+        }
+        switch (sortString){
+            case "trending" -> req.setSort(new Sort(Post.FIELD_VOTES, Order.DESC));
+            case "top" -> req.setSort(new Sort(Post.FIELD_VOTES, Order.DESC));
+            case "newest" -> req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.DESC));
+            case "oldest" -> req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.ASC));
+        }
     }
 
 

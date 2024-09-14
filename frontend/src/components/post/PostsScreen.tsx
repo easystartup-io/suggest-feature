@@ -352,7 +352,7 @@ const PostsScreen: React.FC = ({ params }) => {
   const [allBoards, setAllBoards] = useState([])
 
   const [postsSort, setPostsSort] = useState('trending')
-  const [postsStatusFilter, setPostsStatusFilter] = useState([])
+  const [postsStatusFilter, setPostsStatusFilter] = useState('')
 
   const defaultLayout = layout ? JSON.parse(layout) : [35, 65]
 
@@ -363,7 +363,11 @@ const PostsScreen: React.FC = ({ params }) => {
         "x-org-slug": params.slug,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ boardSlug: params.id })
+      body: JSON.stringify({
+        boardSlug: params.id,
+        sortString: postsSort,
+        statusFilter: postsStatusFilter
+      })
     })
       .then((res) => res.json())
       .then((data) => {
@@ -379,6 +383,10 @@ const PostsScreen: React.FC = ({ params }) => {
         setLoading(false)
       })
   }
+
+  useEffect(() => {
+    refetchPosts();
+  }, [postsSort, postsStatusFilter])
 
   useEffect(() => {
     refetchPosts();
