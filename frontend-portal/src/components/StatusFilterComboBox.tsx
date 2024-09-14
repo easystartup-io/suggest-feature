@@ -4,7 +4,7 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 import { Check, Filter, X } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { statusConfig } from "@/components/post/PostsScreen"
+import { statusConfig } from "@/components/PostCard"
 
 const getFilterLabel = (value) => {
   return statusConfig[value]?.label
@@ -20,12 +20,13 @@ export function StatusFilterComboBox({ postsStatusFilter, setPostsStatusFilter }
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-1/2 justify-between"
+          className="flex items-center space-x-2 justify-between"
         >
           {getFilterLabel(postsStatusFilter) || 'All status'}
           <div className="flex items-center">
             {/* Filter icon */}
-            <Filter className="h-4 w-4 shrink-0 opacity-50" />
+            <Filter className={cn("h-4 w-4 shrink-0 opacity-50 ml-2")
+            } />
             {/* X button to clear filter */}
             {postsStatusFilter && (
               <X

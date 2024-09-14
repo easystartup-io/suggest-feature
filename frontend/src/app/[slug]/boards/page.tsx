@@ -2,13 +2,16 @@
 
 import AddBoardDialog from "@/components/board/AddBoard";
 import Loading from "@/components/Loading";
+import ReorderBoardsComponent from "@/components/ReorderBoardsComponent";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/context/AuthContext';
 import withAuth from '@/hoc/withAuth';
 import { Settings, Telescope } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 
 
 const Dashboard: React.FC = ({ params }) => {
@@ -17,9 +20,9 @@ const Dashboard: React.FC = ({ params }) => {
 
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
+  const { toast } = useToast()
 
-
-  useEffect(() => {
+  const refetch = () => {
     fetch('/api/auth/boards/fetch-boards', {
       headers: {
         "x-org-slug": params.slug
@@ -30,7 +33,47 @@ const Dashboard: React.FC = ({ params }) => {
         setData(data)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    refetch();
   }, [params.slug])
+
+  const saveBoardOrder = async (reOrderedBoards) => {
+    console.log(reOrderedBoards)
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/auth/boards/reorder-boards', {
+        method: 'POST',
+        headers: {
+          "x-org-slug": params.slug,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ boardIds: reOrderedBoards.map(board => board.id) })
+      })
+      const respData = await response.json();
+
+      if (response.ok) {
+        refetch()
+        toast({
+          title: 'Board reordered',
+        })
+      } else {
+        toast({
+          title: respData.message,
+          variant: 'destructive'
+        })
+      }
+
+    } catch (err) {
+      console.log(err)
+    }
+
+    setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+  }
 
   if (isLoading) return <Loading />
 
@@ -38,7 +81,10 @@ const Dashboard: React.FC = ({ params }) => {
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">Boards</h1>
-        <AddBoardDialog params={params} />
+        <div className="flex items-center justify-end space-x-4">
+          <ReorderBoardsComponent boards={data} onSave={saveBoardOrder} />
+          <AddBoardDialog params={params} />
+        </div>
       </div>
       <div
         className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm" x-chunk="dashboard-02-chunk-1"

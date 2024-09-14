@@ -130,7 +130,10 @@ public class PublicPortalAuthPostRestApi {
     @GET
     @Path("/get-posts-by-board")
     @Produces("application/json")
-    public Response getPostsByBoard(@Context HttpServletRequest request, @QueryParam("slug") @NotBlank String slug) {
+    public Response getPostsByBoard(@Context HttpServletRequest request, @QueryParam("slug") @NotBlank String slug,
+                                    @QueryParam("statusFilter") String statusFilter,
+                                    @QueryParam("sortString") String sortString
+    ) {
         String host = request.getHeader("host");
         Organization org = getOrg(host);
         if (org == null) {
@@ -142,9 +145,26 @@ public class PublicPortalAuthPostRestApi {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId());
-        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
-        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        if (StringUtils.isNotBlank(statusFilter)) {
+            criteriaDefinition.and(Post.FIELD_STATUS).is(statusFilter);
+        }
+        Query query = new Query(criteriaDefinition);
+        query.with(Util.getSort(sortString));
+        List<Post> posts;
+
+        if (StringUtils.isNotBlank(sortString) && "trending".equals(sortString)) {
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+            posts.forEach(post -> {
+                post.setTrendingScore(Util.calculateTrendingScore(post.getVotes(), post.getCreatedAt()));
+            });
+            posts.sort(Comparator.comparing(Post::getTrendingScore).reversed());
+        } else {
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        }
+
+
         posts.forEach(post -> post.setBoardSlug(slug));
+
 
         populateSelfVotedInPosts(posts, org.getId(), UserContext.current().getUserId());
 

@@ -158,7 +158,7 @@ function ProfileDropdownMenu({ params, logout, router, user }) {
         </DropdownMenuLabel>
         {orgs.map((org) => {
           return (
-            <DropdownMenuItem key={org.id}
+            <DropdownMenuItem key={org.slug}
               className="cursor-pointer"
               onClick={() => {
                 router.push(`/${org.slug}/dashboard`)
@@ -221,6 +221,7 @@ const Dashboard = ({ children, params }) => {
   const defaultCollapsed = collapsed ? JSON.parse(collapsed) : undefined
 
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed || false)
+  const { theme } = useTheme()
 
   const CrispWithNoSSR = dynamic(() => import('../../components/crisp'))
 
@@ -308,7 +309,7 @@ const Dashboard = ({ children, params }) => {
                   isCollapsed && "px-0 lg:px-0")}>
                   <Link href={`/${params.slug}/dashboard`} className="flex items-center gap-2 font-semibold">
                     <Avatar className={cn(isCollapsed && "px-0 lg:px-0", "rounded-none")}>
-                      <AvatarImage className="" src="/logo.svg" alt="suggest-feature" />
+                      <AvatarImage className="" src={theme === 'light' ? "/logo-light.jpeg" : '/logo.jpeg'} alt="suggest-feature" />
                       <AvatarFallback>SF</AvatarFallback>
                     </Avatar>
                     {!isCollapsed && <span className="text-lg font-semibold">Suggest Feature</span>}
@@ -347,7 +348,7 @@ const Dashboard = ({ children, params }) => {
                   <nav className="grid gap-2 text-lg font-medium">
                     <Link href={`/${params.slug}/dashboard`} className="flex items-center gap-2 font-semibold mb-2">
                       <Avatar className="rounded-none h-6 w-6">
-                        <AvatarImage className="" src="/logo.svg" alt="suggest-feature" />
+                        <AvatarImage className="" src={theme === 'light' ? "/logo-light.jpeg" : '/logo.jpeg'} alt="suggest-feature" />
                         <AvatarFallback>SF</AvatarFallback>
                       </Avatar>
                       <span className="text-lg font-semibold">Suggest Feature</span>

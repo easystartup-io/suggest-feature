@@ -1,15 +1,17 @@
 package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.services.AuthService;
-import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
-import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.beans.Board;
+import io.easystartup.suggestfeature.dto.ReorderBoardsRequest;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.ValidationService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +33,13 @@ public class BoardRestApi {
 
     private final MongoTemplateFactory mongoConnection;
     private final ValidationService validationService;
+    private final AuthService authService;
 
     @Autowired
-    public BoardRestApi(MongoTemplateFactory mongoConnection,ValidationService validationService) {
+    public BoardRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService) {
         this.mongoConnection = mongoConnection;
         this.validationService = validationService;
+        this.authService = authService;
     }
 
     @POST
@@ -98,8 +102,28 @@ public class BoardRestApi {
     public Response fetchBoards() {
         String orgId = UserContext.current().getOrgId();
         List<Board> boards = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
-        Collections.sort(boards, Comparator.comparing(Board::getId));
+        Collections.sort(boards, Comparator.comparing(Board::getOrder));
         return Response.ok(JacksonMapper.toJson(boards)).build();
+    }
+
+    @POST
+    @Path("/reorder-boards")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response fetchBoards(ReorderBoardsRequest reorderBoardsRequest) {
+        authService.validateIfValidMember();
+        if (reorderBoardsRequest == null || CollectionUtils.isEmpty(reorderBoardsRequest.getBoardIds())) {
+            throw new UserVisibleException("Board ids are required");
+        }
+
+        List<String> boardIds = reorderBoardsRequest.getBoardIds();
+        String orgId = UserContext.current().getOrgId();
+        for (String boardId : boardIds) {
+            mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_ID).is(boardId).and(Board.FIELD_ORGANIZATION_ID).is(orgId)),
+                    new org.springframework.data.mongodb.core.query.Update().set(Board.FIELD_ORDER, boardIds.indexOf(boardId)), Board.class);
+        }
+
+        return Response.ok("{}").build();
     }
 
     private Board getBoard(String boardId, String orgId) {

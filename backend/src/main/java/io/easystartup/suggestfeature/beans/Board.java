@@ -30,6 +30,7 @@ public class Board {
     public static final String FIELD_POST_COUNT = "postCount";
     public static final String FIELD_NAME = "name";
     public static final String FIELD_SLUG = "slug";
+    public static final String FIELD_ORDER = "order";
 
     @Id
     private String id;
@@ -54,6 +55,8 @@ public class Board {
     private Long postCount;
 
     private Long createdAt;
+
+    private Long order;
 
     public Board() {
     }
@@ -152,5 +155,16 @@ public class Board {
 
     public void setPrivateBoard(boolean privateBoard) {
         this.privateBoard = privateBoard;
+    }
+
+    public Long getOrder() {
+        if (order == null) {
+            return getCreatedAt();
+        }
+        return order;
+    }
+
+    public void setOrder(Long order) {
+        this.order = order;
     }
 }

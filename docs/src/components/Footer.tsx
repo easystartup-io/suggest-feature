@@ -5,7 +5,8 @@ export default function Footer() {
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
             <a href="/" className="flex items-center">
-              <img src="https://suggestfeature.com/logo.svg" className="mr-3 h-8" alt="Suggest Feature Logo" />
+              {/* <img src="/logo.jpeg" className=" mr-3 h-8" alt="Suggest Feature Logo" /> */}
+              <img src="/logo-light.png" className="mr-3 h-6 sm:h-9" alt="Suggest Feature Logo" />
               <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Suggest Feature</span>
             </a>
           </div>

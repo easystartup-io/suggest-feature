@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg viewBox="140.302 144.389 219.594 242.013" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
-  <defs>
-    <style bx:fonts="Inter">@import url(https://fonts.googleapis.com/css2?family=Inter%3Aital%2Cwght%400%2C100..900&amp;display=swap);</style>
-  </defs>
-  <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); stroke-width: 14px;" cx="250.099" cy="250" rx="96.844" ry="96.844"/>
-  <text style="fill: rgb(51, 51, 51); font-family: Inter,Arial,sans-serif; font-size: 28px; font-weight: 473; white-space: pre;" x="140.488" y="379.778">Suggest Feature</text>
-  <path style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); stroke-width: 18px;" d="M 203.113 255.035 L 233.776 282.775 L 297.084 219.958"/>
-</svg>

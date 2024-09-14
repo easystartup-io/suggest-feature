@@ -16,6 +16,8 @@ import { useAuth } from "@/context/AuthContext"
 import { Icons } from "@/components/icons"
 import AttachmentComponent from "@/components/AttachmentComponent"
 import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButton"
+import { SortOptionsComboBox } from "@/components/SortComboBox"
+import { StatusFilterComboBox } from "@/components/StatusFilterComboBox"
 
 export const statusConfig = {
   "OPEN": {
@@ -176,6 +178,9 @@ export default function Dashboard({ params }) {
   const [suggestedPostsScreen, setSuggestedPostsScreen] = useState(false)
   const [attachments, setAttachments] = useState([]);
 
+  const [sortOptions, setSortOptions] = useState('trending');
+  const [statusFilter, setStatusFilter] = useState('');
+
   useEffect(() => {
     if (userLoading) {
       return
@@ -183,7 +188,7 @@ export default function Dashboard({ params }) {
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
 
-    fetch(`${protocol}//${host}/api/portal/${user ? 'auth' : 'unauth'}/posts/get-posts-by-board?slug=${params.slug}`)
+    fetch(`${protocol}//${host}/api/portal/${user ? 'auth' : 'unauth'}/posts/get-posts-by-board?slug=${params.slug}&sortString=${sortOptions}&statusFilter=${statusFilter}`)
       .then((res) => res.json())
       .then((data) => {
         setPosts(data)
@@ -196,7 +201,7 @@ export default function Dashboard({ params }) {
       const b = boards.find((item) => item.slug === params.slug);
       setBoard(b)
     }
-  }, [params, boards, user, userLoading]);
+  }, [params, boards, user, userLoading, sortOptions, statusFilter]);
 
   const onSubmitPost = async (e) => {
     console.log(params)
@@ -352,14 +357,18 @@ export default function Dashboard({ params }) {
                 }
                 {
                   !suggestedPostsScreen &&
-                  <div className="bg-background p-4 backdrop-blur supports-[backdrop-filter]:bg-background mb-2 rounded-lg px-8">
-                    <div className="relative">
+                  <div className="flex items-center justify-between bg-background p-4 backdrop-blur supports-[backdrop-filter]:bg-background mb-2 rounded-lg px-8 space-x-2">
+                    <div className="relative w-full">
                       <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input placeholder="Search" className="pl-8"
                         onChange={(e) => {
                           searchOnDb(e.target.value)
                         }}
                       />
+                    </div>
+                    <div className="flex items-center justify-end space-x-2">
+                      <StatusFilterComboBox postsStatusFilter={statusFilter} setPostsStatusFilter={setStatusFilter} />
+                      <SortOptionsComboBox postsSort={sortOptions} setPostsSort={setSortOptions} />
                     </div>
                   </div>
                 }

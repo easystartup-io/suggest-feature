@@ -8,11 +8,9 @@ import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.Post;
 import io.easystartup.suggestfeature.dto.SearchPostDTO;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
-import io.easystartup.suggestfeature.loggers.Logger;
-import io.easystartup.suggestfeature.loggers.LoggerFactory;
-import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
@@ -76,6 +74,7 @@ public class PublicPortalPostRestApi {
                 sanitizeOrg(org);
                 List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
                 boardList.stream().filter((board) -> !board.isPrivateBoard()).forEach(PublicPortalPostRestApi::sanitizeBoard);
+                boardList.sort(Comparator.comparing(Board::getOrder));
                 Map<String, Object> rv = new HashMap<>();
                 rv.put("org", org);
                 rv.put("boards", boardList);
@@ -231,7 +230,10 @@ public class PublicPortalPostRestApi {
     @GET
     @Path("/get-posts-by-board")
     @Produces("application/json")
-    public Response getPostsByBoard(@Context HttpServletRequest request, @QueryParam("slug") @NotBlank String slug) {
+    public Response getPostsByBoard(@Context HttpServletRequest request, @QueryParam("slug") @NotBlank String slug,
+                                    @QueryParam("statusFilter") String statusFilter,
+                                    @QueryParam("sortString") String sortString
+    ) {
         String host = request.getHeader("host");
         Organization org = getOrg(host);
         if (org == null) {
@@ -243,8 +245,22 @@ public class PublicPortalPostRestApi {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId());
-        List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(new Query(criteriaDefinition), Post.class);
-        posts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        if (StringUtils.isNotBlank(statusFilter)) {
+            criteriaDefinition.and(Post.FIELD_STATUS).is(statusFilter);
+        }
+        List<Post> posts;
+
+        Query query = new Query(criteriaDefinition).with(Sort.by(Sort.Direction.DESC, Post.FIELD_CREATED_AT));
+        query.with(Util.getSort(sortString));
+        if (StringUtils.isNotBlank(sortString) && "trending".equals(sortString)) {
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+            posts.forEach(post -> {
+                post.setTrendingScore(Util.calculateTrendingScore(post.getVotes(), post.getCreatedAt()));
+            });
+            posts.sort(Comparator.comparing(Post::getTrendingScore).reversed());
+        } else {
+            posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+        }
         posts.forEach(post -> post.setBoardSlug(slug));
 
         return Response.ok().entity(JacksonMapper.toJson(posts)).build();

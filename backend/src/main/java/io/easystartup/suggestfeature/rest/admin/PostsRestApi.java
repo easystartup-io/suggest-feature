@@ -406,17 +406,13 @@ public class PostsRestApi {
         if(StringUtils.isNotBlank(req.getStatusFilter())){
             criteriaDefinition.and(Post.FIELD_STATUS).is(req.getStatusFilter());
         }
-        adaptSort(req);
+        org.springframework.data.domain.Sort sort = Util.getSort(req.getSortString());
         Query query = new Query(criteriaDefinition);
-        if (req.getSort() == null) {
-            req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.DESC));
-        }
         if (req.getPage() == null) {
             req.setPage(new Page(0, 20));
         }
-        String field = req.getSort().getField();
 
-        query.with(org.springframework.data.domain.Sort.by(getOrder(req), field));
+        query.with(sort);
         List<Post> posts;
         if (StringUtils.isNotBlank(req.getSortString()) && req.getSortString().equals("trending")) {
             posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
@@ -430,18 +426,6 @@ public class PostsRestApi {
         return Response.ok(JacksonMapper.toJson(posts)).build();
     }
 
-    private void adaptSort(FetchPostsRequestDTO req) {
-        String sortString = req.getSortString();
-        if (StringUtils.isBlank(sortString)) {
-            return;
-        }
-        switch (sortString){
-            case "trending" -> req.setSort(new Sort(Post.FIELD_VOTES, Order.DESC));
-            case "top" -> req.setSort(new Sort(Post.FIELD_VOTES, Order.DESC));
-            case "newest" -> req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.DESC));
-            case "oldest" -> req.setSort(new Sort(Post.FIELD_CREATED_AT, Order.ASC));
-        }
-    }
 
 
     @POST
@@ -500,18 +484,6 @@ public class PostsRestApi {
         mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(comment.getPostId())), new Update().inc(Post.FIELD_COMMENT_COUNT, -1), Post.class);
 
         return Response.ok(EMPTY_JSON_RESPONSE).build();
-    }
-
-    private static org.springframework.data.domain.Sort.Direction getOrder(FetchPostsRequestDTO req) {
-        switch (req.getSort().getOrder()) {
-            case ASC -> {
-                return org.springframework.data.domain.Sort.Direction.ASC;
-            }
-            case DESC -> {
-                return org.springframework.data.domain.Sort.Direction.DESC;
-            }
-        }
-        return org.springframework.data.domain.Sort.Direction.DESC;
     }
 
     private Post getPost(String postId, String orgId) {

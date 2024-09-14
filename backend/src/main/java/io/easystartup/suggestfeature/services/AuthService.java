@@ -9,6 +9,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.LoginResponse;
+import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
@@ -334,6 +335,18 @@ public class AuthService {
             customer.setOrganizationId(orgIdFromHost);
             customer.setCreatedAt(System.currentTimeMillis());
             mongoTemplateFactory.getDefaultMongoTemplate().insert(customer);
+        }
+    }
+
+    public void validateIfValidMember() {
+        UserContext userContext = UserContext.current();
+        if (userContext == null || userContext.getUserId() == null || userContext.getOrgId() == null) {
+            throw new RuntimeException("User not member");
+        }
+
+        Member member = getMemberForOrgId(userContext.getUserId(), userContext.getOrgId());
+        if (member == null) {
+            throw new RuntimeException("User not member");
         }
     }
 }

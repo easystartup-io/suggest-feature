@@ -12,9 +12,6 @@ public class FetchPostsRequestDTO {
     private String statusFilter;
     private Page page;
 
-    // Use it for internal request adapatation only
-    private transient Sort sort;
-
     public FetchPostsRequestDTO() {
     }
 
@@ -24,14 +21,6 @@ public class FetchPostsRequestDTO {
 
     public void setPage(Page page) {
         this.page = page;
-    }
-
-    public Sort getSort() {
-        return sort;
-    }
-
-    public void setSort(Sort sort) {
-        this.sort = sort;
     }
 
     public String getBoardSlug() {
