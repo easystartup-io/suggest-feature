@@ -4,6 +4,8 @@ import io.easystartup.suggestfeature.beans.Board;
 import io.easystartup.suggestfeature.dto.ReorderBoardsRequest;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.loggers.Logger;
+import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
@@ -12,6 +14,7 @@ import io.easystartup.suggestfeature.utils.Util;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author indianBond
@@ -34,6 +38,7 @@ public class BoardRestApi {
     private final MongoTemplateFactory mongoConnection;
     private final ValidationService validationService;
     private final AuthService authService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoardRestApi.class);
 
     @Autowired
     public BoardRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService) {
@@ -104,6 +109,31 @@ public class BoardRestApi {
         List<Board> boards = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
         Collections.sort(boards, Comparator.comparing(Board::getOrder));
         return Response.ok(JacksonMapper.toJson(boards)).build();
+    }
+
+    @POST
+    @Path("/delete-board")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response deleteBoard(Map<String, String> req) {
+        authService.validateIfValidMember();
+        if (MapUtils.isEmpty(req) || StringUtils.isBlank(req.get("boardSlug"))) {
+            throw new UserVisibleException("Board is required");
+        }
+        String boardSlug = req.get("boardSlug");
+        String orgId = UserContext.current().getOrgId();
+
+        Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
+
+        LOGGER.error("Deleting Board: " + JacksonMapper.toJson(board));
+
+        if (board == null) {
+            throw new UserVisibleException("Board not found");
+        }
+
+        mongoConnection.getDefaultMongoTemplate().remove(new Query(Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
+
+        return Response.ok("{}").build();
     }
 
     @POST

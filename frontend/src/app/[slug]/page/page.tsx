@@ -393,7 +393,7 @@ const Dashboard: React.FC = ({ params }) => {
                             .suggestfeature.com
                           </div>
                           <div>
-                            <a href={`https://${field.value}.suggestfeature.com`} target="_blank"
+                            <a href={`https://${orgSlug}.suggestfeature.com`} target="_blank"
                               className="ml-1 pb-2 inline-block hover:text-indigo-700">
                               <ExternalLink className="h-6 w-6 inline-block" />
                             </a>

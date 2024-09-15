@@ -159,6 +159,9 @@ public class Board {
 
     public Long getOrder() {
         if (order == null) {
+            if (createdAt == null) {
+                return System.currentTimeMillis();
+            }
             return getCreatedAt();
         }
         return order;
