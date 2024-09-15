@@ -4,7 +4,7 @@ icon: plus-large
 
 # Add a board
 
-{% embed url="https://asssets-docs.suggestfeature.com/add-a-board.mp4" %}
+{% embed url="https://asssets-docs.suggestfeature.com/add-a-board.mp4" fullWidth="false" %}
 
 To add a new board:
 

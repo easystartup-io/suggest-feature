@@ -15,6 +15,7 @@
   * [Add a board](basics/boards/add-a-board.md)
   * [Delete a board](basics/boards/delete-a-board.md)
   * [Changing Board URL (Slug)](basics/boards/changing-board-url-slug.md)
+  * [Reordering Boards](basics/boards/reordering-boards.md)
 * [Integrations](basics/integrations.md)
 
 ## FAQ
