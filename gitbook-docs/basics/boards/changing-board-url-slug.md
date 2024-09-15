@@ -14,5 +14,5 @@ To change the board's URL (slug):
 * Click **Update board**.
 
 {% hint style="danger" %}
-Change slug with caution. Currently, changing the slug will void existing links, so you might end up with broken links.
+**Warning:** Change slug with caution. Currently, changing the slug will void existing links, so you might end up with broken links.
 {% endhint %}
