@@ -74,7 +74,7 @@ public class PublicPortalPostRestApi {
                 sanitizeOrg(org);
                 List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
                 boardList.stream().filter((board) -> !board.isPrivateBoard()).forEach(PublicPortalPostRestApi::sanitizeBoard);
-                boardList.sort(Comparator.comparing(board -> board.getOrder()));
+                boardList.sort(Comparator.comparing(Board::getOrder));
                 Map<String, Object> rv = new HashMap<>();
                 rv.put("org", org);
                 rv.put("boards", boardList);

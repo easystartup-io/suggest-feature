@@ -313,7 +313,7 @@ const Dashboard: React.FC = ({ params }) => {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="my-4">
-                  <Label htmlFor="confirmBoardName">Enter the board name '{data.name}' to confirm deletion:</Label>
+                  <Label htmlFor="confirmBoardName">Enter the board name &apos;{data.name}&apos; to confirm deletion:</Label>
                   <Input
                     id="confirmBoardName"
                     value={deleteConfirmName}
