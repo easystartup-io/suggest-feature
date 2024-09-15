@@ -50,7 +50,7 @@ const Dashboard: React.FC = ({ params }) => {
           "x-org-slug": params.slug,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ boardIds: reOrderedBoards.map(board => board.id) })
+        body: JSON.stringify({ boardIds: reOrderedBoards })
       })
       const respData = await response.json();
 
