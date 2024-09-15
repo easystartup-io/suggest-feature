@@ -11,6 +11,7 @@ import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
 import io.easystartup.suggestfeature.utils.Util;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
@@ -109,6 +110,31 @@ public class BoardRestApi {
         List<Board> boards = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
         Collections.sort(boards, Comparator.comparing(Board::getOrder));
         return Response.ok(JacksonMapper.toJson(boards)).build();
+    }
+
+    @POST
+    @Path("/update-board-form")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response updateBoardForm(@QueryParam("boardSlug") @NotBlank String boardSlug, Board.BoardForm boardForm) {
+        authService.validateIfValidMember();
+
+        if (boardForm == null) {
+            throw new UserVisibleException("Board form is required");
+        }
+
+        String orgId = UserContext.current().getOrgId();
+
+        Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
+
+        if (board == null) {
+            throw new UserVisibleException("Board not found");
+        }
+
+        mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Board.FIELD_ORGANIZATION_ID).is(orgId)),
+                new org.springframework.data.mongodb.core.query.Update().set(Board.FIELD_BOARD_FORM, boardForm), Board.class);
+
+        return Response.ok("{}").build();
     }
 
     @POST

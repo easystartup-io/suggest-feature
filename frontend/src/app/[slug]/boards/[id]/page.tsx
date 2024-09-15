@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils";
+import BoardFormEditor from "@/components/BoardFormEditor";
 
 const Dashboard: React.FC = ({ params }) => {
   const { toast } = useToast()
@@ -281,6 +282,12 @@ const Dashboard: React.FC = ({ params }) => {
           </div>
         </div>
 
+      </main>
+      <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <BoardFormEditor
+          params={params}
+          data={data}
+        />
       </main>
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
         <div

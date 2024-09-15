@@ -31,6 +31,7 @@ public class Board {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_SLUG = "slug";
     public static final String FIELD_ORDER = "order";
+    public static final String FIELD_BOARD_FORM = "boardForm";
 
     @Id
     private String id;
@@ -45,6 +46,8 @@ public class Board {
     private String organizationId;
     @Indexed
     private String createdByUserId;
+
+    private BoardForm boardForm;
 
     private boolean privateBoard;
 
@@ -169,5 +172,83 @@ public class Board {
 
     public void setOrder(Long order) {
         this.order = order;
+    }
+
+    public BoardForm getBoardForm() {
+        return boardForm;
+    }
+
+    public void setBoardForm(BoardForm boardForm) {
+        this.boardForm = boardForm;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class BoardForm {
+        private String heading;
+        private String description;
+        private String titleLabel;
+        private String titlePlaceholder;
+        private String descriptionLabel;
+        private String descriptionPlaceholder;
+        private String buttonText;
+
+        public BoardForm() {
+        }
+
+        public String getHeading() {
+            return heading;
+        }
+
+        public void setHeading(String heading) {
+            this.heading = heading;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getTitleLabel() {
+            return titleLabel;
+        }
+
+        public void setTitleLabel(String titleLabel) {
+            this.titleLabel = titleLabel;
+        }
+
+        public String getTitlePlaceholder() {
+            return titlePlaceholder;
+        }
+
+        public void setTitlePlaceholder(String titlePlaceholder) {
+            this.titlePlaceholder = titlePlaceholder;
+        }
+
+        public String getDescriptionLabel() {
+            return descriptionLabel;
+        }
+
+        public void setDescriptionLabel(String descriptionLabel) {
+            this.descriptionLabel = descriptionLabel;
+        }
+
+        public String getDescriptionPlaceholder() {
+            return descriptionPlaceholder;
+        }
+
+        public void setDescriptionPlaceholder(String descriptionPlaceholder) {
+            this.descriptionPlaceholder = descriptionPlaceholder;
+        }
+
+        public String getButtonText() {
+            return buttonText;
+        }
+
+        public void setButtonText(String buttonText) {
+            this.buttonText = buttonText;
+        }
     }
 }
