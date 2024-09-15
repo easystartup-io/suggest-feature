@@ -97,6 +97,7 @@ const BoardFormEditor = ({ params, data }) => {
             <Input
               id="heading"
               value={heading}
+              placeholder="Create post"
               onChange={(e) => setHeading(e.target.value)}
             />
           </div>
@@ -113,6 +114,7 @@ const BoardFormEditor = ({ params, data }) => {
             <Input
               id="titleLabel"
               value={titleLabel}
+              placeholder="Title"
               onChange={(e) => setTitleLabel(e.target.value)}
             />
           </div>
@@ -129,6 +131,7 @@ const BoardFormEditor = ({ params, data }) => {
             <Input
               id="descriptionLabel"
               value={descriptionLabel}
+              placeholder="Description"
               onChange={(e) => setDescriptionLabel(e.target.value)}
             />
           </div>
@@ -149,14 +152,16 @@ const BoardFormEditor = ({ params, data }) => {
               onChange={(e) => setButtonText(e.target.value)}
             />
           </div>
-          <Button
-            disabled={loading}
-            onClick={handleSave} className="w-full">
-            {loading &&
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            }
-            Save Form Settings
-          </Button>
+          <div className='flex items-center'>
+            <Button
+              disabled={loading}
+              onClick={handleSave} className="mt-4">
+              {loading &&
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              }
+              Save Form Settings
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -164,24 +169,26 @@ const BoardFormEditor = ({ params, data }) => {
         className="w-full lg:w-1/3"
       >
         <div
-          className="text-2xl font-semibold leading-none tracking-tight my-4"
+          className="text-lg font-semibold leading-none tracking-tight my-4"
         >
-          Create post preview
+          <span className='px-2 py-1 bg-green-600 rounded text-white'>
+            CREATE POST PREVIEW
+          </span>
         </div>
         <Card
-          className="pt-8"
+          className="pt-4 shadow-none bg-background"
         >
           <CardContent className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold">{heading}</h2>
+              <h2 className="text-lg font-bold">{heading || 'Create post'}</h2>
               <p className="text-gray-600">{description}</p>
             </div>
             <div>
-              <Label htmlFor="previewTitle">{titleLabel}</Label>
+              <Label htmlFor="previewTitle">{titleLabel || 'Title'}</Label>
               <Input id="previewTitle" placeholder={titlePlaceholder} />
             </div>
             <div>
-              <Label htmlFor="previewDescription">{descriptionLabel}</Label>
+              <Label htmlFor="previewDescription">{descriptionLabel || 'Description'}</Label>
               <Textarea id="previewDescription" placeholder={descriptionPlaceholder} className="min-h-[100px]" />
             </div>
             <div className="flex justify-end space-x-2">

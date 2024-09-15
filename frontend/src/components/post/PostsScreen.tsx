@@ -80,9 +80,14 @@ function AddPostDialog({ params, refetch, allBoards }) {
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [boardSlug, setBoardSlug] = useState(params.id || (allBoards && allBoards.length > 0 && allBoards[0].slug))
-
+  const [board, setBoard] = useState(null)
 
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (!boardSlug || !allBoards) return;
+    setBoard(allBoards.find((board) => board.slug === boardSlug))
+  }, [allBoards, boardSlug])
 
   const searchOnDb = useDebouncedCallback((value) => {
     if (value.trim() === '') {
@@ -162,9 +167,9 @@ function AddPostDialog({ params, refetch, allBoards }) {
       <DialogContent className="sm:max-w-[900px] ">
         <ScrollArea className="max-h-[calc(100dvh-3rem)]">
           <DialogHeader className="px-2">
-            <DialogTitle>Add post</DialogTitle>
+            <DialogTitle>{board?.boardForm?.heading || 'Create post'}</DialogTitle>
             <DialogDescription>
-              Create a new post
+              {board?.boardForm?.description || ''}
             </DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-4">
@@ -172,12 +177,12 @@ function AddPostDialog({ params, refetch, allBoards }) {
               <div className="grid gap-4 py-4 px-2">
                 <div className="grid gap-4">
                   <Label htmlFor="title" >
-                    Title
+                    {board?.boardForm?.titleLabel || 'Title'}
                   </Label>
                   <Input
                     id="title"
                     value={title}
-                    placeholder="Dark mode"
+                    placeholder={board?.boardForm?.titlePlaceholder || ''}
                     onChange={(e) => {
                       searchOnDb(e.target.value)
                       setTitle(e.target.value)
@@ -189,12 +194,12 @@ function AddPostDialog({ params, refetch, allBoards }) {
                 </div>
                 <div className="grid gap-4">
                   <Label htmlFor="description" >
-                    Description
+                    {board?.boardForm?.descriptionLabel || 'Description'}
                   </Label>
                   <Textarea
                     id="description"
                     value={description}
-                    placeholder="Dark mode is required for the app to look cool"
+                    placeholder={board?.boardForm?.descriptionPlaceholder || ''}
                     onChange={(e) => setDescription(e.target.value)}
                     disabled={isLoading}
                     className="col-span-3"
@@ -324,7 +329,7 @@ function AddPostDialog({ params, refetch, allBoards }) {
                 />
               )}
               {
-                uploading ? 'Uploading...' : (isLoading ? '' : 'Create post')
+                uploading ? 'Uploading...' : (isLoading ? '' : board?.boardForm?.buttonText || 'Submit')
               }
             </Button>
           </DialogFooter>

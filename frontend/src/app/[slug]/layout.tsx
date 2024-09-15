@@ -17,6 +17,7 @@ import {
   MessageCircleMore,
   MessagesSquare,
   Moon,
+  Notebook,
   Plus,
   Sun,
   UserRoundCog,
@@ -52,6 +53,7 @@ const navigationItems = [
   { href: 'members', icon: UserRoundCog, label: 'Team Members' },
   { href: 'customers', icon: Users, label: 'Customers' },
   { href: 'billing', icon: CircleDollarSign, label: 'Billing' },
+  { hrefExternal: 'https://docs.suggestfeature.com', icon: Notebook, label: 'Docs' },
 ]
 
 function ModeToggle() {
@@ -82,10 +84,14 @@ function Navigation({ items, isActive, setCurrentSection, params, isCollapsed })
       {items.map((item) => (
         <Link
           key={item.href}
-          href={`/${params.slug}/${item.href}`}
+          target={item.hrefExternal ? "_blank" : "_self"}
+          href={item.hrefExternal ? item.hrefExternal : `/${params.slug}/${item.href}`}
           className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive(item.href)}`,
             isCollapsed && "justify-center lg:mx-2")}
-          onClick={() => setCurrentSection(item.href)}
+          onClick={() => {
+            if (item.hrefExternal) return;
+            setCurrentSection(item.href)
+          }}
         >
           <item.icon className="h-5 w-5 md:h-4 md:w-4" />
           {isCollapsed ? null : item.label}

@@ -10,7 +10,7 @@ import { useInit } from "@/context/InitContext"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useDebouncedCallback } from 'use-debounce';
 import { useAuth } from "@/context/AuthContext"
 import { Icons } from "@/components/icons"
@@ -18,6 +18,7 @@ import AttachmentComponent from "@/components/AttachmentComponent"
 import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButton"
 import { SortOptionsComboBox } from "@/components/SortComboBox"
 import { StatusFilterComboBox } from "@/components/StatusFilterComboBox"
+import { Card, CardContent } from "@/components/ui/card"
 
 export const statusConfig = {
   "OPEN": {
@@ -49,22 +50,6 @@ export const statusConfig = {
     label: "CLOSED"
   }
 };
-
-function Custom404() {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-blue-400 to-blue-300 text-center">
-      <div className="text-8xl font-bold text-white">404</div>
-      <div className="mt-4 text-2xl font-medium text-white">
-        Oops! Page not found!
-      </div>
-      <div className="relative w-24 h-24 mt-8">
-      </div>
-      <div className="mt-8 text-lg text-white underline">
-        <a href="https://suggestfeature.com">Go Back to Suggest Feature</a>
-      </div>
-    </div>
-  );
-}
 
 const PostList = ({ posts, setPosts, params }) => {
   const router = useRouter();
@@ -271,80 +256,91 @@ export default function Dashboard({ params }) {
       })
   }, 300);
 
-
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-2 w-full">
       <div className="w-full">
         <div className="w-full">
           <div className="w-full">
             <div className="w-full mt-6 grid md:grid-cols-3 gap-4">
-              <div className="w-full">
-                <div className="bg-white dark:bg-background flex flex-col p-6 rounded-lg gap-4 w-full">
-                  <div>
-                    <Label>
-                      Title
-                    </Label>
-                    <Input disabled={loading} value={title} onChange={(e) => {
-                      if (verifyLoginOrPrompt()) {
-                        return;
-                      }
-                      if (e.target.value.trim() === '') {
-                        setSuggestedPostsScreen(false)
-                      } else {
-                        setSuggestedPostsScreen(true)
-                      }
-                      setTitle(e.target.value)
-                      searchOnDb(e.target.value)
-                    }
-                    }
-                    />
-                  </div>
-                  <div>
-                    <Label>
-                      Description
-                    </Label>
-                    <Textarea disabled={loading} value={description} onChange={(e) => {
-                      if (verifyLoginOrPrompt()) {
-                        return;
-                      }
-                      setDescription(e.target.value)
-                    }
-                    }
-                    />
-                  </div>
+              <div>
 
-                  <AttachmentComponent
-                    attachments={attachments}
-                    setAttachments={setAttachments}
-                    uploading={uploading}
-                    setUploading={setUploading}
-                    allowDelete={true}
-                  />
+                <Card
+                  className="pt-4 border-0 shadow-none w-full"
+                >
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h2 className="text-lg font-bold">{board.boardForm?.heading || 'Create post'}</h2>
+                      <p className="text-gray-600">{board.boardForm?.description || ''}</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="previewTitle">{board.boardForm?.titleLabel || 'Title'}</Label>
+                      <Input
+                        disabled={loading}
+                        key={"title"}
+                        value={title}
+                        onChange={(e) => {
+                          if (verifyLoginOrPrompt()) {
+                            return;
+                          }
+                          if (e.target.value.trim() === '') {
+                            setSuggestedPostsScreen(false)
+                          } else {
+                            setSuggestedPostsScreen(true)
+                          }
+                          setTitle(e.target.value)
+                          searchOnDb(e.target.value)
+                        }}
+                        id="previewTitle"
+                        placeholder={board.boardForm?.titlePlaceholder} />
+                    </div>
+                    <div>
+                      <Label htmlFor="previewDescription">{board.boardForm?.descriptionLabel || 'Description'}</Label>
+                      <Textarea
+                        id="previewDescription"
+                        key={"description"}
+                        disabled={loading}
+                        value={description}
+                        onChange={(e) => {
+                          if (verifyLoginOrPrompt()) {
+                            return;
+                          }
+                          setDescription(e.target.value)
+                        }}
+                        placeholder={board.boardForm?.descriptionPlaceholder} className="min-h-[100px]" />
+                    </div>
 
-                  <div className="flex justify-end w-full space-x-2">
-
-                    <MultiAttachmentUploadButton
+                    <AttachmentComponent
                       attachments={attachments}
                       setAttachments={setAttachments}
                       uploading={uploading}
                       setUploading={setUploading}
-                      loading={loading}
+                      allowDelete={true}
                     />
+                    <div className="flex justify-end space-x-2">
 
-                    <Button onClick={onSubmitPost} disabled={loading || uploading}
-                    >
-
-                      {(loading || uploading) && <Icons.spinner
-                        className={
-                          cn("h-4 w-4 animate-spin",
-                            loading ? 'mx-4' : 'mr-2')
-                        } />}
-                      {
-                        uploading ? 'Uploading...' : (loading ? '' : 'Submit')
-                      }
-                    </Button>
-                  </div>
-                </div>
+                      <MultiAttachmentUploadButton
+                        attachments={attachments}
+                        setAttachments={setAttachments}
+                        uploading={uploading}
+                        setUploading={setUploading}
+                        loading={loading}
+                      />
+                      <Button variant="default"
+                        onClick={onSubmitPost}
+                        disabled={loading || uploading}
+                      >
+                        {(loading || uploading) && <Icons.spinner
+                          className={
+                            cn("h-4 w-4 animate-spin",
+                              loading ? 'mx-4' : 'mr-2')
+                          } />}
+                        {
+                          uploading ? 'Uploading...' : (loading ? '' : board.boardForm?.buttonText || 'Submit')
+                        }
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
               <div className="md:col-span-2 w-full">
                 {
