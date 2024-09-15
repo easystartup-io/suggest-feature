@@ -10,6 +10,11 @@
 
 ## Basics
 
+* [Boards](basics/boards/README.md)
+  * [Accessing Board Settings](basics/boards/accessing-board-settings.md)
+  * [Add a board](basics/boards/add-a-board.md)
+  * [Delete a board](basics/boards/delete-a-board.md)
+  * [Changing Board URL (Slug)](basics/boards/changing-board-url-slug.md)
 * [Integrations](basics/integrations.md)
 
 ## FAQ
