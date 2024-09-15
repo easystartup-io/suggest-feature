@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { Paperclip } from "lucide-react";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -10,9 +10,15 @@ export default function MultiAttachmentUploadButton({ attachments, setAttachment
   const fileInputRef = useRef(null);
   const { verifyLoginOrPrompt } = useAuth();
   const { toast } = useToast();
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+  const handleFile = async (file) => {
+
+    if (!file) {
+      return;
+    }
+
+    console.log(file.size)
 
     if (verifyLoginOrPrompt()) {
       return;
@@ -26,8 +32,6 @@ export default function MultiAttachmentUploadButton({ attachments, setAttachment
       })
       return
     }
-
-    if (!file) return;
 
     setUploading(true);
     const formData = new FormData();
@@ -50,15 +54,18 @@ export default function MultiAttachmentUploadButton({ attachments, setAttachment
         throw new Error('Upload failed');
       }
 
-      setAttachments([
-        ...attachments,
-        {
-          "type": respData.type,
-          "url": respData.url,
-          "name": respData.name,
-          "contentType": respData.contentType,
-        }
-      ]);
+      setAttachments((prev) => {
+        return [
+          ...prev,
+          {
+            "type": respData.type,
+            "url": respData.url,
+            "name": respData.name,
+            "contentType": respData.contentType,
+          }
+        ]
+      });
+
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
@@ -68,7 +75,6 @@ export default function MultiAttachmentUploadButton({ attachments, setAttachment
   }
 
   const handleButtonClick = () => {
-
     if (verifyLoginOrPrompt()) {
       return;
     }
@@ -81,19 +87,36 @@ export default function MultiAttachmentUploadButton({ attachments, setAttachment
       })
       return;
     }
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
-  return <Button variant="outline" size="icon"
-    onClick={handleButtonClick}
-    disabled={uploading || loading}
-  >
-    <Paperclip className='h-4 w-4 text-gray-500' />
-    <input
-      ref={fileInputRef}
-      type="file"
-      className="hidden"
-      onChange={handleFileChange}
-    />
-  </Button>
+  const handleFileChange = (e) => {
+    for (let i = 0; i < e.target.files.length; i++) {
+      handleFile(e.target.files[i])
+    }
+  };
+
+
+  return <>
+    <Button variant="outline" size="icon"
+      onClick={handleButtonClick}
+      disabled={uploading || loading}
+    >
+      <Paperclip className='h-4 w-4 text-gray-500' />
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        multiple={true}
+        onChange={handleFileChange}
+      />
+    </Button>
+
+    {/* {isDragging && ( */}
+    {/*   <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100 bg-opacity-75 pointer-events-none"> */}
+    {/*     <p className="text-lg font-semibold">Drop your file here</p> */}
+    {/*   </div> */}
+    {/* )} */}
+  </>
+
 }

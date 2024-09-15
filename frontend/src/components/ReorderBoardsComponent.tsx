@@ -95,7 +95,7 @@ const ReorderBoardsComponent = ({ boards, onSave }) => {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Reorder Boards</DialogTitle>
+            <DialogTitle>Drag to reorder your boards</DialogTitle>
           </DialogHeader>
           <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend}>
             <div className="max-h-[60vh] overflow-y-auto">
