@@ -7,13 +7,13 @@ icon: memo-circle-info
 
 # The "Create Post" Form
 
+{% embed url="https://asssets-docs.suggestfeature.com/create-post-form-settings.mp4" %}
+
 **Overview**
 
 The **Create Post** form is where users will submit new feedback, such as feature requests, bug reports, or suggestions. You can customize the form's fields and wording to ensure it is optimized for the type of feedback you want to gather.
 
 Each board in Suggest Feature—like the **Features Board**, **Bug Board**, etc.—has its own dedicated **Create Post** form. This allows you to tailor each form to the specific context and needs of that board, ensuring the feedback is relevant and actionable.
-
-{% embed url="https://asssets-docs.suggestfeature.com/create-post-form.mp4" %}
 
 **Customizing the "Create Post" Form**
 
