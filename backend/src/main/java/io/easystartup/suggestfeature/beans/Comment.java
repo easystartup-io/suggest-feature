@@ -30,6 +30,11 @@ public class Comment {
     public static final String FIELD_POST_ID = "postId";
     public static final String FIELD_REPLY_TO_COMMENT_ID = "replyToCommentId";
 
+    public enum CommentType {
+        COMMENT,
+        STATUS_UPDATE
+    }
+
     @Id
     private String id;
     @NotBlank
@@ -53,6 +58,9 @@ public class Comment {
 
     private Long createdAt;
     private Long modifiedAt;
+
+    private CommentType commentType = CommentType.COMMENT;
+    private String newStatus;
 
     public Comment() {
     }
@@ -143,5 +151,21 @@ public class Comment {
 
     public void setAttachments(List<Attachment> attachments) {
         this.attachments = attachments;
+    }
+
+    public CommentType getCommentType() {
+        return commentType;
+    }
+
+    public void setCommentType(CommentType commentType) {
+        this.commentType = commentType;
+    }
+
+    public String getNewStatus() {
+        return newStatus;
+    }
+
+    public void setNewStatus(String newStatus) {
+        this.newStatus = newStatus;
     }
 }

@@ -249,7 +249,6 @@ public class Util {
 
         post.setVoters(voters);
         post.setVotes(voters.size());
-        post.setComments(comments);
 
         Set<String> allUserIdsToFetch = new HashSet<>();
         allUserIdsToFetch.addAll(voters.stream().map(Voter::getUserId).collect(Collectors.toSet()));
@@ -275,7 +274,9 @@ public class Util {
             return safeUser;
         }).collect(Collectors.toMap(User::getId, Function.identity()));
 
-        populateUserInCommentAndPopulateNestedCommentsStructure(comments, userIdVsSafeUser);
+        // Returning new map because need to remove comments which have a parent comment, else double comment in response
+        comments = populateUserInCommentAndPopulateNestedCommentsStructure(comments, userIdVsSafeUser);
+        post.setComments(comments);
 
         voters.forEach(voter -> {
             voter.setUser(userIdVsSafeUser.get(voter.getUserId()));
@@ -305,17 +306,20 @@ public class Util {
     }
 
 
-    public static void populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments, Map<String, User> userIdVsSafeUser) {
+    public static List<Comment> populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments, Map<String, User> userIdVsSafeUser) {
         // All comments are already fetched. Now populate user in each comment by making single db call
         // And also populate nested comments structure. Based on replyToCommentId and comments list
+        List<Comment> processedComments = new ArrayList<>();
         Map<String, Comment> commentIdVsComment = comments.stream().collect(Collectors.toMap(Comment::getId, Function.identity()));
         for (Comment comment : comments) {
             comment.setUser(userIdVsSafeUser.get(comment.getCreatedByUserId()));
             if (StringUtils.isBlank(comment.getReplyToCommentId())) {
+                processedComments.add(comment);
                 continue;
             }
             Comment parentComment = commentIdVsComment.get(comment.getReplyToCommentId());
             if (parentComment == null) {
+                // Deleted comments which are dangling. Add support later
                 continue;
             }
             if (parentComment.getComments() == null) {
@@ -323,6 +327,7 @@ public class Util {
             }
             parentComment.getComments().add(comment);
         }
+        return processedComments;
     }
 
     public static Double calculateTrendingScore(long votes, Long createdAt) {

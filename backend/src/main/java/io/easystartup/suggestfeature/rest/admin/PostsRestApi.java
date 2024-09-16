@@ -159,6 +159,19 @@ public class PostsRestApi {
             throw new UserVisibleException("Post not found");
         }
         if (StringUtils.isNotBlank(req.getStatus())) {
+            if (!existingPost.getStatus().equals(req.getStatus())) {
+                // Add an activity comment
+                Comment comment = new Comment();
+                comment.setPostId(req.getPostId());
+                comment.setContent("Status changed to " + req.getStatus());
+                comment.setCreatedAt(System.currentTimeMillis());
+                comment.setCreatedByUserId(UserContext.current().getUserId());
+                comment.setOrganizationId(UserContext.current().getOrgId());
+                comment.setNewStatus(req.getStatus());
+                comment.setCommentType(Comment.CommentType.STATUS_UPDATE);
+                mongoConnection.getDefaultMongoTemplate().insert(comment);
+            }
+
             existingPost.setStatus(req.getStatus());
         }
         if (req.getApproved() != null) {
@@ -319,6 +332,7 @@ public class PostsRestApi {
         if (CollectionUtils.isNotEmpty(comment.getAttachments()) && comment.getAttachments().size() > 50){
             throw new UserVisibleException("Attachments limit exceeded");
         }
+        comment.setCommentType(Comment.CommentType.COMMENT);
         comment.setOrganizationId(UserContext.current().getOrgId());
         try {
             if (isNew) {

@@ -378,8 +378,22 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
   return (
     <div>
       <div className="ml-16">
-        {/* One for post and another for comment */}
-        <p className=''>{data.description || data.content}</p>
+        {/* One for post and another for comment  description vs content */}
+        <p className=''>
+          {
+            data.newStatus ?
+              <div className='flex items-center space-x-2'>
+                Status changed to
+                <div className={cn('p-2 rounded-lg text-sm ml-2',
+                  statusConfig[data.newStatus].bgColor
+                )}>
+                  {data.newStatus && statusConfig[data.newStatus].icon}
+                  {data.newStatus && statusConfig[data.newStatus].label}
+                </div>
+              </div>
+              : (data.description || data.content)
+          }
+        </p>
 
         <AttachmentComponent
           attachments={attachments}

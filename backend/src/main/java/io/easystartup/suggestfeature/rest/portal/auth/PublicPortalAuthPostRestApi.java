@@ -225,6 +225,7 @@ public class PublicPortalAuthPostRestApi {
             existingComment.setContent(comment.getContent());
             existingComment.setModifiedAt(System.currentTimeMillis());
         }
+        comment.setCommentType(Comment.CommentType.COMMENT);
         comment.setOrganizationId(org.getId());
         try {
             if (isNew) {

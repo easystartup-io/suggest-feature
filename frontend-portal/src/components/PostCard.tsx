@@ -17,37 +17,37 @@ export const statusConfig = {
   "OPEN": {
     icon: <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />,
     label: "OPEN",
-    bgColor: "bg-blue-100 dark:bg-blue-800"
+    bgColor: "bg-blue-300 dark:bg-blue-800"
   },
   "UNDER REVIEW": {
     icon: <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />,
     label: "UNDER REVIEW",
-    bgColor: "bg-yellow-100 dark:bg-yellow-800"
+    bgColor: "bg-yellow-300 dark:bg-yellow-800"
   },
   "PLANNED": {
     icon: <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />,
     label: "PLANNED",
-    bgColor: "bg-blue-100 dark:bg-blue-800"
+    bgColor: "bg-blue-300 dark:bg-blue-800"
   },
   "IN PROGRESS": {
     icon: <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />,
     label: "IN PROGRESS",
-    bgColor: "bg-orange-100 dark:bg-orange-800"
+    bgColor: "bg-orange-300 dark:bg-orange-800"
   },
   "LIVE": {
     icon: <Play className="w-4 h-4 inline-block mr-2 text-green-500" />,
     label: "LIVE",
-    bgColor: "bg-green-100 dark:bg-green-800"
+    bgColor: "bg-green-300 dark:bg-green-800"
   },
   "COMPLETE": {
     icon: <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />,
     label: "COMPLETE",
-    bgColor: "bg-green-100 dark:bg-green-800"
+    bgColor: "bg-green-300 dark:bg-green-800"
   },
   "CLOSED": {
     icon: <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />,
     label: "CLOSED",
-    bgColor: "bg-red-100 dark:bg-red-800"
+    bgColor: "bg-red-300 dark:bg-red-800"
   }
 };
 
@@ -199,7 +199,21 @@ function PostContent({ data, refetch, params }) {
   return (
     <div >
       <div className="ml-16">
-        <p className=''>{data.description || data.content}</p>
+        <p className=''>
+          {
+            data.newStatus ?
+              <div className='flex items-center space-x-2'>
+                Status changed to
+                <div className={cn('p-2 rounded-lg text-sm ml-2',
+                  statusConfig[data.newStatus].bgColor
+                )}>
+                  {data.newStatus && statusConfig[data.newStatus].icon}
+                  {data.newStatus && statusConfig[data.newStatus].label}
+                </div>
+              </div>
+              : (data.description || data.content)
+          }
+        </p>
 
         <AttachmentComponent
           attachments={data.attachments}
