@@ -1,6 +1,7 @@
 package io.easystartup.suggestfeature.rest.admin;
 
 import io.easystartup.suggestfeature.beans.Organization;
+import io.easystartup.suggestfeature.beans.RoadmapSettings;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
@@ -169,6 +170,11 @@ public class PagesRestApi {
     public Response fetchOrg() {
         String orgId = UserContext.current().getOrgId();
         Organization org = authService.getOrgById(orgId);
+        if (org.getRoadmapSettings() == null) {
+            RoadmapSettings roadmapSettings = new RoadmapSettings();
+            roadmapSettings.setEnabled(true);
+            org.setRoadmapSettings(roadmapSettings);
+        }
         return Response.ok(JacksonMapper.toJson(org)).build();
     }
 

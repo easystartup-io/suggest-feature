@@ -91,10 +91,11 @@ function PostDetails({ params, data, refetch }) {
         <SelectTrigger
           id="status"
           aria-label="Select status"
-          className={cn(statusConfig[status].bgColor)}
-
+          className={cn(statusConfig[status].bgColor, "px-3")}
         >
           <SelectValue placeholder="Status" />
+          {/* {status.icon} */}
+          {/* {status.label} */}
         </SelectTrigger>
         <SelectContent>
           {Object.keys(statusConfig).map((key) => {

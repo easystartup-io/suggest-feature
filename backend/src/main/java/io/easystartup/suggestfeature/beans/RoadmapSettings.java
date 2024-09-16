@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.beans;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class RoadmapSettings {
     private String title;
     private List<String> disabledBoards;
     private List<StatusConfig> statusConfigs;
+    private List<String> allowedStatuses = Lists.newArrayList("UNDER REVIEW", "PLANNED", "IN PROGRESS");
 
     public RoadmapSettings() {
     }
@@ -50,4 +52,13 @@ public class RoadmapSettings {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public List<String> getAllowedStatuses() {
+        return allowedStatuses;
+    }
+
+    public void setAllowedStatuses(List<String> allowedStatuses) {
+        this.allowedStatuses = allowedStatuses;
+    }
 }
+

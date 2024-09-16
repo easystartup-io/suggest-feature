@@ -6,6 +6,7 @@ import com.google.common.cache.CacheBuilder;
 import io.easystartup.suggestfeature.beans.Board;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.Post;
+import io.easystartup.suggestfeature.beans.RoadmapSettings;
 import io.easystartup.suggestfeature.dto.SearchPostDTO;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
@@ -115,7 +116,14 @@ public class PublicPortalPostRestApi {
         Query query = new Query(criteriaDefinition);
         query.with(Sort.by(Sort.Direction.DESC, Post.FIELD_CREATED_AT));
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
-        posts = posts.stream().filter(post -> org.getAllowedStatuses().contains(post.getStatus())).collect(Collectors.toList());
+        List<String> allowedStatuses;
+        if (org.getRoadmapSettings() != null) {
+            allowedStatuses = org.getRoadmapSettings().getAllowedStatuses();
+        } else {
+            RoadmapSettings roadmapSettings = new RoadmapSettings();
+            allowedStatuses = roadmapSettings.getAllowedStatuses();
+        }
+        posts = posts.stream().filter(post -> allowedStatuses.contains(post.getStatus())).collect(Collectors.toList());
 
         for (Post post : posts) {
             post.setBoardSlug(boardIdVsSlug.get(post.getBoardId()));
@@ -125,7 +133,7 @@ public class PublicPortalPostRestApi {
         Map<String, List<Post>> postsByStatus = posts.stream().collect(Collectors.groupingBy(Post::getStatus));
 
         Map<String, List<Post>> rv = new LinkedHashMap<>();
-        org.getAllowedStatuses().forEach(status -> rv.put(status, postsByStatus.getOrDefault(status, new ArrayList<>())));
+        allowedStatuses.forEach(status -> rv.put(status, postsByStatus.getOrDefault(status, new ArrayList<>())));
 
         return Response.ok().entity(JacksonMapper.toJson(rv)).build();
     }
