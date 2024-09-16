@@ -17,6 +17,11 @@
   * [Changing Board URL (Slug)](basics/boards/changing-board-url-slug.md)
   * [Reordering Boards](basics/boards/reordering-boards.md)
   * [The "Create Post" Form](basics/boards/the-create-post-form.md)
+* [Posts](basics/posts.md)
+* [Roadmap](basics/roadmap/README.md)
+  * [Enable or disable roadmap](basics/roadmap/enable-or-disable-roadmap.md)
+  * [Showcase Specific Statuses on the Roadmap](basics/roadmap/showcase-specific-statuses-on-the-roadmap.md)
+  * [Select Specific Boards for the Roadmap](basics/roadmap/select-specific-boards-for-the-roadmap.md)
 * [Integrations](basics/integrations.md)
 
 ## FAQ
