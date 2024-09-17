@@ -65,7 +65,7 @@ const Hero = () => (
       <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">
         Understand what users really want to make the best product. Effortlessly manage and prioritize suggestions for your product&apos;s future roadmap.
       </p>
-      <div className="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
         <Link href="https://app.suggestfeature.com/sign-up" passHref={true}>
           <Button size="lg" asChild className='py-3 px-5 font-medium text-base text-center text-white rounded-lg border border-primary-700 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900 h-[13.5]'>
             <div className='flex items-center'>
@@ -74,14 +74,11 @@ const Hero = () => (
             </div>
           </Button>
         </Link>
-        <Link href="/demo" passHref={true}>
-          <Button variant="outline" className='py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800 h-[13.5]' size="lg">
-            <div className='flex items-center'>
-              Try Demo
-              <MousePointerClick className="ml-2 -mr-1 w-6 h-6" />
-            </div>
-          </Button>
-        </Link>
+      </div>
+      <div className="flex flex-col mt-1 mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
+        <p className='text-sm text-muted-foreground'>
+          7 days free trial
+        </p>
       </div>
       <WistiaEmbed />
     </div>
@@ -138,11 +135,11 @@ const Features = () => {
   ];
 
   return (
-    <section className="bg-white dark:bg-gray-900">
+    <section id='features' className="bg-white dark:bg-gray-900">
       <div className="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
         <div className="max-w-screen-md mb-8 lg:mb-16">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">All the features you need!</h2>
-          <p className="text-gray-500 sm:text-xl dark:text-gray-400">From private boards to SSO authentication, from internal comments to custom domains - we have it all to enhance your product feedback experience.</p>
+          <p className="text-gray-500 sm:text-xl dark:text-gray-400">From roadmap to SSO authentication, from comments to custom domains - we have it all to enhance your product feedback experience.</p>
         </div>
         <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
           {featureData.map((feature, index) => (
