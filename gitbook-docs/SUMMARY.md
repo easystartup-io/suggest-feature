@@ -19,6 +19,7 @@
   * [The "Create Post" Form](basics/boards/the-create-post-form.md)
 * [Posts](basics/posts/README.md)
   * [Comments](basics/posts/comments.md)
+  * [Post statuses](basics/posts/post-statuses.md)
 * [Roadmap](basics/roadmap/README.md)
   * [Enable or disable roadmap](basics/roadmap/enable-or-disable-roadmap.md)
   * [Showcase Specific Statuses on the Roadmap](basics/roadmap/showcase-specific-statuses-on-the-roadmap.md)

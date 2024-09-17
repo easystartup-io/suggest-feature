@@ -6,7 +6,7 @@ icon: arrow-pointer
 
 You can choose which boards are included on your Roadmap Page. This allows you to focus the roadmap on specific products, projects, or areas of interest, providing users with a tailored view of your development plans.
 
-<figure><img src="../../.gitbook/assets/image (4).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (4) (1).png" alt=""><figcaption></figcaption></figure>
 
 **How to :**
 
