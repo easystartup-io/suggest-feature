@@ -22,6 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,9 +43,12 @@ public class JobSchedulerService {
     public JobSchedulerService(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
 
-        int maxConcurrentJobs = Util.getEnvVariable("MAX_CONCURRENT_JOBS", 100);
-        this.semaphore = new Semaphore(maxConcurrentJobs);
+        this.semaphore = new Semaphore(getMaxConcurrentJobs());
 
+    }
+
+    private static Integer getMaxConcurrentJobs() {
+        return Util.getEnvVariable("MAX_CONCURRENT_JOBS", 100);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -60,39 +65,43 @@ public class JobSchedulerService {
     }
 
     private void executeJobs() throws InterruptedException {
-
         LOGGER.error("executing jobs");
-        while (podRunning.get()) {
-            List<Job> jobsToExecute = fetchJobsToExecute();
-            if (CollectionUtils.isEmpty(jobsToExecute)) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {
+        try (ExecutorService executorService = Executors.newFixedThreadPool(getMaxConcurrentJobs())) {
+            while (podRunning.get()) {
+                List<Job> jobsToExecute = fetchJobsToExecute();
+                if (CollectionUtils.isEmpty(jobsToExecute)) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+
+                for (Job job : jobsToExecute) {
+                    semaphore.acquire();
+                    // Using executor service because it takes considerable resource and cpu for creating new os thread
+                    executorService.submit(() -> {
+                        try {
+                            Thread.currentThread().setName("JobExecutor-" + job.getId() + "-" + job.getJobClass());
+                            if (!acquireJobLock(job)) {
+                                return;
+                            }
+                            // Instantiate the job executor class and execute it
+                            JobExecutor executor = createExecutorInstance(job.getJobClass());
+                            executor.execute(job.getData(), job.getOrganizationId());
+
+                            // Update job status to 'COMPLETED' after successful execution
+                            updateJobStatus(Job.JOB_STATUS_COMPLETED, job);
+                        } catch (Throwable e) {
+                            // Handle exception, possibly update job status to 'FAILED'
+                            updateJobStatus(Job.JOB_STATUS_FAILED, job);
+                        } finally {
+                            semaphore.release();
+                        }
+                    });
                 }
             }
-
-            for (Job job : jobsToExecute) {
-                semaphore.acquire();
-                new Thread(() -> {
-                    try {
-                        Thread.currentThread().setName("JobExecutor-" + job.getId() + "-" + job.getJobClass());
-                        if (!acquireJobLock(job)) {
-                            return;
-                        }
-                        // Instantiate the job executor class and execute it
-                        JobExecutor executor = createExecutorInstance(job.getJobClass());
-                        executor.execute(job.getData(), job.getOrganizationId());
-
-                        // Update job status to 'COMPLETED' after successful execution
-                        updateJobStatus(Job.JOB_STATUS_COMPLETED, job);
-                    } catch (Throwable e) {
-                        // Handle exception, possibly update job status to 'FAILED'
-                        updateJobStatus(Job.JOB_STATUS_FAILED, job);
-                    } finally {
-                        semaphore.release();
-                    }
-                }).start();
-            }
+        } finally {
+            Thread.sleep(5_000);
         }
     }
 

@@ -89,7 +89,8 @@ tasks.withType(JavaCompile).configureEach {
 //            "-XepPatchLocation:IN_PLACE"
 //    )
     options.errorprone.errorproneArgs.addAll(
-            "-Xep:MissingSummary:OFF"
+            "-Xep:MissingSummary:OFF",
+            "-Xep:AlmostJavadoc:OFF"
     )
 }
 

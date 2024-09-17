@@ -133,21 +133,6 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
                 + "</html>";
     }
 
-    // Helper method to get the first two characters of the user's name
-    private String getUserInitials(String name) {
-        if (StringUtils.isBlank(name)) {
-            return "";
-        }
-        String[] parts = name.split(" ");
-        String initials = parts[0].substring(0, 1); // First character of the first name
-        if (parts.length > 1) {
-            initials += parts[1].substring(0, 1); // First character of the second name
-        } else if (parts[0].length() > 1) {
-            initials += parts[0].substring(1, 2); // Second character of the single name
-        }
-        return initials.toUpperCase();
-    }
-
     private void sendEmail(String to, String bodyHtml, String subject, String from) {
         try {
             AmazonSimpleEmailService client = createSesClient();
