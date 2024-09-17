@@ -22,6 +22,7 @@
   * [Comments](basics/posts/comments.md)
   * [Post statuses](basics/posts/post-statuses.md)
   * [Email notifications for Status Updates](basics/posts/email-notifications-for-status-updates.md)
+  * [Modify the "Create Post" form](basics/posts/modify-the-create-post-form.md)
 * [Roadmap](basics/roadmap/README.md)
   * [Enable or disable roadmap](basics/roadmap/enable-or-disable-roadmap.md)
   * [Showcase Specific Statuses on the Roadmap](basics/roadmap/showcase-specific-statuses-on-the-roadmap.md)
