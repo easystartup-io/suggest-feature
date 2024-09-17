@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 const WistiaEmbed = () => {
   useEffect(() => {
     const script1 = document.createElement('script');
-    script1.src = "https://fast.wistia.com/embed/medias/5cby51y17q.jsonp";
+    script1.src = "https://fast.wistia.com/embed/medias/uhvbidxlu9.jsonp";
     script1.async = true;
 
     const script2 = document.createElement('script');
