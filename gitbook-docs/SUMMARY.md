@@ -19,6 +19,7 @@
   * [The "Create Post" Form](basics/boards/the-create-post-form.md)
 * [Posts](basics/posts/README.md)
   * [Create a new Post](basics/posts/create-a-new-post.md)
+  * [Managing Posts](basics/posts/managing-posts.md)
   * [Comments](basics/posts/comments.md)
   * [Post statuses](basics/posts/post-statuses.md)
   * [Email notifications for Status Updates](basics/posts/email-notifications-for-status-updates.md)
