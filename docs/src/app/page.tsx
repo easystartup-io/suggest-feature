@@ -1,12 +1,11 @@
 import React from 'react';
 import WistiaEmbed from "@/components/WistiaEmbed";
-import { ArrowRight, Check, MousePointerClick } from "lucide-react";
+import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-
 
 const FeatureIcon = ({ children }) => (
   <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
@@ -92,23 +91,58 @@ const Hero = () => (
 const Features = () => {
   const featureData = [
     {
-      icon: <svg className="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>,
-      title: "Fully open source",
-      description: "Export data and switch between self-hosted and cloud-hosted versions of the product. Your data is always yours."
+      icon: <Code className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Open source core",
+      description: "Seemlessly switch between self-hosted and cloud-hosted versions of Suggest Feature. Your data is always yours."
     },
     {
-      icon: <svg className="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>,
-      title: "Marketing",
-      description: "Plan it, create it, launch it. Collaborate seamlessly with all the organization and hit your marketing goals every month with our marketing plan."
+      icon: <Lightbulb className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Intelligent Feedback Boards",
+      description: "Create public and private boards to gather and organize user feedback effectively."
     },
+    {
+      icon: <Map className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Visual Product Roadmap",
+      description: "Share your product vision with an engaging, interactive roadmap that excites users."
+    },
+    {
+      icon: <Megaphone className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Dynamic Changelog (🚀 Coming Soon)",
+      description: "Communicate your latest launches and updates in a beautiful, automated feed."
+    },
+    {
+      icon: <Vote className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Feature Voting",
+      description: "Enable users, team members, and stakeholders to vote on feature requests and prioritize development."
+    },
+    {
+      icon: <UserCheck className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "User SSO",
+      description: "Streamline access with automatic user authentication and seamless integration."
+    },
+    {
+      icon: <Paintbrush className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Customization Options",
+      description: "Tailor the experience with custom statuses, CSS styling, and branding possibilities. Whitelabeling available."
+    },
+    {
+      icon: <AtSign className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Custom Domain",
+      description: "Host your feedback portal on our domain or integrate seamlessly with your own custom URL."
+    },
+    {
+      icon: <Headset className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
+      title: "Best in class support",
+      description: "Available to help you with any issues or questions you may have."
+    }
   ];
 
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
         <div className="max-w-screen-md mb-8 lg:mb-16">
-          <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Core belief</h2>
-          <p className="text-gray-500 sm:text-xl dark:text-gray-400">Our core belief is that your data should always be yours and you should never be vendor locked in and you should always be able to self host the product if required. Open source is in our core belief</p>
+          <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">All the features you need!</h2>
+          <p className="text-gray-500 sm:text-xl dark:text-gray-400">From private boards to SSO authentication, from internal comments to custom domains - we have it all to enhance your product feedback experience.</p>
         </div>
         <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
           {featureData.map((feature, index) => (
