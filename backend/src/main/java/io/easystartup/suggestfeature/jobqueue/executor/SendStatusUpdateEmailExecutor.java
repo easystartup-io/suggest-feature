@@ -95,20 +95,57 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
     }
 
     private String constructEmailBodyHtml(Organization organization, Post post, User userUpdatingStatus, String status, String postUrl) {
+        String logo = organization.getLogo();
+        String organizationName = escapeHtml(organization.getName());
+        String postTitle = escapeHtml(post.getTitle());
+        String statusText = escapeHtml(status);
+        String userProfilePic = userUpdatingStatus.getProfilePic();
+        String userName = escapeHtml(userUpdatingStatus.getName());
+
+        String userMessage = "The status of the post \"" + postTitle + "\" has been updated to " + statusText + " by " + userName + ".";
+
         return "<html>"
-                + "<head><style>body {font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px;}</style></head>"
+                + "<head><style>"
+                + "body {font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 0; margin: 0;}"
+                + ".container {background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 40px auto;}"
+                + ".logo {max-height: 50px; margin-bottom: 20px;}"
+                + ".title {font-size: 24px; color: #333333; margin: 20px 0; font-weight: normal;}"
+                + ".post-title {font-weight: bold;}"
+                + ".status {color: #34A853; font-weight: bold;}"
+                + ".user-info {display: flex; align-items: center; margin: 20px 0;}"
+                + ".user-avatar {width: 40px; height: 40px; border-radius: 50%; margin-right: 15px;}"
+                + ".user-name {font-weight: bold;}"
+                + ".message {font-size: 16px; color: #555555; margin: 20px 0; line-height: 1.6;}"
+                + ".reply-button {display: inline-block; padding: 10px 20px; background-color: #4285F4; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 14px;}"
+                + "</style></head>"
                 + "<body>"
-                + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: auto;\">"
-                + "<h1 style=\"color: #333333;\">Status Update for the Post: " + escapeHtml(post.getTitle()) + "</h1>"
-                + "<p style=\"font-size: 16px; color: #666666;\">The status of the post \"" + escapeHtml(post.getTitle())
-                + "\" has been updated to <strong>" + escapeHtml(status) + "</strong> by "
-                + escapeHtml(userUpdatingStatus.getName()) + " .</p>"
-                + "<p style=\"font-size: 16px; color: #666666;\">You can view the updated post on "
-                + "<a href=\"" + postUrl
-                + "\" style=\"color: #1a73e8; text-decoration: none;\">Suggest Feature</a>.</p>"
+                + "<div class=\"container\">"
+                + "<img src=\"" + logo + "\" alt=\"" + organizationName + "\" class=\"logo\" />"
+                + "<h1 class=\"title\">Your post, <span class=\"post-title\">\"" + postTitle + "\"</span>, has been marked as <span class=\"status\">" + statusText + "</span></h1>"
+                + "<div class=\"user-info\">"
+                + "<img src=\"" + userProfilePic + "\" alt=\"" + userName + "\" class=\"user-avatar\" />"
+                + "<span class=\"user-name\">" + userName + " from " + organizationName + ":</span>"
+                + "</div>"
+                + "<p class=\"message\">" + userMessage + "</p>"
+                + "<a href=\"" + postUrl + "\" class=\"reply-button\">REPLY</a>"
                 + "</div>"
                 + "</body>"
                 + "</html>";
+    }
+
+    // Helper method to get the first two characters of the user's name
+    private String getUserInitials(String name) {
+        if (StringUtils.isBlank(name)) {
+            return "";
+        }
+        String[] parts = name.split(" ");
+        String initials = parts[0].substring(0, 1); // First character of the first name
+        if (parts.length > 1) {
+            initials += parts[1].substring(0, 1); // First character of the second name
+        } else if (parts[0].length() > 1) {
+            initials += parts[0].substring(1, 2); // Second character of the single name
+        }
+        return initials.toUpperCase();
     }
 
     private void sendEmail(String to, String bodyHtml, String subject, String from) {
