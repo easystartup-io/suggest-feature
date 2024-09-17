@@ -23,7 +23,7 @@ const WistiaEmbed = () => {
   return (
     <div className="wistia_responsive_padding" style={{ padding: '56.25% 0 0 0', position: 'relative' }}>
       <div className="wistia_responsive_wrapper" style={{ height: '100%', left: 0, position: 'absolute', top: 0, width: '100%' }}>
-        <span className="wistia_embed wistia_async_5cby51y17q popover=true videoFoam=true" style={{ display: 'inline-block', height: '100%', position: 'relative', width: '100%' }}>
+        <span className="wistia_embed wistia_async_uhvbidxlu9 popover=true videoFoam=true" style={{ display: 'inline-block', height: '100%', position: 'relative', width: '100%' }}>
           &nbsp;
         </span>
       </div>
