@@ -1,2 +1,3 @@
 rootProject.name = 'suggest-feature'
+include 'JobQueueMongoDB'
 

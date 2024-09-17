@@ -4,6 +4,8 @@ import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.jobqueue.executor.SendStatusUpdateEmailExecutor;
+import io.easystartup.suggestfeature.jobqueue.scheduler.JobCreator;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
@@ -40,12 +42,14 @@ public class PostsRestApi {
     private final ValidationService validationService;
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(Post.FIELD_CREATED_AT, Post.FIELD_TITLE);
     public static final String EMPTY_JSON_RESPONSE = JacksonMapper.toJson(Collections.emptyMap());
+    private final JobCreator jobCreator;
 
     @Autowired
-    public PostsRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService) {
+    public PostsRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, JobCreator jobCreator) {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
         this.validationService = validationService;
+        this.jobCreator = jobCreator;
     }
 
 
@@ -154,7 +158,8 @@ public class PostsRestApi {
             throw new UserVisibleException("Description too long. Keep it less than 5000 characters");
         }
 
-        Post existingPost = getPost(req.getPostId(), UserContext.current().getOrgId());
+        String orgId = UserContext.current().getOrgId();
+        Post existingPost = getPost(req.getPostId(), orgId);
         if (existingPost == null) {
             throw new UserVisibleException("Post not found");
         }
@@ -170,6 +175,8 @@ public class PostsRestApi {
                 comment.setNewStatus(req.getStatus());
                 comment.setCommentType(Comment.CommentType.STATUS_UPDATE);
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
+
+                createJobForStatusUpdateEmail(req.getPostId(), req.getStatus(), orgId, UserContext.current().getUserId());
             }
 
             existingPost.setStatus(req.getStatus());
@@ -193,6 +200,11 @@ public class PostsRestApi {
 
         mongoConnection.getDefaultMongoTemplate().save(existingPost);
         return Response.ok(EMPTY_JSON_RESPONSE).build();
+    }
+
+    private void createJobForStatusUpdateEmail(String postId, String status, String orgId, String userId) {
+        jobCreator.scheduleJobNow(SendStatusUpdateEmailExecutor.class, Map.of("postId", postId, "status", status, "userId", userId), orgId);
+
     }
 
     @POST
