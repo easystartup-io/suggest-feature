@@ -4,6 +4,7 @@ package io.easystartup.suggestfeature.rest.portal.auth;
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
@@ -39,12 +40,14 @@ public class PublicPortalAuthPostRestApi {
 
     private final MongoTemplateFactory mongoConnection;
     private final ValidationService validationService;
+    private final AuthService authService;
 
 
     @Autowired
-    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService) {
+    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService) {
         this.mongoConnection = mongoConnection;
         this.validationService = validationService;
+        this.authService = authService;
     }
 
     @POST
@@ -64,7 +67,9 @@ public class PublicPortalAuthPostRestApi {
         }
         Criteria customerCriteria = Criteria.where(Customer.FIELD_USER_ID).is(userId).and(Customer.FIELD_ORGANIZATION_ID).is(org.getId());
         Customer customer = mongoConnection.getDefaultMongoTemplate().findOne(new Query(customerCriteria), Customer.class);
-        if (customer == null || customer.isSpam()){
+
+        Member memberForOrg = authService.getMemberForOrgId(userId, org.getId());
+        if (memberForOrg == null && (customer == null || customer.isSpam())) {
             return Response.status(Response.Status.FORBIDDEN).entity("User not allowed").build();
         }
 
@@ -186,7 +191,8 @@ public class PublicPortalAuthPostRestApi {
         }
         Criteria customerCriteria = Criteria.where(Customer.FIELD_USER_ID).is(userId).and(Customer.FIELD_ORGANIZATION_ID).is(org.getId());
         Customer customer = mongoConnection.getDefaultMongoTemplate().findOne(new Query(customerCriteria), Customer.class);
-        if (customer == null || customer.isSpam()) {
+        Member memberForOrg = authService.getMemberForOrgId(userId, org.getId());
+        if (memberForOrg == null && (customer == null || customer.isSpam())) {
             return Response.status(Response.Status.FORBIDDEN).entity("User not allowed").build();
         }
 
@@ -256,7 +262,8 @@ public class PublicPortalAuthPostRestApi {
         }
         Criteria customerCriteria = Criteria.where(Customer.FIELD_USER_ID).is(userId).and(Customer.FIELD_ORGANIZATION_ID).is(org.getId());
         Customer customer = mongoConnection.getDefaultMongoTemplate().findOne(new Query(customerCriteria), Customer.class);
-        if (customer == null || customer.isSpam()){
+        Member memberForOrg = authService.getMemberForOrgId(userId, org.getId());
+        if (memberForOrg == null && (customer == null || customer.isSpam())) {
             return Response.status(Response.Status.FORBIDDEN).entity("User not allowed").build();
         }
 
