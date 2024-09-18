@@ -35,7 +35,7 @@ public class Organization {
     @Indexed
     private String customDomain;
     private Long createdAt;
-    private List<String> allowedProviders = Lists.newArrayList("GOOGLE");
+    private List<String> allowedProviders = Lists.newArrayList("GOOGLE", "FACEBOOK", "GITHUB", "LINKEDIN", "CUSTOM");
     private RoadmapSettings roadmapSettings;
     private String logo;
     private String favicon;
@@ -45,10 +45,27 @@ public class Organization {
     private String returnToSiteUrl;
     private String returnToSiteUrlText;
 
+    private SSOSettings ssoSettings;
+
     private boolean onboardingCompleted;
     private int onboardingStep;
 
     public Organization() {
+    }
+
+    public Organization getSafeOrg() {
+        Organization safeOrg = new Organization();
+        safeOrg.setId(getId());
+        safeOrg.setName(getName());
+        safeOrg.setCustomDomain(getCustomDomain());
+        safeOrg.setSlug(getSlug());
+        safeOrg.setLogo(getLogo());
+        safeOrg.setFavicon(getFavicon());
+        safeOrg.setHideOrgName(isHideOrgName());
+        safeOrg.setEnableReturnToSiteUrl(isEnableReturnToSiteUrl());
+        safeOrg.setReturnToSiteUrl(getReturnToSiteUrl());
+        safeOrg.setReturnToSiteUrlText(getReturnToSiteUrlText());
+        return safeOrg;
     }
 
     public String getId() {
@@ -169,5 +186,54 @@ public class Organization {
 
     public void setReturnToSiteUrlText(String returnToSiteUrlText) {
         this.returnToSiteUrlText = returnToSiteUrlText;
+    }
+
+    public SSOSettings getSsoSettings() {
+        return ssoSettings;
+    }
+
+    public void setSsoSettings(SSOSettings ssoSettings) {
+        this.ssoSettings = ssoSettings;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class SSOSettings {
+
+        private boolean enableSSO;
+        private String url;
+        private String key;
+        private String keySecondary;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public boolean isEnableSSO() {
+            return enableSSO;
+        }
+
+        public void setEnableSSO(boolean enableSSO) {
+            this.enableSSO = enableSSO;
+        }
+
+        public String getKeySecondary() {
+            return keySecondary;
+        }
+
+        public void setKeySecondary(String keySecondary) {
+            this.keySecondary = keySecondary;
+        }
     }
 }

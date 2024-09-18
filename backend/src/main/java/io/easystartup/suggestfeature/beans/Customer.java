@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
+
 /**
  * @author indianBond
  * Mapping of end customer to organization
@@ -39,6 +41,8 @@ public class Customer {
     @Transient
     @Reference // Alternative to skip index
     private User user;
+
+    private Map<String, Object> customFields;
 
     public Customer() {
     }
@@ -97,5 +101,13 @@ public class Customer {
 
     public void setMarkedSpamByUserId(String markedSpamByUserId) {
         this.markedSpamByUserId = markedSpamByUserId;
+    }
+
+    public Map<String, Object> getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(Map<String, Object> customFields) {
+        this.customFields = customFields;
     }
 }

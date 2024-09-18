@@ -24,6 +24,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author indianBond
@@ -121,6 +122,30 @@ public class PagesRestApi {
         existingOrg.setReturnToSiteUrl(organization.getReturnToSiteUrl());
         existingOrg.setReturnToSiteUrlText(organization.getReturnToSiteUrlText());
         existingOrg.setEnableReturnToSiteUrl(organization.isEnableReturnToSiteUrl());
+
+        if (existingOrg.getSsoSettings() != null) {
+            Organization.SSOSettings ssoSettings = organization.getSsoSettings();
+            if (ssoSettings != null && ssoSettings.isEnableSSO() && StringUtils.isBlank(ssoSettings.getUrl())) {
+                throw new UserVisibleException("Invalid SSO settings. Please enter your login url before enabling SSO");
+            }
+            if (ssoSettings == null) {
+                ssoSettings = existingOrg.getSsoSettings();
+            }
+            ssoSettings.setKey(existingOrg.getSsoSettings().getKey());
+            ssoSettings.setKeySecondary(existingOrg.getSsoSettings().getKeySecondary());
+            existingOrg.setSsoSettings(ssoSettings);
+        } else {
+            Organization.SSOSettings ssoSettings = organization.getSsoSettings();
+            if (ssoSettings != null && ssoSettings.isEnableSSO() && StringUtils.isBlank(ssoSettings.getUrl())) {
+                throw new UserVisibleException("Invalid SSO settings. Please enter your login url before enabling SSO");
+            }
+            if (ssoSettings == null) {
+                ssoSettings = new Organization.SSOSettings();
+            }
+            ssoSettings.setKey(UUID.randomUUID().toString());
+            ssoSettings.setKeySecondary(UUID.randomUUID().toString());
+            existingOrg.setSsoSettings(ssoSettings);
+        }
 
         if (StringUtils.isNotBlank(organization.getCustomDomain()) && (organization.getCustomDomain().endsWith(".suggestfeature.com") || organization.getCustomDomain().equals("suggestfeature.com") )) {
             throw new UserVisibleException("Custom domain cannot end with suggestfeature.com");

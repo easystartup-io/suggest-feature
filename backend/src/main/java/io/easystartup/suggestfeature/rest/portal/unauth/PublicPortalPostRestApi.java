@@ -19,6 +19,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -72,12 +73,13 @@ public class PublicPortalPostRestApi {
                 if (org == null) {
                     return JacksonMapper.toJson(Collections.emptyMap());
                 }
-                sanitizeOrg(org);
+                Organization safeOrg = org.getSafeOrg();
+
                 List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).in(org.getId())), Board.class);
                 boardList.stream().filter((board) -> !board.isPrivateBoard()).forEach(PublicPortalPostRestApi::sanitizeBoard);
                 boardList.sort(Comparator.comparing(Board::getOrder));
                 Map<String, Object> rv = new HashMap<>();
-                rv.put("org", org);
+                rv.put("org", safeOrg);
                 rv.put("boards", boardList);
                 return JacksonMapper.toJson(rv);
             });
@@ -85,10 +87,6 @@ public class PublicPortalPostRestApi {
             throw new RuntimeException(e);
         }
         return Response.ok().entity(resp).build();
-    }
-
-    private void sanitizeOrg(Organization org) {
-        org.setCreatedAt(null);
     }
 
     private static void sanitizeBoard(Board board) {

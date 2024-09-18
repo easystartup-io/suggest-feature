@@ -102,14 +102,8 @@ public class UserRestApi {
         Set<String> orgsIds = members.stream().map(Member::getOrganizationId).collect(Collectors.toSet());
         List<Organization> orgsByIds = authService.getOrgsByIds(orgsIds);
         List<Organization> safeReturn = new ArrayList<>();
-        orgsByIds.stream().forEach(org -> {
-            Organization safeOrganization = new Organization();
-            safeOrganization.setName(org.getName());
-            safeOrganization.setSlug(org.getSlug());
-            safeOrganization.setCreatedAt(org.getCreatedAt());
-            safeOrganization.setLogo(org.getLogo());
-            safeOrganization.setFavicon(org.getFavicon());
-            safeReturn.add(safeOrganization);
+        orgsByIds.forEach(org -> {
+            safeReturn.add(org.getSafeOrg());
         });
         safeReturn.sort(Comparator.comparing(org ->
                 org.getName() != null ? org.getName().toLowerCase(Locale.ROOT) : org.getCreatedAt().toString())

@@ -75,6 +75,13 @@ public class PostsRestApi {
             }
             criteriaDefinitionForText.and(Post.FIELD_BOARD_ID).is(board.getId());
             criteriaDefinitionForRegex.and(Post.FIELD_BOARD_ID).is(board.getId());
+        } else {
+            // Need to do this so that posts from deleted boards don't come in response
+            Criteria boardFetch = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
+            List<Board> board = mongoConnection.getDefaultMongoTemplate().find(new Query(boardFetch), Board.class);
+            List<String> boardIds = board.stream().map(Board::getId).collect(Collectors.toList());
+            criteriaDefinitionForText.and(Post.FIELD_BOARD_ID).in(boardIds);
+            criteriaDefinitionForRegex.and(Post.FIELD_BOARD_ID).in(boardIds);
         }
 
         TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(req.getQuery());
