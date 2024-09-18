@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static io.easystartup.suggestfeature.utils.Util.populatePost;
 
@@ -428,6 +429,12 @@ public class PostsRestApi {
             Criteria boardFetch = Criteria.where(Board.FIELD_SLUG).is(req.getBoardSlug()).and(Board.FIELD_ORGANIZATION_ID).is(orgId);
             Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(boardFetch), Board.class);
             criteriaDefinition.and(Post.FIELD_BOARD_ID).is(board.getId());
+        } else {
+            // Need to do this so that posts from deleted boards don't come in response
+            Criteria boardFetch = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId);
+            List<Board> board = mongoConnection.getDefaultMongoTemplate().find(new Query(boardFetch), Board.class);
+            List<String> boardIds = board.stream().map(Board::getId).collect(Collectors.toList());
+            criteriaDefinition.and(Post.FIELD_BOARD_ID).in(boardIds);
         }
         if(StringUtils.isNotBlank(req.getStatusFilter())){
             criteriaDefinition.and(Post.FIELD_STATUS).is(req.getStatusFilter());
