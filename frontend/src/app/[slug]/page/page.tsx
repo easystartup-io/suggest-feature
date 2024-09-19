@@ -310,7 +310,7 @@ const Dashboard: React.FC = ({ params }) => {
                   <ImageComponent
                     src={uploadedLogoUrl || logo}
                     alt="Logo"
-                    className="w-full h-full"
+                    className="w-full h-full min-w-16"
                   />
                   <ImagePlaceholder className="w-full h-full hidden" />
                 </div>

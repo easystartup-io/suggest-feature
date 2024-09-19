@@ -46,35 +46,34 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 export const SidebarContext = createContext()
 
 const AlertBar = ({ params, isTrialPeriod, isSubscriptionValid }) => {
-
   const router = useRouter();
 
   if (isTrialPeriod) {
     return (
-      <Alert variant="default" className="rounded-none border-b bg-yellow-300 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100">
+      <Alert variant="default" className="rounded-none border-b bg-yellow-300 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 py-2">
         <AlertDescription className="flex items-center justify-between">
-          <span>You're currently on a trial, some features are not available. Upgrade to a paid plan for uninterrupted access.</span>
+          <span className="text-sm md:text-base font-medium">
+            🚀 You&apos;re on a trial! Loving Suggest Feature? Upgrade for unlimited awesomeness! ❤️❤️❤️ Your Ideas deserve a VIP treatment!
+          </span>
           <Button variant="outline" size="sm"
-            onClick={() => {
-              router.push(`/${params.slug}/billing`)
-            }}
-            className="bg-yellow-200 dark:bg-yellow-800 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-100 hover:bg-yellow-300 dark:hover:bg-yellow-700">
-            Upgrade Now
+            onClick={() => router.push(`/${params.slug}/billing`)}
+            className="bg-yellow-200 dark:bg-yellow-800 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-100 hover:bg-yellow-300 dark:hover:bg-yellow-700 ml-2 whitespace-nowrap px-3 h-8">
+            Upgrade
           </Button>
         </AlertDescription>
       </Alert>
     )
   } else if (!isSubscriptionValid) {
     return (
-      <Alert variant="destructive" className="rounded-none border-b">
+      <Alert variant="destructive" className="rounded-none border-b py-2">
         <AlertDescription className="flex items-center justify-between">
-          <span>Your subscription has expired. Renew now to continue using all features.</span>
-          <Button variant="outline"
-            onClick={() => {
-              router.push(`/${params.slug}/billing`)
-            }}
-            size="sm" className="bg-red-100 dark:bg-red-900 border-red-400 dark:border-red-600 text-red-900 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800">
-            Renew Subscription
+          <span className="text-sm md:text-base font-medium">
+            ⏰ Oh no! Your subscription has ended. Renew now to keep the awesome features flowing!
+          </span>
+          <Button variant="outline" size="sm"
+            onClick={() => router.push(`/${params.slug}/billing`)}
+            className="bg-red-100 dark:bg-red-900 border-red-400 dark:border-red-600 text-red-900 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800 ml-2 whitespace-nowrap px-3 h-8">
+            Renew Now
           </Button>
         </AlertDescription>
       </Alert>
