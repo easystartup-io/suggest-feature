@@ -203,6 +203,8 @@ public class PagesRestApi {
             roadmapSettings.setEnabled(true);
             org.setRoadmapSettings(roadmapSettings);
         }
+        org.setTrial(subscriptionService.isTrial(orgId));
+        org.setValidSubscription(subscriptionService.hasValidSubscription(orgId));
         return Response.ok(JacksonMapper.toJson(org)).build();
     }
 

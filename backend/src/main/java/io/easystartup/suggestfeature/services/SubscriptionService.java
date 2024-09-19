@@ -52,7 +52,6 @@ public class SubscriptionService {
             return false;
         }
 
-
         return true;
     }
 

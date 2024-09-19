@@ -52,6 +52,14 @@ public class Organization {
     private boolean onboardingCompleted;
     private int onboardingStep;
 
+
+    // To populate subscription Details in response
+
+    @Transient
+    private boolean trial;
+    @Transient
+    private boolean validSubscription;
+
     public Organization() {
     }
 
@@ -198,6 +206,22 @@ public class Organization {
 
     public void setSsoSettings(SSOSettings ssoSettings) {
         this.ssoSettings = ssoSettings;
+    }
+
+    public boolean isTrial() {
+        return trial;
+    }
+
+    public void setTrial(boolean trial) {
+        this.trial = trial;
+    }
+
+    public void setValidSubscription(boolean validSubscription) {
+        this.validSubscription = validSubscription;
+    }
+
+    public boolean isValidSubscription() {
+        return validSubscription;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
