@@ -11,6 +11,7 @@ import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.Util;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -140,7 +141,13 @@ public class LemonSqueezyPaymentServiceImpl implements LemonSqueezyPaymentServic
             variables.put("name", "Suggest Feature - Monthly");
             variables.put("orgId", org.getId());
             variables.put("orgName", org.getName());
-            variables.put("usersName", Util.getNameFromEmail(user.getName()));
+            String name;
+            if (StringUtils.isNotBlank(user.getName())) {
+                name = user.getName();
+            } else {
+                name = Util.getNameFromEmail(user.getEmail());
+            }
+            variables.put("usersName", name);
             variables.put("userEmail", user.getEmail());
 
             // from current url replace query params with empty string
