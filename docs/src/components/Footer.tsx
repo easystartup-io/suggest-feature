@@ -17,6 +17,12 @@ export default function Footer() {
                 <li className="mb-4">
                   <a href="https://app.suggestfeature.com/sign-up" className="hover:underline">Free trial</a>
                 </li>
+                <li className="mb-4">
+                  <a href="https://feedback.suggestfeature.com/b/features" className="hover:underline">Feature Requests</a>
+                </li>
+                <li className="mb-4">
+                  <a href="https://feedback.suggestfeature.com/b/bugs" className="hover:underline">Report bugs</a>
+                </li>
               </ul>
             </div>
             <div>

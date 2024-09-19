@@ -13,7 +13,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 
-
 const Dashboard: React.FC = ({ params }) => {
   const { logout } = useAuth();
   const router = useRouter();

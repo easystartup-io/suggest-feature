@@ -106,6 +106,7 @@ public class CustomSSORestApi {
     public Response google(@QueryParam("jwt") String jwt, @QueryParam("state") String state) throws URISyntaxException {
         LoginState one = mongoConnection.getDefaultMongoTemplate().findAndRemove(new Query(Criteria.where(LoginState.FIELD_ID).is(state)), LoginState.class);
         if (one == null) {
+            // 30 mins expiry
             throw new UserVisibleException("Invalid state. Please restart login process, you have timed out.");
         }
         Organization org = authService.getOrgById(one.getOrganizationId());

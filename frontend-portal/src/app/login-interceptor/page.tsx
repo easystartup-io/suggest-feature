@@ -16,7 +16,6 @@ function AuthenticationPage() {
   return <div></div>
 }
 
-
 export default function LoginInterceptor() {
   return (
     // Need to do this because nextjs throwing error if trying to read searchparams client side
