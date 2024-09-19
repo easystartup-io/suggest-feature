@@ -21,33 +21,42 @@ const Feature = ({ icon, title, description }) => (
   </div>
 );
 
-const PricingTier = ({ title, price, description, features }) => (
-  <Card className="flex flex-col p-2 mx-auto max-w-lg text-center text-gray-900 bg-white rounded-lg border border-gray-100 shadow dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-    <CardHeader>
+const PricingTier = ({ title, price, description, features, highlight, popular }) => (
+  <Card className={cn(
+    "flex flex-col p-6 mx-auto max-w-lg text-center text-gray-900 bg-white rounded-lg border shadow dark:border-gray-600 dark:bg-gray-800 dark:text-white transition-all duration-300 hover:scale-105",
+    highlight ? "border-indigo-500 dark:border-indigo-600 border-2 transform scale-105" : "border-gray-200",
+    popular ? "bg-gradient-to-br from-indigo-500 to-blue-600 text-white" : ""
+  )}>
+    <CardHeader className="relative">
+      {popular && (
+        <div className="absolute top-0 right-0 px-3 py-1 text-xs font-semibold tracking-wide bg-yellow-300 rounded-bl rounded-tr text-indigo-700">
+          🔥 Most Popular
+        </div>
+      )}
       <h3 className="mb-4 text-2xl font-semibold">{title}</h3>
-      <p className="font-light text-gray-500 sm:text-lg dark:text-gray-400">{description}</p>
+      <p className={cn("font-light sm:text-lg", popular ? "text-indigo-100" : "text-gray-500 dark:text-gray-400")}>{description}</p>
     </CardHeader>
     <CardContent>
       <div className="flex justify-center items-baseline my-8">
-        <span className={cn("mr-2 text-4xl font-extrabold",
-          price === "Custom" ? "text-4xl" : ""
-        )}>${price}</span>
-        {price === "Custom" ? "" :
-          <span className="text-gray-500 dark:text-gray-400">/month</span>
-        }
+        <span className={cn("mr-2 text-5xl font-extrabold", price === "Custom" ? "text-4xl" : "")}>
+          {price === "Custom" ? price : `$${price}`}
+        </span>
+        {price !== "Custom" && (
+          <span className={cn("text-gray-500 dark:text-gray-400", popular ? "text-indigo-100" : "")}>/month</span>
+        )}
       </div>
       <ul role="list" className="mb-8 space-y-4 text-left">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center space-x-3">
-            <Check className="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" />
-            <span>{feature}</span>
+            <Check className={cn("flex-shrink-0 w-5 h-5", popular ? "text-indigo-200" : "text-green-500 dark:text-green-400")} />
+            <span className={popular ? "text-indigo-100" : ""}>{feature}</span>
           </li>
         ))}
       </ul>
       <Link href="https://app.suggestfeature.com/sign-up" passHref={true}>
         <Button size="lg"
-          className={cn("text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900 w-full",
-            price === 'Custom' ? "bg-primary hover:bg-primary/90" : ""
+          className={cn("w-full font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors duration-300",
+            popular ? "bg-white text-indigo-600 hover:bg-indigo-100" : "bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700"
           )}>
           {price === "Custom" ? "Contact Us" : "Get Started"}
         </Button>
@@ -159,7 +168,7 @@ const Pricing = () => {
       price: 9,
       features: [
         "3 project boards",
-        "Up to 3 team members",
+        "Up to 10 team members",
         "Unlimited feature requests/bugs",
         "Custom domain",
         "Email support"
@@ -170,6 +179,8 @@ const Pricing = () => {
       title: "Pro",
       description: "Relevant for multiple users & extended support",
       price: 29,
+      highlight: true,
+      popular: true,
       features: [
         "10 project boards",
         "Unlimited team members",
