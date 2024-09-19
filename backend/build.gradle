@@ -73,6 +73,7 @@ dependencies {
 
     // kubernetes
     implementation group: 'io.kubernetes', name: 'client-java', version: '20.0.1'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '5.9'
 
     errorprone("com.google.errorprone:error_prone_core:2.31.0")
 

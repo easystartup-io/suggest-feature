@@ -166,10 +166,7 @@ export default function Dashboard({ params }) {
   const [sortOptions, setSortOptions] = useState('trending');
   const [statusFilter, setStatusFilter] = useState('');
 
-  useEffect(() => {
-    if (userLoading) {
-      return
-    }
+  function refetchBoards() {
     const host = window.location.host
     const protocol = window.location.protocol // http: or https:
 
@@ -186,6 +183,14 @@ export default function Dashboard({ params }) {
       const b = boards.find((item) => item.slug === params.slug);
       setBoard(b)
     }
+  }
+
+
+  useEffect(() => {
+    if (userLoading) {
+      return
+    }
+    refetchBoards()
   }, [params, boards, user, userLoading, sortOptions, statusFilter]);
 
   const onSubmitPost = async (e) => {
@@ -215,6 +220,7 @@ export default function Dashboard({ params }) {
           title: 'Post created',
         })
         setSuggestedPostsScreen(false)
+        refetchBoards();
         setTimeout(() => {
           setAttachments([])
           setTitle('')
