@@ -1,10 +1,12 @@
 package io.easystartup.suggestfeature.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -53,7 +55,9 @@ public class Organization {
     public Organization() {
     }
 
-    public Organization getSafeOrg() {
+    @JsonIgnore
+    @Transient
+    public Organization createSafeOrg() {
         Organization safeOrg = new Organization();
         safeOrg.setId(getId());
         safeOrg.setName(getName());

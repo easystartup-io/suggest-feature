@@ -1,3 +1,4 @@
+"use client"
 import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -5,16 +6,31 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { UserAuthForm } from "@/components/user-auth-form"
-
-export const metadata: Metadata = {
-  title: "Login Page",
-  description: "Login Page",
-}
+import Script from "next/script";
+import { useEffect } from "react"
 
 export default function AuthenticationPage() {
+  let id = "d1ae1735-cd77-47c8-8a33-87835620295b";
+
+  useEffect(() => {
+    // Check if the script is already in the head of the dom
+    let script = document.querySelector(
+      `script[src="https://static.senja.io/dist/platform.js"]`
+    );
+
+    if (script) return;
+
+    script = document.createElement("script")
+    script.src = "https://static.senja.io/dist/platform.js";
+    script.async = true
+    script.type = "text/javascript"
+    document.body.append(script);
+  }, []);
+
   return (
     <>
-      <div className="container relative h-[800px] flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <title>Sign Up</title>
+      <div className="h-[800px] items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
           href="/login"
           className={cn(
@@ -24,19 +40,15 @@ export default function AuthenticationPage() {
         >
           Login
         </Link>
-        <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-          <div className="absolute inset-0 bg-zinc-900" />
-          <div className="relative z-20 flex items-center text-lg font-medium">
-            <img src="/logo.jpeg" alt="Suggest Feature" className="h-8 w-auto mr-2" />
+        <div className="lg:min-h-screen h-full flex flex-col bg-gradient-to-b from-white to-yellow-400">
+          <div className="flex items-center text-xl font-bold p-8">
+            <img src="/logo-light.jpeg" alt="Suggest Feature" className="h-8 w-auto mr-2" />
             Suggest Feature
           </div>
-          <div className="relative z-20 mt-auto">
-            <blockquote className="space-y-2">
-              <p className="text-lg">
-                Best suggestion tool I&apos;ve used. I love how easy it is to use and how it integrates with my workflow.
-              </p>
-              <footer className="text-sm">Sofia Davis</footer>
-            </blockquote>
+          <div className="hidden lg:block w-full h-full">
+            <div className="">
+              <div className="senja-embed block" data-id={id} data-mode="shadow" data-lazyload="true" ></div>
+            </div>
           </div>
         </div>
         <div className="lg:p-8">

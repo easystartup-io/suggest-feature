@@ -103,7 +103,7 @@ public class UserRestApi {
         List<Organization> orgsByIds = authService.getOrgsByIds(orgsIds);
         List<Organization> safeReturn = new ArrayList<>();
         orgsByIds.forEach(org -> {
-            safeReturn.add(org.getSafeOrg());
+            safeReturn.add(org.createSafeOrg());
         });
         safeReturn.sort(Comparator.comparing(org ->
                 org.getName() != null ? org.getName().toLowerCase(Locale.ROOT) : org.getCreatedAt().toString())
