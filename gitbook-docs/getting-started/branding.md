@@ -70,6 +70,10 @@ A live preview of your navigation bar is available at the bottom of the settings
 
 After making your desired customizations, click the "Save" button at the bottom of the page to apply your changes. It might take upto 1 minute for new changes to reflect on your page (because we cache some content for fast end user experience)
 
+### Whitelabelling and sending emails from custom account
+
+You can contact us and if you are on the right plan, we will configure your custom email account to send emails from. We will configure an amazon SES account with your domain to sending emails from, if you have any specific provider you want to use, please contact us and we will take care of it.&#x20;
+
 ### Need Help?
 
 If you have any questions about customizing your Suggest Feature branding, please contact our support team for assistance.

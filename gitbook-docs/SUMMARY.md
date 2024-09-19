@@ -6,7 +6,7 @@
 
 * [The Basics](getting-started/quickstart.md)
 * [Custom Domain Setup](getting-started/custom-domain-setup.md)
-* [Customizing Your Page Branding](getting-started/customizing-your-page-branding.md)
+* [Customizing Your Page Branding](getting-started/branding.md)
 
 ## Basics
 
