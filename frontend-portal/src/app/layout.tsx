@@ -136,7 +136,7 @@ function Header({ params }) {
           router.push('/')
         }} className="cursor-pointer flex items-center">
           {org.logo ? <img
-            className="h-12 w-12 mr-2"
+            className="h-12 mr-2"
             src={org.logo}
           /> : null}
           {

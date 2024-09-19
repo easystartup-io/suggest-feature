@@ -102,8 +102,8 @@ const Navbar = ({
       <nav className="flex items-center justify-between p-4 bg-white dark:bg-background text-black dark:text-white shadow-sm">
         <div className="flex items-center">
           {logo && (
-            <div className="w-10 h-10 mr-2">
-              <ImageComponent src={logo} alt="Logo" className="w-[40px] h-[40px] object-contain" />
+            <div className="h-10 mr-2">
+              <ImageComponent src={logo} alt="Logo" className="h-[40px] object-contain" />
             </div>
           )}
           {!hideOrgName && <span className="text-lg font-semibold">{orgName}</span>}
@@ -306,7 +306,7 @@ const Dashboard: React.FC = ({ params }) => {
                 </Label>
               </div>
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 overflow-hidden rounded border border-gray-200">
+                <div className="h-16 overflow-hidden rounded border border-gray-200">
                   <ImageComponent
                     src={uploadedLogoUrl || logo}
                     alt="Logo"

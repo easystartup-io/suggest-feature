@@ -49,6 +49,45 @@ public class BoardRestApi {
     }
 
     @POST
+    @Path("/import-csv")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response importCsv(Board board) {
+        String userId = UserContext.current().getUserId();
+        validationService.validate(board);
+        board.setSlug(Util.fixSlug(board.getSlug()));
+        Board existingBoard = getBoard(board.getId(), UserContext.current().getOrgId());
+        boolean isNew = false;
+        if (existingBoard == null) {
+            board.setId(new ObjectId().toString());
+            board.setCreatedAt(System.currentTimeMillis());
+            board.setCreatedByUserId(userId);
+            isNew = true;
+        } else {
+            board.setCreatedByUserId(existingBoard.getCreatedByUserId());
+            board.setCreatedAt(existingBoard.getCreatedAt());
+        }
+        board.setOrganizationId(UserContext.current().getOrgId());
+        try {
+            if (isNew) {
+                mongoConnection.getDefaultMongoTemplate().insert(board);
+            } else {
+                mongoConnection.getDefaultMongoTemplate().save(board);
+            }
+        } catch (DuplicateKeyException e) {
+            throw new UserVisibleException("Board with this slug already exists");
+        }
+
+        long count = mongoConnection.getDefaultMongoTemplate().count(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId())), Board.class);
+        if (count > 500 && !Util.isSelfHosted()) {
+            // Limit present to prevent spam
+            throw new UserVisibleException("Too many boards. To increase please raise a support ticket");
+        }
+
+        return Response.ok(JacksonMapper.toJson(board)).build();
+    }
+
+    @POST
     @Path("/create-board")
     @Consumes("application/json")
     @Produces("application/json")

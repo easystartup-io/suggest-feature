@@ -195,6 +195,7 @@ function UserHeader({ user }) {
 function PostContent({ data, refetch, params }) {
 
   const [openReplyComment, setOpenReplyComment] = useState(false);
+  const { verifyLoginOrPrompt } = useAuth()
 
   return (
     <div >
@@ -232,7 +233,10 @@ function PostContent({ data, refetch, params }) {
             !data.title &&
             <div className='flex items-center text-xs'>
               <Button variant='ghost' className='' size="sm"
-                onClick={() => setOpenReplyComment(true)}>
+                onClick={() => {
+                  verifyLoginOrPrompt();
+                  setOpenReplyComment(true)
+                }}>
                 <Reply className='h-4 w-4 mr-2' />
                 Reply
               </Button>
