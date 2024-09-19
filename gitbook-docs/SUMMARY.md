@@ -28,7 +28,12 @@
   * [Enable or disable roadmap](basics/roadmap/enable-or-disable-roadmap.md)
   * [Showcase Specific Statuses on the Roadmap](basics/roadmap/showcase-specific-statuses-on-the-roadmap.md)
   * [Select Specific Boards for the Roadmap](basics/roadmap/select-specific-boards-for-the-roadmap.md)
-* [Integrations](basics/integrations.md)
+* [Adding Team Members](basics/adding-team-members.md)
+
+## ADVANCED
+
+* [Integrations (In ⏳)](advanced/integrations.md)
+* [SSO Auth](advanced/sso-auth.md)
 
 ## FAQ
 

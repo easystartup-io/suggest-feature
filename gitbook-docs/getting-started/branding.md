@@ -10,7 +10,7 @@ Personalize your Suggest Feature experience to align with your brand identity us
 
 Navigate to the **Page Settings** section in your Suggest Feature dashboard to customize your branding.
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
 
 ### Available Customization Options
 

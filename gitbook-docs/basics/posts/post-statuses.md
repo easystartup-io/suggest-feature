@@ -30,7 +30,7 @@ To update a post's status, navigate to the post in the admin view:
 
 All users who have voted on the post and have access to the board will receive a notification, ensuring everyone stays informed about the progress. Something similar to the below image
 
-<figure><img src="../../.gitbook/assets/image (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 **Displaying Statuses on the User Roadmap**
 
