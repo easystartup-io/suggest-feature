@@ -34,3 +34,4 @@
 
 * [Attachments and Image File Uploads](faq/attachments-and-image-file-uploads.md)
 * [Add and Manage Organizations](faq/add-and-manage-organizations.md)
+* [Importing Data from Other Feedback Tools](faq/importing-data-from-other-feedback-tools.md)
