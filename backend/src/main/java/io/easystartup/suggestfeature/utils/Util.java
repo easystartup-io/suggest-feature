@@ -373,4 +373,14 @@ public class Util {
             }
         }
     }
+
+    public static boolean isAllowReserved(String userId) {
+        User userByUserId = authService.get().getUserByUserId(userId);
+        boolean allowReserved = false;
+        if (userByUserId != null && userByUserId.getEmail() != null && userByUserId.getEmail().endsWith("@suggestfeature.com")) {
+            allowReserved = true;
+        }
+        return allowReserved;
+    }
+
 }

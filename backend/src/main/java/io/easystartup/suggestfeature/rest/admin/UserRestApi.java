@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.easystartup.suggestfeature.utils.Util.isAllowReserved;
+
 /**
  * @author indianBond
  */
@@ -118,13 +120,13 @@ public class UserRestApi {
     public Response createOrg(OrganizationRequest req) {
         validationService.validate(req);
 
-        String slug = PagesRestApi.validateAndFix(req.getOrganizationSlug());
+        String userId = UserContext.current().getUserId();
+        String slug = PagesRestApi.validateAndFix(req.getOrganizationSlug(), isAllowReserved(userId));
         req.setOrganizationSlug(slug);
 
         // Ensure organization name is clean, does not contain xss and is trimmed
         req.setOrganizationName(req.getOrganizationName().trim());
 
-        String userId = UserContext.current().getUserId();
         Organization organization = new Organization();
         organization.setCreatedAt(System.currentTimeMillis());
         organization.setSlug(req.getOrganizationSlug());

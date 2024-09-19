@@ -26,6 +26,8 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.easystartup.suggestfeature.utils.Util.isAllowReserved;
+
 /**
  * @author indianBond
  */
@@ -79,7 +81,7 @@ public class PagesRestApi {
             throw new UserVisibleException("Invalid settings");
         }
         organization.setId(UserContext.current().getOrgId());
-        organization.setSlug(validateAndFix(organization.getSlug()));
+        organization.setSlug(validateAndFix(organization.getSlug(), isAllowReserved(UserContext.current().getUserId())));
         Organization existingOrg = authService.getOrgById(organization.getId());
         existingOrg.setRoadmapSettings(organization.getRoadmapSettings());
         Organization andModify = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(Criteria.where(Organization.FIELD_ID).is(organization.getId())), new Update().set(Organization.FIELD_ROADMAP_SETTINGS, organization.getRoadmapSettings()), FindAndModifyOptions.options().returnNew(true), Organization.class);
@@ -93,12 +95,16 @@ public class PagesRestApi {
     public Response editOrg(Organization organization) {
         validationService.validate(organization);
         organization.setId(UserContext.current().getOrgId());
-        organization.setSlug(validateAndFix(organization.getSlug()));
+        organization.setSlug(validateAndFix(organization.getSlug(), isAllowReserved(UserContext.current().getUserId())));
         Organization existingOrg = authService.getOrgById(organization.getId());
 
         if (subscriptionService.isTrial(organization.getId()) || !subscriptionService.hasValidSubscription(organization.getId())) {
             // If subscription is valid, then only allow custom domain
             throwExceptionIfTrialOrNotValidSubscription(organization);
+        }
+
+        if (StringUtils.isNotBlank(organization.getCustomDomain()) && (organization.getCustomDomain().endsWith(".suggestfeature.com") || organization.getCustomDomain().equals("suggestfeature.com"))) {
+            throw new UserVisibleException("Custom domain cannot end with suggestfeature.com");
         }
 
         if (StringUtils.isNotBlank(organization.getCustomDomain()) && StringUtils.isNotBlank(existingOrg.getCustomDomain()) && !organization.getCustomDomain().equals(existingOrg.getCustomDomain())) {
@@ -147,9 +153,6 @@ public class PagesRestApi {
             existingOrg.setSsoSettings(ssoSettings);
         }
 
-        if (StringUtils.isNotBlank(organization.getCustomDomain()) && (organization.getCustomDomain().endsWith(".suggestfeature.com") || organization.getCustomDomain().equals("suggestfeature.com") )) {
-            throw new UserVisibleException("Custom domain cannot end with suggestfeature.com");
-        }
         // Validate the domain name and ensure it doesnot start with https or have a path and allow localhost and suggestfeature.com
         if (StringUtils.isNotBlank(organization.getCustomDomain()) && !Util.getEnvVariable("SKIP_DOMAIN_VERIFICATION", "false").equalsIgnoreCase("true") && !DomainValidator.getInstance(true).isValid(organization.getCustomDomain())) {
             throw new UserVisibleException("Invalid domain name. It should be of this format subdomain.yourdomain.com");
@@ -203,7 +206,7 @@ public class PagesRestApi {
         return Response.ok(JacksonMapper.toJson(org)).build();
     }
 
-    public static String validateAndFix(String slug) {
+    public static String validateAndFix(String slug, boolean allowReserved) {
         slug = Util.fixSlug(slug);
 
         if (RESERVED_SLUGS.contains(slug) && !Util.isSelfHosted()) {
