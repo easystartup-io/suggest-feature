@@ -20,7 +20,7 @@ We'll keep your voters informed whenever a post status changes!
 
 * The notification emails will match your brand's style
 
-<figure><img src="../../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
 
 ***
 

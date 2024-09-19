@@ -21,7 +21,7 @@ The default statuses available are:
 
 **Updating the Status of a Post**
 
-<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2) (1).png" alt=""><figcaption></figcaption></figure>
 
 To update a post's status, navigate to the post in the admin view:
 
@@ -30,10 +30,10 @@ To update a post's status, navigate to the post in the admin view:
 
 All users who have voted on the post and have access to the board will receive a notification, ensuring everyone stays informed about the progress. Something similar to the below image
 
-<figure><img src="../../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 **Displaying Statuses on the User Roadmap**
 
-<figure><img src="../../.gitbook/assets/image (2) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 When a post status is updated, it is reflected in the user-facing roadmap, visible on your Suggest Feature homepage. You can also customize which columns are displayed on the roadmap by adjusting the settings in the **Roadmap** section.
