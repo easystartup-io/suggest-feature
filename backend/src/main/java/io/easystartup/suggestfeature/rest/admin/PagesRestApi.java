@@ -209,11 +209,14 @@ public class PagesRestApi {
     public static String validateAndFix(String slug, boolean allowReserved) {
         slug = Util.fixSlug(slug);
 
-        if (RESERVED_SLUGS.contains(slug) && !Util.isSelfHosted()) {
+        if (!allowReserved && RESERVED_SLUGS.contains(slug) && !Util.isSelfHosted()) {
             throw new UserVisibleException("Slug is already used");
         }
-        if (slug.length() < 3) {
+        if (slug.length() < 3 && !Util.isSelfHosted()) {
             throw new UserVisibleException("Minimum 3 letters required");
+        }
+        if (StringUtils.isBlank(slug)) {
+            throw new UserVisibleException("Slug cannot be empty");
         }
         return slug;
     }
