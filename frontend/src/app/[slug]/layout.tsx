@@ -41,8 +41,47 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { openCrisp } from "@/lib/open-crisp"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export const SidebarContext = createContext()
+
+const AlertBar = ({ params, isTrialPeriod, isSubscriptionValid }) => {
+
+  const router = useRouter();
+
+  if (isTrialPeriod) {
+    return (
+      <Alert variant="default" className="rounded-none border-b bg-yellow-300 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100">
+        <AlertDescription className="flex items-center justify-between">
+          <span>You're currently on a trial, some features are not available. Upgrade to a paid plan for uninterrupted access.</span>
+          <Button variant="outline" size="sm"
+            onClick={() => {
+              router.push(`/${params.slug}/billing`)
+            }}
+            className="bg-yellow-200 dark:bg-yellow-800 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-100 hover:bg-yellow-300 dark:hover:bg-yellow-700">
+            Upgrade Now
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  } else if (!isSubscriptionValid) {
+    return (
+      <Alert variant="destructive" className="rounded-none border-b">
+        <AlertDescription className="flex items-center justify-between">
+          <span>Your subscription has expired. Renew now to continue using all features.</span>
+          <Button variant="outline"
+            onClick={() => {
+              router.push(`/${params.slug}/billing`)
+            }}
+            size="sm" className="bg-red-100 dark:bg-red-900 border-red-400 dark:border-red-600 text-red-900 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800">
+            Renew Subscription
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  }
+  return null
+}
 
 const navigationItems = [
   { href: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -228,6 +267,8 @@ const Dashboard = ({ children, params }) => {
 
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed || false)
   const { theme } = useTheme()
+  const [isTrialPeriod, setIsTrialPeriod] = useState(false)
+  const [isSubscriptionValid, setIsSubscriptionValid] = useState(true)
 
   const CrispWithNoSSR = dynamic(() => import('../../components/crisp'))
 
@@ -265,6 +306,10 @@ const Dashboard = ({ children, params }) => {
           Cookies.set('defaultOrg', data.slug, { expires: 365 });
         }
 
+        // Set trial and subscription status
+        setIsTrialPeriod(data.trial)
+        setIsSubscriptionValid(data.validSubscription)
+
       } catch (error) {
         console.error(error)
       }
@@ -279,6 +324,7 @@ const Dashboard = ({ children, params }) => {
 
   return (
     <div className="flex flex-1 flex-col h-full w-full">
+      <AlertBar params={params} isTrialPeriod={isTrialPeriod} isSubscriptionValid={isSubscriptionValid} />
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes) => {
