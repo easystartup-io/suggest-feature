@@ -335,6 +335,14 @@ Here's an expanded example of a JWT payload that incorporates these consideratio
 2. **Feature Request Prioritization**: Leverage the customerSegment or other relevant fields to automatically assign priority levels to feature requests based on the submitter's profile.
 3. **Reporting and Analytics**: Create more detailed and segmented reports using the additional user and organization metadata provided through SSO.
 
+### JWT Token Verification (verify during testing )
+
+<figure><img src="../.gitbook/assets/image (14).png" alt=""><figcaption></figcaption></figure>
+
+* Use the "JWT Token Verification" field in the dashboard to test your tokens.
+* Enter a JWT token and click "Verify Token" to check its validity and if it has all the required parameters.
+* This tool helps ensure your token generation is correct and compatible with the current keys.
+
 ### Token Key Management - Refresh Tokens
 
 <figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
