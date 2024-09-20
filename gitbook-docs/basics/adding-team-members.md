@@ -7,7 +7,7 @@ icon: users-medical
 {% hint style="success" %}
 ### Unlimited Team Members
 
-All Suggest Feature plans include unlimited team members. You can invite as many colleagues as needed without any additional charges, ensuring your entire team can collaborate effectively on user feedback.
+All Suggest Feature plans, except `Basic` include unlimited team members. You can invite as many colleagues as needed without any additional charges, ensuring your entire team can collaborate effectively on user feedback.
 {% endhint %}
 
 ## Adding Team Members
