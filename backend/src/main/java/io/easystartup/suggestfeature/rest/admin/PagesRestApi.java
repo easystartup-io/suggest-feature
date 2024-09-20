@@ -259,6 +259,7 @@ public class PagesRestApi {
 
         ssoSettings.setEnableCustomSSO(reqSSOSettings.isEnableCustomSSO());
         ssoSettings.setSsoRedirectUrl(reqSSOSettings.getSsoRedirectUrl());
+        ssoSettings.setExclusiveSSO(reqSSOSettings.isExclusiveSSO());
 
         Query query = new Query(Criteria.where(Organization.FIELD_ID).is(orgId));
         Update set = new Update().set(Organization.FIELD_SSO_SETTINGS, ssoSettings);

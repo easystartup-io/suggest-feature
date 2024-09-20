@@ -79,10 +79,13 @@ public class Organization {
         safeOrg.setReturnToSiteUrl(getReturnToSiteUrl());
         safeOrg.setReturnToSiteUrlText(getReturnToSiteUrlText());
 
-        SSOSettings safeSsoSettings = new SSOSettings();
-        safeSsoSettings.setEnableCustomSSO(getSsoSettings().isEnableCustomSSO());
-        safeSsoSettings.setSsoRedirectUrl(getSsoSettings().getSsoRedirectUrl());
-        safeOrg.setSsoSettings(safeSsoSettings);
+        if (this.ssoSettings != null) {
+            SSOSettings safeSsoSettings = new SSOSettings();
+            safeSsoSettings.setEnableCustomSSO(this.ssoSettings.isEnableCustomSSO());
+            safeSsoSettings.setExclusiveSSO(this.ssoSettings.isExclusiveSSO());
+            safeSsoSettings.setSsoRedirectUrl(this.ssoSettings.getSsoRedirectUrl());
+            safeOrg.setSsoSettings(safeSsoSettings);
+        }
 
         return safeOrg;
     }
@@ -235,6 +238,7 @@ public class Organization {
     public static class SSOSettings {
 
         private boolean enableCustomSSO;
+        private boolean exclusiveSSO;
         private String ssoRedirectUrl;
         private String primaryKey;
         private String secondaryKey;
@@ -272,6 +276,14 @@ public class Organization {
 
         public void setSecondaryKey(String secondaryKey) {
             this.secondaryKey = secondaryKey;
+        }
+
+        public boolean isExclusiveSSO() {
+            return exclusiveSSO;
+        }
+
+        public void setExclusiveSSO(boolean exclusiveSSO) {
+            this.exclusiveSSO = exclusiveSSO;
         }
     }
 }

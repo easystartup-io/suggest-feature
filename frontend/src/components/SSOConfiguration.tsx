@@ -23,6 +23,7 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [enableCustomSSO, setEnableCustomSSO] = useState(false);
+  const [exclusiveSSO, setExclusiveSSO] = useState(false);
   const [ssoRedirectUrl, setSsoRedirectUrl] = useState('');
   const [primaryKey, setPrimaryKey] = useState('');
   const [secondaryKey, setSecondaryKey] = useState('');
@@ -36,6 +37,7 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
   useEffect(() => {
     if (initialSSOSettings) {
       setEnableCustomSSO(initialSSOSettings.enableCustomSSO || false);
+      setExclusiveSSO(initialSSOSettings.exclusiveSSO || false);
       setSsoRedirectUrl(initialSSOSettings.ssoRedirectUrl || '');
       setPrimaryKey(initialSSOSettings.primaryKey || '');
       setSecondaryKey(initialSSOSettings.secondaryKey || '');
@@ -133,6 +135,7 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
     setIsSaving(true);
     const ssoSettings = {
       enableCustomSSO,
+      exclusiveSSO,
       ssoRedirectUrl,
       primaryKey,
       secondaryKey
@@ -234,6 +237,16 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
           onCheckedChange={setEnableCustomSSO}
         />
         <Label htmlFor="enable-custom-sso">Enable Custom SSO</Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="exclusive-sso"
+          checked={exclusiveSSO}
+          onCheckedChange={setExclusiveSSO}
+          disabled={!enableCustomSSO}
+        />
+        <Label htmlFor="exclusive-sso">Use SSO Exclusively (Disable All Other Login Methods)</Label>
       </div>
 
       <div>
