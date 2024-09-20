@@ -81,7 +81,7 @@ public class PagesRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response editRoadmap(Organization organization) {
-        if (organization.getRoadmapSettings() == null){
+        if (organization.getRoadmapSettings() == null) {
             throw new UserVisibleException("Invalid settings");
         }
         organization.setId(UserContext.current().getOrgId());
@@ -228,17 +228,18 @@ public class PagesRestApi {
         Organization.SSOSettings ssoSettings = org.getSsoSettings();
 
         Map<String, Object> rv = new HashMap<>();
-        try {
-            DecodedJWT verify = getDecodedJWT(jwt, ssoSettings.getPrimaryKey(), ssoSettings.getSecondaryKey());
-            rv.put("isValid", true);
-            Map<String, String> decodedToken = new HashMap<>();
-            verify.getClaims().forEach((k, v) -> {
-                decodedToken.put(k, v.asString());
-            });
-            rv.put("decodedToken", decodedToken);
-        } catch (UserVisibleException e) {
-            rv.put("isValid", false);
+        DecodedJWT verify = getDecodedJWT(jwt, ssoSettings.getPrimaryKey(), ssoSettings.getSecondaryKey());
+        rv.put("isValid", true);
+        Map<String, String> decodedToken = new HashMap<>();
+        verify.getClaims().forEach((k, v) -> {
+            decodedToken.put(k, v.asString());
+        });
+        if (StringUtils.isBlank(decodedToken.get("email"))) {
+            throw new UserVisibleException("Invalid email or email not provided");
+        } else if (StringUtils.isBlank(decodedToken.get("name"))) {
+            throw new UserVisibleException("Invalid name or name not provided");
         }
+        rv.put("decodedToken", decodedToken);
 
         return Response.ok(JacksonMapper.toJson(rv)).build();
     }

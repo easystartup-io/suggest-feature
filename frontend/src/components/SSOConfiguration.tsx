@@ -7,6 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { RefreshCw, Copy, CheckCircle, XCircle, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { Icons } from "@/components/icons";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
   const { toast } = useToast();
@@ -20,6 +30,8 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
   const [jwtVerificationResult, setJwtVerificationResult] = useState(null);
   const [jwtDecodedContents, setJwtDecodedContents] = useState(null);
   const [showJwtContents, setShowJwtContents] = useState(false);
+  const [showRefreshConfirmation, setShowRefreshConfirmation] = useState(false);
+  const [keyToRefresh, setKeyToRefresh] = useState(null);
 
   useEffect(() => {
     if (initialSSOSettings) {
@@ -69,6 +81,16 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
     setIsLoading(false);
   };
 
+  const handleRefreshClick = (keyType) => {
+    setKeyToRefresh(keyType);
+    setShowRefreshConfirmation(true);
+  };
+
+  const handleConfirmRefresh = () => {
+    setShowRefreshConfirmation(false);
+    refreshKey(keyToRefresh);
+  };
+
   const verifyJwtToken = async () => {
     setIsLoading(true);
     try {
@@ -81,9 +103,19 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
         body: JSON.stringify({ jwtToken })
       });
       const data = await response.json();
-      setJwtVerificationResult(data.isValid);
-      setJwtDecodedContents(data.decodedToken || null);
-      setShowJwtContents(true);
+      if (response.ok) {
+        setJwtVerificationResult(data.isValid);
+        setJwtDecodedContents(data.decodedToken || null);
+        setShowJwtContents(true);
+      } else {
+        setJwtVerificationResult(false);
+        setJwtDecodedContents(null);
+        toast({
+          title: 'Failed to verify JWT token',
+          description: data.message,
+          variant: 'destructive'
+        });
+      }
     } catch (err) {
       console.error(err);
       setJwtVerificationResult(false);
@@ -241,7 +273,7 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
           </div>
           <Button
             type="button"
-            onClick={() => refreshKey('primary')}
+            onClick={() => handleRefreshClick('primary')}
             disabled={isLoading}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -273,7 +305,7 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
           </div>
           <Button
             type="button"
-            onClick={() => refreshKey('secondary')}
+            onClick={() => handleRefreshClick('secondary')}
             disabled={isLoading}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -319,6 +351,21 @@ const SSOConfiguration = ({ orgSlug, initialSSOSettings, onSave }) => {
           'Save SSO Configuration'
         )}
       </Button>
+
+      <AlertDialog open={showRefreshConfirmation} onOpenChange={setShowRefreshConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Key Refresh</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to refresh the {keyToRefresh} key? This action will replace the existing key, and any systems using the current key will stop working.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmRefresh}>Refresh Key</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
