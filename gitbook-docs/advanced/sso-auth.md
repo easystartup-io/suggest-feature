@@ -1,6 +1,0 @@
----
-icon: lock
----
-
-# SSO Auth
-

@@ -32,8 +32,8 @@
 
 ## ADVANCED
 
+* [Single Sign-On (SSO) Authentication](advanced/single-sign-on-sso-authentication.md)
 * [Integrations (In ⏳)](advanced/integrations.md)
-* [SSO Auth](advanced/sso-auth.md)
 
 ## FAQ
 

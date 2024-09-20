@@ -4,7 +4,7 @@ icon: puzzle-piece-simple
 
 # Changing Board URL (Slug)
 
-<figure><img src="../../.gitbook/assets/image (2) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
 To change the board's URL (slug):
 
