@@ -20,7 +20,7 @@ Custom domains allow you to use your own branded URL for your Suggest Feature in
 
 First, you need to update your DNS settings to point to Suggest Feature:
 
-<figure><img src="../.gitbook/assets/image (1) (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption><p>Cloudflare example DNS Cname mapping</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption><p>Cloudflare example DNS Cname mapping</p></figcaption></figure>
 
 1. **Access Your DNS Provider:**\
    Log in to your DNS provider (e.g., CloudFlare, GoDaddy, Google Domains, Namecheap, etc.).
@@ -42,7 +42,7 @@ First, you need to update your DNS settings to point to Suggest Feature:
 
 Once your DNS settings are updated, configure your custom domain in Suggest Feature:
 
-<figure><img src="../.gitbook/assets/image (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption><p>Admin Page Custom domain settings</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1) (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption><p>Admin Page Custom domain settings</p></figcaption></figure>
 
 1. **Log in to Suggest Feature Admin Dashboard:**\
    Go to the admin dashboard and navigate to the 'Page Settings' section on the left pane.
