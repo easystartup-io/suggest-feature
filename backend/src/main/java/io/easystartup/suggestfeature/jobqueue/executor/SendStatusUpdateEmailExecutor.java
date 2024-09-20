@@ -14,6 +14,8 @@ import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.LazyService;
 import io.easystartup.suggestfeature.utils.Util;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +23,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /*
@@ -34,6 +38,13 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendStatusUpdateEmailExecutor.class);
     private final LazyService<AuthService> authService = new LazyService<>(AuthService.class);
     private final LazyService<MongoTemplateFactory> mongoConnection = new LazyService<>(MongoTemplateFactory.class);
+    // Block indefinitely till lock received
+    RateLimiterConfig config = RateLimiterConfig.custom()
+            .timeoutDuration(Duration.ofHours(100))
+            .limitRefreshPeriod(Duration.ofSeconds(1))
+            .limitForPeriod(500)
+            .build();
+    RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.of(config);
 
     @Override
     public void execute(Map<String, Object> data, String orgId) {
@@ -54,6 +65,7 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
         if (voters.size() == 1 && voters.get(0).getUserId().equals(userId)) {
             return;
         }
+
 
         String senderEmail = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
         Organization organization = authService.get().getOrgById(orgId);
@@ -80,12 +92,29 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
         String subject = "Update on Post: " + escapeHtml(post.getTitle()) + " - Status Changed to " + escapeHtml(status);
         String bodyHtml = constructEmailBodyHtml(organization, post, userUpdatingStatus, status, postUrl);
 
+        Set<String> values = new HashSet<>();
         // Get list of voterId vs userIds map from voters list
         Map<String, String> voterIdVsUserIdMap = voters.stream()
                 .collect(Collectors.toMap(Voter::getId, Voter::getUserId));
-        List<User> users = authService.get().getUsersByUserIds(new HashSet<>(voterIdVsUserIdMap.values()));
+        values.addAll(voterIdVsUserIdMap.values());
 
-        users.forEach(user -> sendEmail(user.getEmail(), bodyHtml, subject, senderEmail));
+        // Fetch people who have commented. Just fetch commentedByUserIdField
+        List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(Query.query(Criteria.where(Comment.FIELD_POST_ID).is(post.getId())), Comment.class);
+        if (CollectionUtils.isNotEmpty(comments)) {
+            List<String> commentedByUserIds = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toList());
+            values.addAll(commentedByUserIds);
+        }
+
+        List<User> users = authService.get().getUsersByUserIds(new HashSet<>(values));
+
+        // Rate limit to 10 per second using resiliency 4j rate limiter. Block thread till next one is avaailable
+
+        users.forEach(user -> {
+            rateLimiterRegistry.rateLimiter("send-email").executeSupplier(() -> {
+                sendEmail(user.getEmail(), bodyHtml, subject, senderEmail);
+                return null;
+            });
+        });
     }
 
     private List<Voter> fetchVoters(String postId) {

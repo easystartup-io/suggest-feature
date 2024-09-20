@@ -75,7 +75,11 @@ dependencies {
     implementation group: 'io.kubernetes', name: 'client-java', version: '20.0.1'
     implementation group: 'com.opencsv', name: 'opencsv', version: '5.9'
 
+    // Resiliency4j
+    implementation group: 'io.github.resilience4j', name: 'resilience4j-all', version: '2.2.0'
+
     errorprone("com.google.errorprone:error_prone_core:2.31.0")
+
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
