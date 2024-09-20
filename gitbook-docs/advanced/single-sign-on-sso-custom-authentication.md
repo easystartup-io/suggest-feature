@@ -2,11 +2,9 @@
 icon: lock
 ---
 
-# Single Sign-On (SSO) Authentication
+# Single Sign-On (SSO) Custom Authentication
 
 {% embed url="https://asssets-docs.suggestfeature.com/add-sso-feature.mp4" %}
-
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
 
 ### Custom JWT-based SSO Configuration
 
@@ -29,6 +27,8 @@ This process involves setting up a dedicated page on your website to handle SSO 
 5. Suggest Feature logs the user in and automatically returns them to where they started the authentication process.
 
 #### Implementation Steps
+
+<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
 
 1. Set up a dedicated SSO page on your website (e.g., `https://yourdomain.com/sso/suggestfeature`).
 2. Navigate to your Suggest Feature Dashboard → Page Settings → Custom JWT-based SSO Configuration, and enter the URL of the page you created in the SSO URL field.

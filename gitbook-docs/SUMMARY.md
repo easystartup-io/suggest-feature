@@ -32,7 +32,7 @@
 
 ## ADVANCED
 
-* [Single Sign-On (SSO) Authentication](advanced/single-sign-on-sso-authentication.md)
+* [Single Sign-On (SSO) Custom Authentication](advanced/single-sign-on-sso-custom-authentication.md)
 * [Integrations (In ⏳)](advanced/integrations.md)
 
 ## FAQ
