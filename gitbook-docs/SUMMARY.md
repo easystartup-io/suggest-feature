@@ -32,7 +32,8 @@
 
 ## ADVANCED
 
-* [Single Sign-On (SSO) Custom Authentication](advanced/single-sign-on-sso-custom-authentication.md)
+* [Single Sign-On (SSO) Custom Authentication](advanced/single-sign-on-sso-custom-authentication/README.md)
+  * [Use SSO Exclusively (Disable All Other Login Methods)](advanced/single-sign-on-sso-custom-authentication/use-sso-exclusively-disable-all-other-login-methods.md)
 * [Integrations (In ⏳)](advanced/integrations.md)
 
 ## FAQ
