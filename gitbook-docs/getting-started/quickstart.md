@@ -8,3 +8,5 @@ description: >-
 # The Basics
 
 {% embed url="https://fast.wistia.com/embed/medias/uhvbidxlu9.jsonp" %}
+
+## Click next to start with each concept one by one
