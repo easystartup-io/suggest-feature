@@ -1,11 +1,8 @@
 package io.easystartup.suggestfeature.rest.admin;
 
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import io.easystartup.suggestfeature.beans.Customer;
@@ -34,6 +31,8 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static io.easystartup.suggestfeature.utils.SSOUtil.getDecodedJWT;
 
 /*
  * @author indianBond
@@ -89,13 +88,13 @@ public class CustomSSORestApi {
         }
 
         Organization.SSOSettings ssoSettings = one.getSsoSettings();
-        if (ssoSettings == null || !ssoSettings.isEnableSSO() || StringUtils.isBlank(ssoSettings.getUrl())) {
+        if (ssoSettings == null || !ssoSettings.isEnableCustomSSO() || StringUtils.isBlank(ssoSettings.getSsoRedirectUrl())) {
             throw new UserVisibleException("Invalid SSO settings");
         }
 
-        String REDIRECT_URI = Util.getEnvVariable("CUSTOM_SSO_REDIRECT_URL", "https://app.suggestfeature.com/api/unauth/customSSO/code");
-        URIBuilder uriBuilder = new URIBuilder(ssoSettings.getKey())
-                .addParameter("redirectUrl", REDIRECT_URI)
+        String CUSTOM_SSO_RETURN_TO_URL = Util.getEnvVariable("CUSTOM_SSO_RETURN_TO_URL", "https://app.suggestfeature.com/api/unauth/customSSO/code");
+        URIBuilder uriBuilder = new URIBuilder(ssoSettings.getPrimaryKey())
+                .addParameter("returnTo", CUSTOM_SSO_RETURN_TO_URL)
                 .addParameter("state", loginState.getId());
 
         return Response.temporaryRedirect(uriBuilder.build()).build();
@@ -111,20 +110,10 @@ public class CustomSSORestApi {
         }
         Organization org = authService.getOrgById(one.getOrganizationId());
 
-        String jwtSigningKey = org.getSsoSettings().getKey();
-        String jwtSigningKeySecondary = org.getSsoSettings().getKeySecondary();
+        String jwtSigningKey = org.getSsoSettings().getPrimaryKey();
+        String jwtSigningKeySecondary = org.getSsoSettings().getSecondaryKey();
 
-        // Validate jwt using JWTS library
-        DecodedJWT verify = null;
-        try {
-            verify = JWT.require(Algorithm.HMAC256(jwtSigningKey)).build().verify(jwt);
-        } catch (Exception e) {
-            try {
-                verify = JWT.require(Algorithm.HMAC256(jwtSigningKeySecondary)).build().verify(jwt);
-            } catch (Exception e1) {
-                throw new UserVisibleException("Invalid JWT");
-            }
-        }
+        DecodedJWT verify = getDecodedJWT(jwt, jwtSigningKey, jwtSigningKeySecondary);
 
         String email = verify.getClaim("email").asString();
         if (email == null) {
@@ -183,47 +172,4 @@ public class CustomSSORestApi {
     private static String getData(Claim claim, String defaultValue) {
         return claim.isMissing() ? defaultValue : claim.asString();
     }
-
-    private String getDefaultValueForProviders(String value, String provider) {
-        switch (provider) {
-            case "GOOGLE" -> {
-                switch (value) {
-                    case "SCOPE":
-                        return "openid email profile";
-                    case "AUTH_URL":
-                        return "https://accounts.google.com/o/oauth2/auth";
-                    case "TOKEN_URL":
-                        return "https://oauth2.googleapis.com/token";
-                    case "USER_INFO_URL":
-                        return "https://www.googleapis.com/oauth2/v3/userinfo";
-                }
-            }
-            case "FACEBOOK" -> {
-                switch (value) {
-                    case "SCOPE":
-                        return "email public_profile";
-                    case "AUTH_URL":
-                        return "https://www.facebook.com/v20.0/dialog/oauth";
-                    case "TOKEN_URL":
-                        return "https://graph.facebook.com/v20.0/oauth/access_token";
-                    case "USER_INFO_URL":
-                        return "https://graph.facebook.com/v20.0/me?fields=id,first_name,middle_name,last_name,name,email,verified,picture.width(250).height(250)";
-                }
-            }
-        }
-        return provider + "_" + value;
-    }
-
-    private static String getProfilePic(JsonNode userInfo, String provider) {
-        if ("FACEBOOK".equalsIgnoreCase(provider)) {
-            JsonNode pictureNode = userInfo.path("picture").path("data").path("url");
-            return pictureNode.isMissingNode() ? "" : pictureNode.asText();
-        } else if ("GOOGLE".equalsIgnoreCase(provider)) {
-            JsonNode pictureNode = userInfo.path("picture");
-            return pictureNode.isMissingNode() ? "" : pictureNode.asText();
-        }
-
-        return "";
-    }
-
 }

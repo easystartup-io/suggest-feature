@@ -1,5 +1,6 @@
 package io.easystartup.suggestfeature.rest.admin;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.RoadmapSettings;
 import io.easystartup.suggestfeature.filters.UserContext;
@@ -23,9 +24,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.easystartup.suggestfeature.utils.SSOUtil.getDecodedJWT;
 import static io.easystartup.suggestfeature.utils.Util.isAllowReserved;
 
 /**
@@ -131,25 +135,25 @@ public class PagesRestApi {
 
         if (existingOrg.getSsoSettings() != null) {
             Organization.SSOSettings ssoSettings = organization.getSsoSettings();
-            if (ssoSettings != null && ssoSettings.isEnableSSO() && StringUtils.isBlank(ssoSettings.getUrl())) {
+            if (ssoSettings != null && ssoSettings.isEnableCustomSSO() && StringUtils.isBlank(ssoSettings.getSsoRedirectUrl())) {
                 throw new UserVisibleException("Invalid SSO settings. Please enter your login url before enabling SSO");
             }
             if (ssoSettings == null) {
                 ssoSettings = existingOrg.getSsoSettings();
             }
-            ssoSettings.setKey(existingOrg.getSsoSettings().getKey());
-            ssoSettings.setKeySecondary(existingOrg.getSsoSettings().getKeySecondary());
+            ssoSettings.setPrimaryKey(existingOrg.getSsoSettings().getPrimaryKey());
+            ssoSettings.setSecondaryKey(existingOrg.getSsoSettings().getSecondaryKey());
             existingOrg.setSsoSettings(ssoSettings);
         } else {
             Organization.SSOSettings ssoSettings = organization.getSsoSettings();
-            if (ssoSettings != null && ssoSettings.isEnableSSO() && StringUtils.isBlank(ssoSettings.getUrl())) {
+            if (ssoSettings != null && ssoSettings.isEnableCustomSSO() && StringUtils.isBlank(ssoSettings.getSsoRedirectUrl())) {
                 throw new UserVisibleException("Invalid SSO settings. Please enter your login url before enabling SSO");
             }
             if (ssoSettings == null) {
                 ssoSettings = new Organization.SSOSettings();
             }
-            ssoSettings.setKey(UUID.randomUUID().toString());
-            ssoSettings.setKeySecondary(UUID.randomUUID().toString());
+            ssoSettings.setPrimaryKey(UUID.randomUUID().toString());
+            ssoSettings.setSecondaryKey(UUID.randomUUID().toString());
             existingOrg.setSsoSettings(ssoSettings);
         }
 
@@ -208,6 +212,90 @@ public class PagesRestApi {
         return Response.ok(JacksonMapper.toJson(org)).build();
     }
 
+    @POST
+    @Path("/verify-jwt")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response verifyJWT(Map<String, String> req) {
+        String orgId = UserContext.current().getOrgId();
+        Organization org = authService.getOrgById(orgId);
+
+        String jwt = req.get("jwtToken");
+
+        if (StringUtils.isBlank(jwt)) {
+            throw new UserVisibleException("Invalid JWT token");
+        }
+        Organization.SSOSettings ssoSettings = org.getSsoSettings();
+
+        Map<String, Object> rv = new HashMap<>();
+        try {
+            DecodedJWT verify = getDecodedJWT(jwt, ssoSettings.getPrimaryKey(), ssoSettings.getSecondaryKey());
+            rv.put("isValid", true);
+            Map<String, String> decodedToken = new HashMap<>();
+            verify.getClaims().forEach((k, v) -> {
+                decodedToken.put(k, v.asString());
+            });
+            rv.put("decodedToken", decodedToken);
+        } catch (UserVisibleException e) {
+            rv.put("isValid", false);
+        }
+
+        return Response.ok(JacksonMapper.toJson(rv)).build();
+    }
+
+    @POST
+    @Path("/update-sso-settings")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response updateSSOSettings(Organization.SSOSettings reqSSOSettings) {
+        String orgId = UserContext.current().getOrgId();
+        Organization org = authService.getOrgById(orgId);
+        Organization.SSOSettings ssoSettings = org.getSsoSettings();
+
+        if (StringUtils.isBlank(reqSSOSettings.getSsoRedirectUrl()) && reqSSOSettings.isEnableCustomSSO()) {
+            throw new UserVisibleException("Invalid SSO settings. Please enter your login url before enabling SSO");
+        }
+
+        ssoSettings.setEnableCustomSSO(reqSSOSettings.isEnableCustomSSO());
+        ssoSettings.setSsoRedirectUrl(reqSSOSettings.getSsoRedirectUrl());
+
+        Query query = new Query(Criteria.where(Organization.FIELD_ID).is(orgId));
+        Update set = new Update().set(Organization.FIELD_SSO_SETTINGS, ssoSettings);
+        Organization andModify = mongoConnection.getDefaultMongoTemplate().findAndModify(query, set, FindAndModifyOptions.options().returnNew(true), Organization.class);
+
+        return Response.ok(JacksonMapper.toJson(andModify.getSsoSettings())).build();
+    }
+
+    @POST
+    @Path("/refresh-sso-key")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response refreshSSOKey(Map<String, String> req) {
+        String orgId = UserContext.current().getOrgId();
+        Organization org = authService.getOrgById(orgId);
+        Organization.SSOSettings ssoSettings = org.getSsoSettings();
+        String newKey = null;
+        if (ssoSettings == null) {
+            ssoSettings = new Organization.SSOSettings();
+            ssoSettings.setPrimaryKey(UUID.randomUUID().toString());
+            ssoSettings.setSecondaryKey(UUID.randomUUID().toString());
+        } else {
+            if (req.get("keyType").equals("primary")) {
+                ssoSettings.setPrimaryKey(UUID.randomUUID().toString());
+                newKey = ssoSettings.getPrimaryKey();
+            } else {
+                ssoSettings.setSecondaryKey(UUID.randomUUID().toString());
+                newKey = ssoSettings.getSecondaryKey();
+            }
+        }
+        org.setSsoSettings(ssoSettings);
+        mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Organization.FIELD_ID).is(orgId)), new Update().set(Organization.FIELD_SSO_SETTINGS, ssoSettings), Organization.class);
+
+        Map<String, String> rv = Map.of("newKey", newKey);
+        return Response.ok(JacksonMapper.toJson(rv)).build();
+    }
+
+
     public static String validateAndFix(String slug, boolean allowReserved) {
         slug = Util.fixSlug(slug);
 
@@ -222,4 +310,6 @@ public class PagesRestApi {
         }
         return slug;
     }
+
+
 }

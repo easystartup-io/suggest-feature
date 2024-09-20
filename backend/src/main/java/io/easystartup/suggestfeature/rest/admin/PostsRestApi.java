@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -29,6 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.easystartup.suggestfeature.utils.Util.getPostValidationErrorForCustomFormFields;
 import static io.easystartup.suggestfeature.utils.Util.populatePost;
 
 /**
@@ -221,10 +223,6 @@ public class PostsRestApi {
     @Produces("application/json")
     public Response createPost(Post post) {
         String userId = UserContext.current().getUserId();
-        validationService.validate(post);
-
-        validateStatus(post.getStatus());
-        validatePriority(post.getPriority());
 
         Board board = null;
         if (StringUtils.isNotBlank(post.getBoardSlug())) {
@@ -239,6 +237,16 @@ public class PostsRestApi {
         if (board == null) {
             throw new UserVisibleException("Board not found");
         }
+
+        StringBuilder error = getPostValidationErrorForCustomFormFields(post, board);
+        if (!error.isEmpty()) {
+            throw new UserVisibleException(error.toString());
+        }
+        // validating late, because we need to check custom form fields and give custom error
+        validationService.validate(post);
+
+        validateStatus(post.getStatus());
+        validatePriority(post.getPriority());
 
         Post existingPost = getPost(post.getId(), UserContext.current().getOrgId());
         boolean isNew = false;

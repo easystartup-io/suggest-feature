@@ -131,6 +131,12 @@ public class UserRestApi {
         organization.setCreatedAt(System.currentTimeMillis());
         organization.setSlug(req.getOrganizationSlug());
         organization.setName(req.getOrganizationName());
+
+        Organization.SSOSettings ssoSettings = new Organization.SSOSettings();
+        ssoSettings.setPrimaryKey(UUID.randomUUID().toString());
+        ssoSettings.setSecondaryKey(UUID.randomUUID().toString());
+        organization.setSsoSettings(ssoSettings);
+
         try {
             organization = mongoConnection.getDefaultMongoTemplate().insert(organization);
             Member member = new Member();

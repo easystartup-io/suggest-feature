@@ -25,6 +25,7 @@ public class Organization {
     public static final String FIELD_CUSTOM_DOMAIN = "customDomain";
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_ROADMAP_SETTINGS = "roadmapSettings";
+    public static final String FIELD_SSO_SETTINGS = "ssoSettings";
 
     @Id
     private String id;
@@ -227,41 +228,44 @@ public class Organization {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SSOSettings {
 
-        private boolean enableSSO;
-        private String url;
-        private String key;
-        private String keySecondary;
+        private boolean enableCustomSSO;
+        private String ssoRedirectUrl;
+        private String primaryKey;
+        private String secondaryKey;
 
-        public String getUrl() {
-            return url;
+        public SSOSettings() {
         }
 
-        public void setUrl(String url) {
-            this.url = url;
+        public String getSsoRedirectUrl() {
+            return ssoRedirectUrl;
         }
 
-        public String getKey() {
-            return key;
+        public void setSsoRedirectUrl(String ssoRedirectUrl) {
+            this.ssoRedirectUrl = ssoRedirectUrl;
         }
 
-        public void setKey(String key) {
-            this.key = key;
+        public String getPrimaryKey() {
+            return primaryKey;
         }
 
-        public boolean isEnableSSO() {
-            return enableSSO;
+        public void setPrimaryKey(String primaryKey) {
+            this.primaryKey = primaryKey;
         }
 
-        public void setEnableSSO(boolean enableSSO) {
-            this.enableSSO = enableSSO;
+        public boolean isEnableCustomSSO() {
+            return enableCustomSSO;
         }
 
-        public String getKeySecondary() {
-            return keySecondary;
+        public void setEnableCustomSSO(boolean enableCustomSSO) {
+            this.enableCustomSSO = enableCustomSSO;
         }
 
-        public void setKeySecondary(String keySecondary) {
-            this.keySecondary = keySecondary;
+        public String getSecondaryKey() {
+            return secondaryKey;
+        }
+
+        public void setSecondaryKey(String secondaryKey) {
+            this.secondaryKey = secondaryKey;
         }
     }
 }

@@ -383,4 +383,33 @@ public class Util {
         return allowReserved;
     }
 
+    public static StringBuilder getPostValidationErrorForCustomFormFields(Post post, Board board) {
+        StringBuilder error = new StringBuilder();
+        Board.BoardForm boardForm = board.getBoardForm();
+        String titleLabel = (boardForm != null && boardForm.getTitleLabel() != null) ? boardForm.getTitleLabel() : "Title";
+        String descriptionLabel = (boardForm != null && boardForm.getDescriptionLabel() != null) ? boardForm.getDescriptionLabel() : "Description";
+
+        if (StringUtils.isBlank(post.getTitle())) {
+            error.append(titleLabel).append(" is required");
+        } else if (post.getTitle().trim().length() > 500) {
+            if (!error.isEmpty()) {
+                error.append(", ");
+            }
+            error.append(titleLabel).append(" too long. Limit it to 500 characters");
+        }
+
+        if (StringUtils.isBlank(post.getDescription())) {
+            if (!error.isEmpty()) {
+                error.append(", ");
+            }
+            error.append(descriptionLabel).append(" is required");
+        } else if (post.getDescription().trim().length() > 5000) {
+            if (!error.isEmpty()) {
+                error.append(", ");
+            }
+            error.append(descriptionLabel).append(" too long. Limit it to 5000 characters");
+        }
+        return error;
+    }
+
 }

@@ -50,14 +50,14 @@ const AlertBar = ({ params, isTrialPeriod, isSubscriptionValid }) => {
 
   if (isTrialPeriod) {
     return (
-      <Alert variant="default" className="rounded-none border-b bg-yellow-300 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 py-2">
+      <Alert variant="default" className="rounded-none border-b bg-yellow-300 text-yellow-900 py-2">
         <AlertDescription className="flex items-center justify-between">
           <span className="text-sm md:text-base font-medium">
-            🚀 You&apos;re on a trial! Loving Suggest Feature? Upgrade for unlimited awesomeness! ❤️❤️❤️ Your Ideas deserve a VIP treatment!
+            🚀 You&apos;re on a trial! Loving Suggest Feature? Upgrade for unlimited awesomeness! ❤️❤️❤️ Your features deserve a VIP treatment!
           </span>
           <Button variant="outline" size="sm"
             onClick={() => router.push(`/${params.slug}/billing`)}
-            className="bg-yellow-200 dark:bg-yellow-800 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-100 hover:bg-yellow-300 dark:hover:bg-yellow-700 ml-2 whitespace-nowrap px-3 h-8">
+            className="bg-indigo-500 text-white hover:bg-indigo-700 border-0 ml-2 whitespace-nowrap px-3 h-8 hover:text-white">
             Upgrade
           </Button>
         </AlertDescription>

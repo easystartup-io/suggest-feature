@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/context/AuthContext";
 import slugify from 'slugify';
 import { Separator } from "@/components/ui/separator";
+import SSOConfiguration from "@/components/SSOConfiguration";
 
 slugify.extend({ '@': 'at' })
 
@@ -176,6 +177,10 @@ const Dashboard: React.FC = ({ params }) => {
   const [returnToSiteUrl, setReturnToSiteUrl] = useState('')
   const [returnToSiteUrlText, setReturnToSiteUrlText] = useState('')
 
+
+  // SSO settings
+  const [ssoSettings, setSsoSettings] = useState(null);
+
   const form = useForm({ defaultValues })
   const { reset } = form; // Get reset function from useForm
 
@@ -195,6 +200,8 @@ const Dashboard: React.FC = ({ params }) => {
         setOrgSlug(data.slug)
         setCustomDomain(data.customDomain)
         setHideOrgName(data.hideOrgName)
+
+        setSsoSettings(data.ssoSettings || {});
 
         setEnableReturnToSiteUrl(data.enableReturnToSiteUrl)
         setReturnToSiteUrl(data.returnToSiteUrl)
@@ -243,6 +250,8 @@ const Dashboard: React.FC = ({ params }) => {
         setReturnToSiteUrl(respData.returnToSiteUrl)
         setReturnToSiteUrlText(respData.returnToSiteUrlText)
 
+        setSsoSettings(resp.ssoSettings || {});
+
         toast({
           title: 'Updated successfully',
         })
@@ -267,6 +276,9 @@ const Dashboard: React.FC = ({ params }) => {
     }
     setTimeout(() => { setLoading(false) }, 1000)
   }
+  const handleSSOSettingsUpdate = (newSSOSettings) => {
+    setSsoSettings(newSSOSettings);
+  };
 
   const updateSlug = (value: string) => {
     // Set org slug based on the org name, all lower case and all special characters removed and spaces replaced with -
@@ -527,6 +539,12 @@ const Dashboard: React.FC = ({ params }) => {
           </Form>
         </div>
       </div>
+
+      <SSOConfiguration
+        orgSlug={params.slug}
+        initialSSOSettings={ssoSettings}
+        onSave={handleSSOSettingsUpdate}
+      />
     </main>
   )
 }

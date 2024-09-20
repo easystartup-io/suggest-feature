@@ -28,8 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static io.easystartup.suggestfeature.utils.Util.populatePost;
-import static io.easystartup.suggestfeature.utils.Util.populateSelfVotedInPosts;
+import static io.easystartup.suggestfeature.utils.Util.*;
 
 /**
  * @author indianBond
@@ -253,7 +252,6 @@ public class PublicPortalAuthPostRestApi {
     @Consumes("application/json")
     public Response initPage(@Context HttpServletRequest request, Post reqPost) {
         // Find Page.java from request host
-        validationService.validate(reqPost);
         String userId = UserContext.current().getUserId();
         String host = request.getHeader("host");
         Organization org = getOrg(host);
@@ -280,6 +278,13 @@ public class PublicPortalAuthPostRestApi {
         if (CollectionUtils.isNotEmpty(reqPost.getAttachments()) && reqPost.getAttachments().size() > 50) {
             throw new UserVisibleException("Too many attachments");
         }
+
+        StringBuilder error = getPostValidationErrorForCustomFormFields(reqPost, board);
+        if (!error.isEmpty()) {
+            throw new UserVisibleException(error.toString());
+        }
+        // validating late, because we need to check custom form fields and give custom error
+        validationService.validate(reqPost);
 
         Post post = new Post();
         post.setAttachments(reqPost.getAttachments());
