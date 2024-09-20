@@ -16,9 +16,11 @@ import { useRouter } from 'next/navigation'
 import { useState } from "react"
 import { Icons } from "./icons"
 import { useAuth } from "@/context/AuthContext"
+import { useInit } from "@/context/InitContext"
 
 function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
   const { verifyCode } = useAuth()
+  const { org } = useInit();
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
@@ -172,9 +174,24 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
             </Button>
             {currentState === "email" && (
               <>
+                {
+                  org?.ssoSettings?.enableCustomSSO &&
+                  <Button variant="outline"
+                    type="button"
+                    className="w-full" onClick={() => {
+                      router.push(`/api/unauth/customSSO/start?host=${window.location.href}`)
+                    }}>
+                    <div className="flex items-center gap-2">
+                      {org?.logo && <img src={org.logo} className="h-5" />}
+                      <span>{isLogin ? `Login with ${org?.name}` : `Sign up with ${org?.name}`}</span>
+                    </div>
+                  </Button>
+                }
                 <Button variant="outline"
                   type="button"
-                  className="w-full" onClick={() => socialLogin("GOOGLE")}>
+                  className="w-full" onClick={() => {
+                    socialLogin("GOOGLE")
+                  }}>
                   <div className="flex items-center gap-2">
                     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
                       <title>Google</title>

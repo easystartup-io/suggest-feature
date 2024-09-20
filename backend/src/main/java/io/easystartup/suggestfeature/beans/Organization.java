@@ -78,6 +78,12 @@ public class Organization {
         safeOrg.setEnableReturnToSiteUrl(isEnableReturnToSiteUrl());
         safeOrg.setReturnToSiteUrl(getReturnToSiteUrl());
         safeOrg.setReturnToSiteUrlText(getReturnToSiteUrlText());
+
+        SSOSettings safeSsoSettings = new SSOSettings();
+        safeSsoSettings.setEnableCustomSSO(getSsoSettings().isEnableCustomSSO());
+        safeSsoSettings.setSsoRedirectUrl(getSsoSettings().getSsoRedirectUrl());
+        safeOrg.setSsoSettings(safeSsoSettings);
+
         return safeOrg;
     }
 

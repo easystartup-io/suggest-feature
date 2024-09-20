@@ -50,7 +50,7 @@ public class CustomSSORestApi {
     }
 
     @GET
-    @Path("/initiate}")
+    @Path("/start")
     public Response startLogin(@QueryParam("host") @NotBlank String host) throws URISyntaxException {
         URI uri = new URI(host);
         // extract domain name
