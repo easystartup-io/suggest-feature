@@ -225,7 +225,12 @@ public class UserRestApi {
         Member member1 = new Member();
         member1.setOrganizationId(orgId);
         member1.setUserId(userToAdd.getId());
-        member1.setRole(req.getRole());
+        // if current member has a role of user, he cannot add admin. Only admins can add other admins
+        if (UserContext.current().getRole() == Member.Role.USER) {
+            member1.setRole(Member.Role.USER);
+        } else {
+            member1.setRole(req.getRole());
+        }
         member1.setAddedByUserId(UserContext.current().getUserId());
         member1.setCreatedAt(System.currentTimeMillis());
         mongoConnection.getDefaultMongoTemplate().insert(member1);
