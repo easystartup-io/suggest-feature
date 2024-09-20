@@ -180,6 +180,7 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
                     type="button"
                     className="w-full" onClick={() => {
                       router.push(`/api/unauth/customSSO/start?host=${window.location.href}`)
+                      return
                     }}>
                     <div className="flex items-center gap-2">
                       {org?.logo && <img src={org.logo} className="h-5" />}

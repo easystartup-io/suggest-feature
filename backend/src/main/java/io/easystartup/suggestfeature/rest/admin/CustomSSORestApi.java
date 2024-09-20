@@ -93,7 +93,7 @@ public class CustomSSORestApi {
         }
 
         String CUSTOM_SSO_RETURN_TO_URL = Util.getEnvVariable("CUSTOM_SSO_RETURN_TO_URL", "https://app.suggestfeature.com/api/unauth/customSSO/code");
-        URIBuilder uriBuilder = new URIBuilder(ssoSettings.getPrimaryKey())
+        URIBuilder uriBuilder = new URIBuilder(ssoSettings.getSsoRedirectUrl())
                 .addParameter("returnTo", CUSTOM_SSO_RETURN_TO_URL)
                 .addParameter("state", loginState.getId());
 
