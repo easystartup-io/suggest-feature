@@ -42,3 +42,4 @@
 * [Add and Manage Organizations](faq/add-and-manage-organizations.md)
 * [Importing Data from Other Feedback Tools](faq/importing-data-from-other-feedback-tools.md)
 * [White Label Services](faq/white-label-services.md)
+* [Why Authenticate Users for Feedback?](faq/why-authenticate-users-for-feedback.md)
