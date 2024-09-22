@@ -4,6 +4,9 @@ package io.easystartup.suggestfeature.rest.portal.auth;
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.jobqueue.executor.SendCommentUpdateEmailExecutor;
+import io.easystartup.suggestfeature.jobqueue.executor.SendStatusUpdateEmailExecutor;
+import io.easystartup.suggestfeature.jobqueue.scheduler.JobCreator;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import static io.easystartup.suggestfeature.utils.Util.*;
 
@@ -40,13 +44,14 @@ public class PublicPortalAuthPostRestApi {
     private final MongoTemplateFactory mongoConnection;
     private final ValidationService validationService;
     private final AuthService authService;
-
+    private final JobCreator jobCreator;
 
     @Autowired
-    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService) {
+    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService, JobCreator jobCreator) {
         this.mongoConnection = mongoConnection;
         this.validationService = validationService;
         this.authService = authService;
+        this.jobCreator = jobCreator;
     }
 
     @POST
@@ -236,6 +241,7 @@ public class PublicPortalAuthPostRestApi {
             if (isNew) {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
                 mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
+                createJobForCommentAddedEmail(comment.getId(), org.getId());
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }
@@ -341,6 +347,10 @@ public class PublicPortalAuthPostRestApi {
     private Comment getComment(String replyToCommentId, String orgId) {
         Criteria criteriaDefinition = Criteria.where(Comment.FIELD_ID).is(replyToCommentId).and(Comment.FIELD_ORGANIZATION_ID).is(orgId);
         return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Comment.class);
+    }
+
+    private void createJobForCommentAddedEmail(String commentId, String orgId) {
+        jobCreator.scheduleJobNow(SendCommentUpdateEmailExecutor.class, Map.of("commentId", commentId), orgId);
     }
 
 }

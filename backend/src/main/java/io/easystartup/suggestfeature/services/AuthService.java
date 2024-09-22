@@ -13,6 +13,7 @@ import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
+import io.easystartup.suggestfeature.utils.EmailUtil;
 import io.easystartup.suggestfeature.utils.Util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -166,7 +167,7 @@ public class AuthService {
 
         validateRateLimit();
 
-        sendEmail(to, bodyHtml, subject, from);
+        EmailUtil.sendEmail(to, bodyHtml, subject, from);
     }
 
 
@@ -194,7 +195,7 @@ public class AuthService {
         validateRateLimit();
 
         // Send the email
-        sendEmail(recipientEmail, bodyHtml, subject, senderEmail);
+        EmailUtil.sendEmail(recipientEmail, bodyHtml, subject, senderEmail);
     }
 
     private void validateRateLimit() {
@@ -211,36 +212,6 @@ public class AuthService {
             LOGGER.error("Rate limit exceeded for sending magic link email");
             throw new RuntimeException("Rate limit exceeded for sending magic link email! Please try again later.");
         }
-    }
-
-    private static void sendEmail(String to, String bodyText, String subject, String from) {
-        try {
-            AmazonSimpleEmailService client = createSesClient();
-
-            SendEmailRequest request = new SendEmailRequest()
-                    .withDestination(new Destination().withToAddresses(to))
-                    .withMessage(new Message()
-                            .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(bodyText)))
-                            .withSubject(new Content().withCharset("UTF-8").withData(subject)))
-                    .withSource(from);
-
-            // Send the email
-            SendEmailResult sendEmailResult = client.sendEmail(request);
-            LOGGER.error("Magic link email sent! " + to + " Message ID: " + sendEmailResult.getMessageId());
-        } catch (Exception ex) {
-            LOGGER.error("The email was not sent. Error message: " + ex.getMessage(), ex);
-        }
-    }
-
-    private static AmazonSimpleEmailService createSesClient() {
-        String accessKey = Util.getEnvVariable("AWS_ACCESS_KEY", "accessKey");
-        String secretKey = Util.getEnvVariable("AWS_SECRET", "secretKey");
-        String region = Util.getEnvVariable("AWS_REGION", "us-east-1");
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        return AmazonSimpleEmailServiceClientBuilder.standard()
-                .withRegion(region)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
     }
 
     private SecretKey getJWTSecretKey() {

@@ -4,7 +4,6 @@ package io.easystartup.suggestfeature.rest.portal.auth;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
-import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -19,6 +18,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author indianBond
@@ -44,6 +46,15 @@ public class PublicPortalAuthRestApi {
             throw new UserVisibleException("Name is required");
         }
         String userId = UserContext.current().getUserId();
+
+        if (StringUtils.isNotBlank(user.getProfilePic())) {
+            // Just validating that its a valid url
+            try {
+                URL url = new URL(user.getProfilePic());
+            } catch (MalformedURLException e) {
+                throw new UserVisibleException("Invalid profile pic");
+            }
+        }
 
         Update update = new Update();
         if (user.getName() != null) {

@@ -24,6 +24,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -82,6 +84,15 @@ public class UserRestApi {
                 .set(User.FIELD_NAME, request.getName())
                 .set(User.FIELD_PROFILE_PIC, request.getProfilePic());
         User user = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(criteria), set, FindAndModifyOptions.options().returnNew(true).upsert(false), User.class);
+
+        if (StringUtils.isNotBlank(user.getProfilePic())) {
+            // Just validating that its a valid url
+            try {
+                URL url = new URL(user.getProfilePic());
+            } catch (MalformedURLException e) {
+                throw new UserVisibleException("Invalid profile pic");
+            }
+        }
 
         User safeUser = new User();
         safeUser.setName(user.getName());

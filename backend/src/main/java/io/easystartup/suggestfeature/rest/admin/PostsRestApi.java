@@ -4,6 +4,7 @@ import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.dto.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.jobqueue.executor.SendCommentUpdateEmailExecutor;
 import io.easystartup.suggestfeature.jobqueue.executor.SendStatusUpdateEmailExecutor;
 import io.easystartup.suggestfeature.jobqueue.scheduler.JobCreator;
 import io.easystartup.suggestfeature.services.AuthService;
@@ -16,7 +17,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -367,6 +367,7 @@ public class PostsRestApi {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
 
                 mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
+                createJobForCommentAddedEmail(comment.getId(), UserContext.current().getOrgId());
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }
@@ -564,6 +565,10 @@ public class PostsRestApi {
         }
         Criteria criteriaDefinition = Criteria.where(Board.FIELD_SLUG).is(boardSlug).and(Post.FIELD_ORGANIZATION_ID).is(orgId);
         return mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Board.class);
+    }
+
+    private void createJobForCommentAddedEmail(String commentId, String orgId) {
+        jobCreator.scheduleJobNow(SendCommentUpdateEmailExecutor.class, Map.of("commentId", commentId), orgId);
     }
 
 }
