@@ -49,9 +49,6 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
         if (CollectionUtils.isEmpty(voters)) {
             return;
         }
-        if (voters.size() == 1 && voters.get(0).getUserId().equals(userId)) {
-            return;
-        }
 
         String senderEmail = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
         Organization organization = authService.get().getOrgById(orgId);
