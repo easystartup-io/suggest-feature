@@ -8,6 +8,7 @@ import io.easystartup.suggestfeature.jobqueue.executor.SendCommentUpdateEmailExe
 import io.easystartup.suggestfeature.jobqueue.executor.SendStatusUpdateEmailExecutor;
 import io.easystartup.suggestfeature.jobqueue.scheduler.JobCreator;
 import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.NotificationService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
@@ -45,13 +46,15 @@ public class PublicPortalAuthPostRestApi {
     private final ValidationService validationService;
     private final AuthService authService;
     private final JobCreator jobCreator;
+    private final NotificationService notificationService;
 
     @Autowired
-    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService, JobCreator jobCreator) {
+    public PublicPortalAuthPostRestApi(MongoTemplateFactory mongoConnection, ValidationService validationService, AuthService authService, JobCreator jobCreator, NotificationService notificationService) {
         this.mongoConnection = mongoConnection;
         this.validationService = validationService;
         this.authService = authService;
         this.jobCreator = jobCreator;
+        this.notificationService = notificationService;
     }
 
     @POST
@@ -242,6 +245,7 @@ public class PublicPortalAuthPostRestApi {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
                 mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
                 createJobForCommentAddedEmail(comment.getId(), org.getId());
+                notificationService.addCommentNotification(comment);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }
@@ -305,11 +309,13 @@ public class PublicPortalAuthPostRestApi {
         post.setSlug(Util.fixSlug(reqPost.getTitle()));
         try {
             mongoConnection.getDefaultMongoTemplate().insert(post);
+            notificationService.addPostNotification(post);
         } catch (DuplicateKeyException exception) {
             String string = new ObjectId().toString();
             // set existing slug + objectid(first 5 characters) + - objectId remaining
             post.setSlug(post.getSlug() + "-" + string.substring(0, 5) + "-" + string.substring(5));
             mongoConnection.getDefaultMongoTemplate().insert(post);
+            notificationService.addPostNotification(post);
         }
 
         Voter voter = new Voter();

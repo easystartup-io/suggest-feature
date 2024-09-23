@@ -306,6 +306,7 @@ public class Util {
     }
 
 
+    // Don't do DB call, just populate user in comment and populate nested comments structure. Since using in email notification call also
     public static List<Comment> populateUserInCommentAndPopulateNestedCommentsStructure(List<Comment> comments, Map<String, User> userIdVsSafeUser) {
         // All comments are already fetched. Now populate user in each comment by making single db call
         // And also populate nested comments structure. Based on replyToCommentId and comments list
@@ -412,4 +413,15 @@ public class Util {
         return error;
     }
 
+    public static Comment findRootComment(Map<String, Comment> commentIdVsComment, Comment comment) {
+        Comment rootComment = comment;
+        while (rootComment != null && StringUtils.isNotBlank(rootComment.getReplyToCommentId())) {
+            rootComment = commentIdVsComment.get(rootComment.getReplyToCommentId());
+            if (rootComment != null && rootComment.getId().equals(comment.getId())) {
+                // Infinite loop detected
+                return comment;
+            }
+        }
+        return rootComment;
+    }
 }

@@ -8,6 +8,7 @@ import io.easystartup.suggestfeature.jobqueue.executor.SendCommentUpdateEmailExe
 import io.easystartup.suggestfeature.jobqueue.executor.SendStatusUpdateEmailExecutor;
 import io.easystartup.suggestfeature.jobqueue.scheduler.JobCreator;
 import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.NotificationService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
@@ -46,13 +47,15 @@ public class PostsRestApi {
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(Post.FIELD_CREATED_AT, Post.FIELD_TITLE);
     public static final String EMPTY_JSON_RESPONSE = JacksonMapper.toJson(Collections.emptyMap());
     private final JobCreator jobCreator;
+    private final NotificationService notificationService;
 
     @Autowired
-    public PostsRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, JobCreator jobCreator) {
+    public PostsRestApi(MongoTemplateFactory mongoConnection, AuthService authService, ValidationService validationService, JobCreator jobCreator, NotificationService notificationService) {
         this.mongoConnection = mongoConnection;
         this.authService = authService;
         this.validationService = validationService;
         this.jobCreator = jobCreator;
+        this.notificationService = notificationService;
     }
 
 
@@ -187,6 +190,7 @@ public class PostsRestApi {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
 
                 createJobForStatusUpdateEmail(req.getPostId(), req.getStatus(), orgId, UserContext.current().getUserId());
+                notificationService.addPostStatusUpdateNotification(existingPost, UserContext.current().getUserId());
             }
 
             existingPost.setStatus(req.getStatus());
@@ -281,6 +285,7 @@ public class PostsRestApi {
                     post.setSlug(post.getSlug() + "-" + slugSuffix.substring(0, 4) + "-" + slugSuffix.substring(4));
                     mongoConnection.getDefaultMongoTemplate().insert(post);
                 }
+                notificationService.addPostNotification(post);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(post);
             }
@@ -368,6 +373,7 @@ public class PostsRestApi {
 
                 mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
                 createJobForCommentAddedEmail(comment.getId(), UserContext.current().getOrgId());
+                notificationService.addCommentNotification(comment);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }

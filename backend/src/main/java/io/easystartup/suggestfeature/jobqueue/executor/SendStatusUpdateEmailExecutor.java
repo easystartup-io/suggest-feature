@@ -1,6 +1,5 @@
 package io.easystartup.suggestfeature.jobqueue.executor;
 
-
 import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.jobqueue.scheduler.JobExecutor;
 import io.easystartup.suggestfeature.loggers.Logger;
@@ -33,6 +32,9 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
     private final LazyService<AuthService> authService = new LazyService<>(AuthService.class);
     private final LazyService<MongoTemplateFactory> mongoConnection = new LazyService<>(MongoTemplateFactory.class);
 
+    /**
+     * Send status update email to everyone who has interacted with the post, created the post
+     */
     @Override
     public void execute(Map<String, Object> data, String orgId) {
         String postId = (String) data.get("postId");
@@ -46,9 +48,6 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
 
         // Fetch list of voters
         List<Voter> voters = fetchVoters(post.getId());
-        if (CollectionUtils.isEmpty(voters)) {
-            return;
-        }
 
         String senderEmail = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
         Organization organization = authService.get().getOrgById(orgId);
@@ -71,6 +70,9 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
                 .collect(Collectors.toMap(Voter::getId, Voter::getUserId));
         Set<String> userIds = new HashSet<>(voterIdVsUserIdMap.values());
 
+        // If post is created by user(who might not be admin), add that user to the list
+        userIds.add(post.getCreatedByUserId());
+
         // Fetch people who have commented. Just fetch commentedByUserIdField
         List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(Query.query(Criteria.where(Comment.FIELD_POST_ID).is(post.getId())), Comment.class);
         if (CollectionUtils.isNotEmpty(comments)) {
@@ -78,10 +80,16 @@ public class SendStatusUpdateEmailExecutor implements JobExecutor {
             userIds.addAll(commentedByUserIds);
         }
 
+        // Don't send notification to person who updated the status, because he knows it already
+        userIds = userIds.stream().filter(uId -> !userId.equals(uId)).collect(Collectors.toSet());
+
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
+
         List<User> users = authService.get().getUsersByUserIds(userIds);
 
         // Rate limit to 500 per second using resiliency 4j rate limiter. Block thread till next one is avaailable
-
         users.forEach(user -> {
             RateLimiters.rateLimiter("send-email").executeSupplier(() -> {
                 sendEmail(user.getEmail(), bodyHtml, subject, senderEmail);

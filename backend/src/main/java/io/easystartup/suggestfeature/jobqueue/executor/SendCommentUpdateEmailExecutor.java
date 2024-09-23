@@ -11,13 +11,11 @@ import io.easystartup.suggestfeature.utils.LazyService;
 import io.easystartup.suggestfeature.utils.RateLimiters;
 import io.easystartup.suggestfeature.utils.Util;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.easystartup.suggestfeature.utils.EmailUtil.*;
@@ -33,10 +31,8 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
     private final LazyService<MongoTemplateFactory> mongoConnection = new LazyService<>(MongoTemplateFactory.class);
 
     /**
-     * 1. Send any added comment to team members
-     * 2. Send any comment to post author
-     * 3. If anyone comments on someone's comment, send to everyone in that comment thread
-     * 4. If admin does a root level comment, send to others on that thread
+     * 1. Send any admin public comment to voters
+     * 2. If admin does a root level comment, send to others on that thread
      */
 
     @Override
@@ -48,24 +44,56 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
             return;
         }
 
-        Set<String> userIds = new HashSet<>();
+        Member member = authService.get().getMemberForOrgId(comment.getCreatedByUserId(), orgId);
+        // Send emails only for admin comments, else it will be spam
+        if (member == null) {
+            return;
+        }
+        boolean isUserAdmin = false;
+        if (member != null) {
+            isUserAdmin = true;
+        }
+
         Post post = mongoConnection.get().getDefaultMongoTemplate().findById(comment.getPostId(), Post.class);
 
         if (post == null) {
             return;
         }
 
-        userIds.add(post.getCreatedByUserId());
-
         // Send every comment to post author and send to people who have interacted with the comment/post
         String senderEmail = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
         Organization organization = authService.get().getOrgById(orgId);
         User commentCreatedByUser = authService.get().getUserByUserId(comment.getCreatedByUserId());
 
-        boolean isUserAdmin = false;
-        Member memberForOrgId = authService.get().getMemberForOrgId(commentCreatedByUser.getId(), orgId);
-        if (memberForOrgId != null) {
-            isUserAdmin = true;
+        Set<String> userIds = new HashSet<>();
+        // If admin commented root, send to all voters, else send to all commenters
+        if (comment.getReplyToCommentId() == null) {
+            // Send email to voters
+            List<Voter> voters = fetchVoters(post.getId());
+            voters.forEach(voter -> userIds.add(voter.getUserId()));
+        } else {
+            // Send email to commentators of that post
+            List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(Query.query(Criteria.where(Comment.FIELD_POST_ID).is(post.getId())), Comment.class);
+
+            // All comments are fetched, find the root comment of the current comment
+            Map<String, Comment> commentMap = comments.stream().collect(Collectors.toMap(Comment::getId, c -> c));
+            Comment rootComment = Util.findRootComment(commentMap, comment);
+
+            // Something is deleted
+            if (rootComment == null) {
+                return;
+            }
+
+            List<Comment> processedComments = Util.populateUserInCommentAndPopulateNestedCommentsStructure(comments, Collections.emptyMap());
+
+            // Find all users who have commented on the same thread
+            Optional<Comment> first = processedComments.stream().filter(val -> val.getId().equals(rootComment.getId())).findFirst();
+
+            if (first.isPresent()) {
+                Comment rootCommentFromList = first.get();
+                userIds.add(rootCommentFromList.getCreatedByUserId());
+                userIds.addAll(addAllPeopleWhoHaveCommented(rootCommentFromList));
+            }
         }
 
         String postUrl = getPostUrl(post, organization);
@@ -73,14 +101,6 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
         // Prepare email content
         String subject = "Comment added on Post: " + escapeHtml(post.getTitle());
         String bodyHtml = constructEmailBodyHtml(organization, post, commentCreatedByUser, postUrl, comment, isUserAdmin);
-
-
-        // Fetch people who have commented. Just fetch commentedByUserIdField
-        List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(Query.query(Criteria.where(Comment.FIELD_POST_ID).is(post.getId())), Comment.class);
-        if (CollectionUtils.isNotEmpty(comments)) {
-            List<String> commentedByUserIds = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toList());
-            userIds.addAll(commentedByUserIds);
-        }
 
         List<User> users = authService.get().getUsersByUserIds(userIds);
 
@@ -92,6 +112,18 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
                 return null;
             });
         });
+    }
+
+    private static Set<String> addAllPeopleWhoHaveCommented(Comment rootCommentFromList) {
+        // Add all users who have commented on the same thread
+        Set<String> resp = new HashSet<>();
+        for (Comment c : rootCommentFromList.getComments()) {
+            resp.add(c.getCreatedByUserId());
+            if (CollectionUtils.isNotEmpty(c.getComments())) {
+                resp.addAll(addAllPeopleWhoHaveCommented(c));
+            }
+        }
+        return resp;
     }
 
     private String constructEmailBodyHtml(Organization organization, Post post, User commentCreatedByUser, String postUrl, Comment comment, boolean isUserAdmin) {
@@ -151,5 +183,11 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
                 + "</div>"
                 + "</body>"
                 + "</html>";
+    }
+
+    private List<Voter> fetchVoters(String postId) {
+        Criteria criteriaDefinition = Criteria.where(Voter.FIELD_POST_ID).is(postId);
+        Query query = new Query(criteriaDefinition).with(Sort.by(Sort.Direction.DESC, Voter.FIELD_CREATED_AT));
+        return mongoConnection.get().getDefaultMongoTemplate().find(query, Voter.class);
     }
 }
