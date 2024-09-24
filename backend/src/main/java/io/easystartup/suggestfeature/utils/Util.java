@@ -260,18 +260,7 @@ public class Util {
         Map<String, Member> userIdVsMember = membersForOrgId.stream().collect(Collectors.toMap(Member::getUserId, Function.identity()));
 
         Map<String, User> userIdVsSafeUser = users.stream().map(user -> {
-            User safeUser = new User();
-            safeUser.setId(user.getId());
-            safeUser.setName(user.getName());
-            if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
-                safeUser.setName(getNameFromEmail(user.getEmail()));
-            }
-            if (adminPortalRequest){
-                safeUser.setEmail(user.getEmail());
-            }
-            safeUser.setProfilePic(user.getProfilePic());
-            safeUser.setPartOfOrg(userIdVsMember.containsKey(user.getId()));
-            return safeUser;
+            return getSafeUser(user, adminPortalRequest, userIdVsMember.get(user.getId()) !=null);
         }).collect(Collectors.toMap(User::getId, Function.identity()));
 
         // Returning new map because need to remove comments which have a parent comment, else double comment in response
@@ -286,6 +275,21 @@ public class Util {
         });
 
         post.setUser(userIdVsSafeUser.get(post.getCreatedByUserId()));
+    }
+
+    public static User getSafeUser(User user, boolean adminPortalRequest, boolean member) {
+        User safeUser = new User();
+        safeUser.setId(user.getId());
+        safeUser.setName(user.getName());
+        if (StringUtils.isBlank(user.getName()) && StringUtils.isNotBlank(user.getEmail())) {
+            safeUser.setName(getNameFromEmail(user.getEmail()));
+        }
+        if (adminPortalRequest) {
+            safeUser.setEmail(user.getEmail());
+        }
+        safeUser.setProfilePic(user.getProfilePic());
+        safeUser.setPartOfOrg(member);
+        return safeUser;
     }
 
     @NotNull

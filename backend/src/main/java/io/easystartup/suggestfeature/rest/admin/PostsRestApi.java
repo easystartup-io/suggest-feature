@@ -285,7 +285,7 @@ public class PostsRestApi {
                     post.setSlug(post.getSlug() + "-" + slugSuffix.substring(0, 4) + "-" + slugSuffix.substring(4));
                     mongoConnection.getDefaultMongoTemplate().insert(post);
                 }
-                notificationService.addPostNotification(post);
+                notificationService.addPostNotification(post, true);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(post);
             }
@@ -356,6 +356,7 @@ public class PostsRestApi {
             comment.setCreatedByUserId(userId);
             comment.setOrganizationId(UserContext.current().getOrgId());
             comment.setPostId(post.getId());
+            comment.setBoardId(post.getBoardId());
             isNew = true;
         } else {
             // Todo: For normal page view, only allow to comment if same user trying to edit comment
@@ -373,7 +374,7 @@ public class PostsRestApi {
 
                 mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
                 createJobForCommentAddedEmail(comment.getId(), UserContext.current().getOrgId());
-                notificationService.addCommentNotification(comment);
+                notificationService.addCommentNotification(comment, true);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }

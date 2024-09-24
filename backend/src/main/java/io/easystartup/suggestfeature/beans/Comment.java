@@ -46,6 +46,9 @@ public class Comment {
     private String organizationId;
     private String createdByUserId;
 
+    @Transient
+    private transient String boardId;
+
     @Reference
     @Transient
     private List<Comment> comments;
@@ -167,5 +170,13 @@ public class Comment {
 
     public void setNewStatus(String newStatus) {
         this.newStatus = newStatus;
+    }
+
+    public String getBoardId() {
+        return boardId;
+    }
+
+    public void setBoardId(String boardId) {
+        this.boardId = boardId;
     }
 }

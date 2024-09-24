@@ -19,6 +19,15 @@ import java.util.Map;
 })
 public class Notification {
 
+    public static final String FIELD_ID = "_id";
+    public static final String FIELD_USER_ID = "userId";
+    public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_ORGANIZATION_ID = "organizationId";
+    public static final String FIELD_BOARD_ID = "boardId";
+    public static final String FIELD_TYPE = "type";
+    public static final String FIELD_DATA = "data";
+    public static final String FIELD_CREATED_BY_USER_TYPE = "createdByUserType";
+
     public enum NotificationType {
         POST,
         COMMENT,
@@ -35,9 +44,13 @@ public class Notification {
     private String organizationId;
     @Indexed
     private String userId;
+    private String boardId;
     private Long createdAt;
     private Map<String, Object> data;
     private NotificationType type;
+
+    // END_USER or TEAM_MEMBER
+    private String createdByUserType;
 
     public String getId() {
         return id;
@@ -85,5 +98,21 @@ public class Notification {
 
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public String getBoardId() {
+        return boardId;
+    }
+
+    public void setBoardId(String boardId) {
+        this.boardId = boardId;
+    }
+
+    public String getCreatedByUserType() {
+        return createdByUserType;
+    }
+
+    public void setCreatedByUserType(String createdByUserType) {
+        this.createdByUserType = createdByUserType;
     }
 }

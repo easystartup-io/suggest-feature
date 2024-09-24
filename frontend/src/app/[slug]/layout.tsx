@@ -7,6 +7,7 @@ import Cookies from 'js-cookie'
 import { Crisp } from "crisp-sdk-web"
 import { useTheme } from "next-themes"
 import {
+  BellRing,
   BookOpenText,
   CircleDollarSign,
   Clipboard,
@@ -84,6 +85,7 @@ const AlertBar = ({ params, isTrialPeriod, isSubscriptionValid }) => {
 
 const navigationItems = [
   { href: 'dashboard', icon: Home, label: 'Dashboard' },
+  { href: 'notifications', icon: BellRing, label: 'All Notifications' },
   { href: 'page', icon: BookOpenText, label: 'Page Settings' },
   { href: 'all-posts', icon: MessagesSquare, label: 'All posts' },
   { href: 'boards', icon: Clipboard, label: 'Boards' },

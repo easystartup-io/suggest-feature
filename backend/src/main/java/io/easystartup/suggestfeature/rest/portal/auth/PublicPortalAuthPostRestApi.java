@@ -5,7 +5,6 @@ import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.jobqueue.executor.SendCommentUpdateEmailExecutor;
-import io.easystartup.suggestfeature.jobqueue.executor.SendStatusUpdateEmailExecutor;
 import io.easystartup.suggestfeature.jobqueue.scheduler.JobCreator;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.NotificationService;
@@ -230,6 +229,7 @@ public class PublicPortalAuthPostRestApi {
             comment.setCreatedByUserId(userId);
             comment.setOrganizationId(org.getId());
             comment.setPostId(post.getId());
+            comment.setBoardId(board.getId());
             isNew = true;
         } else {
             if (!existingComment.getCreatedByUserId().equals(userId)) {
@@ -245,7 +245,7 @@ public class PublicPortalAuthPostRestApi {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
                 mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_COMMENT_COUNT, 1), Post.class);
                 createJobForCommentAddedEmail(comment.getId(), org.getId());
-                notificationService.addCommentNotification(comment);
+                notificationService.addCommentNotification(comment, memberForOrg != null);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(existingComment);
             }
@@ -309,13 +309,13 @@ public class PublicPortalAuthPostRestApi {
         post.setSlug(Util.fixSlug(reqPost.getTitle()));
         try {
             mongoConnection.getDefaultMongoTemplate().insert(post);
-            notificationService.addPostNotification(post);
+            notificationService.addPostNotification(post, memberForOrg != null);
         } catch (DuplicateKeyException exception) {
             String string = new ObjectId().toString();
             // set existing slug + objectid(first 5 characters) + - objectId remaining
             post.setSlug(post.getSlug() + "-" + string.substring(0, 5) + "-" + string.substring(5));
             mongoConnection.getDefaultMongoTemplate().insert(post);
-            notificationService.addPostNotification(post);
+            notificationService.addPostNotification(post, memberForOrg != null);
         }
 
         Voter voter = new Voter();
