@@ -147,12 +147,33 @@ const NotificationsPage = ({ params }) => {
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [allBoards, setAllBoards] = useState([]);
   const [filters, setFilters] = useState({
     type: 'all',
     search: '',
     userType: 'all',
     boardId: 'all'
   });
+
+  useEffect(() => {
+    const fetchBoards = async () => {
+      try {
+        const boardResponse = await fetch(`/api/auth/boards/fetch-boards`, {
+          headers: {
+            "x-org-slug": params.slug
+          }
+        });
+        if (boardResponse.ok) {
+          const boards = await boardResponse.json();
+          setAllBoards(boards);
+        }
+      } catch (err) {
+        console.error("Error fetching boards:", err);
+      }
+    };
+
+    fetchBoards();
+  }, [params.slug]);
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -176,6 +197,7 @@ const NotificationsPage = ({ params }) => {
 
   const filteredNotifications = notifications.filter(notification => {
     if (filters.type !== 'all' && notification.type !== filters.type) return false;
+    if (filters.boardId !== 'all' && notification.data.post.boardId !== filters.boardId) return false;
     if (filters.search && !JSON.stringify(notification).toLowerCase().includes(filters.search.toLowerCase())) return false;
     return true;
   });
@@ -193,11 +215,7 @@ const NotificationsPage = ({ params }) => {
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="POST">Posts</SelectItem>
             <SelectItem value="COMMENT">Comments</SelectItem>
-            {/* <SelectItem value="REPLY">Replies</SelectItem> */}
             <SelectItem value="POST_STATUS_UPDATE">Status Updates</SelectItem>
-            {/* <SelectItem value="UPVOTE">Upvotes</SelectItem> */}
-            {/* <SelectItem value="FOLLOW">Follows</SelectItem> */}
-            {/* <SelectItem value="MENTION">Mentions</SelectItem> */}
           </SelectContent>
         </Select>
 
@@ -212,12 +230,17 @@ const NotificationsPage = ({ params }) => {
           </SelectContent>
         </Select>
 
-        {/* <Input */}
-        {/*   type="text" */}
-        {/*   placeholder="Search notifications..." */}
-        {/*   className="w-full md:w-auto" */}
-        {/*   onChange={(e) => handleFilterChange('search', e.target.value)} */}
-        {/* /> */}
+        <Select onValueChange={(value) => handleFilterChange('boardId', value)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by board" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Boards</SelectItem>
+            {allBoards.map(board => (
+              <SelectItem key={board.id} value={board.id}>{board.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {isLoading && (
@@ -236,7 +259,6 @@ const NotificationsPage = ({ params }) => {
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="comments">Comments</TabsTrigger>
-            {/* <TabsTrigger value="replies">Replies</TabsTrigger> */}
             <TabsTrigger value="other">Other</TabsTrigger>
           </TabsList>
           <TabsContent value="all">
@@ -254,13 +276,8 @@ const NotificationsPage = ({ params }) => {
               <NotificationItem key={notification.id} notification={notification} />
             ))}
           </TabsContent>
-          <TabsContent value="replies">
-            {filteredNotifications.filter(n => n.type === 'REPLY').map(notification => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
-          </TabsContent>
           <TabsContent value="other">
-            {filteredNotifications.filter(n => !['POST', 'COMMENT', 'REPLY'].includes(n.type)).map(notification => (
+            {filteredNotifications.filter(n => !['POST', 'COMMENT'].includes(n.type)).map(notification => (
               <NotificationItem key={notification.id} notification={notification} />
             ))}
           </TabsContent>
