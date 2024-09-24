@@ -148,7 +148,8 @@ public class NotificationService {
                 continue;
             }
             post.setUser(Util.getSafeUser(userMap.get(post.getCreatedByUserId()), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
-            notification.setData(Map.of("post", post));
+            String status = (String) notification.getData().get("status");
+            notification.setData(Map.of("post", post, "status", status));
         }
     }
 

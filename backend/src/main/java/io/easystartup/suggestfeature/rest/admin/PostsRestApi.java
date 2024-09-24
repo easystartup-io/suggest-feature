@@ -177,6 +177,7 @@ public class PostsRestApi {
             throw new UserVisibleException("Post not found");
         }
         if (StringUtils.isNotBlank(req.getStatus())) {
+            boolean statusUpdated = false;
             if (!existingPost.getStatus().equals(req.getStatus())) {
                 // Add an activity comment
                 Comment comment = new Comment();
@@ -190,10 +191,14 @@ public class PostsRestApi {
                 mongoConnection.getDefaultMongoTemplate().insert(comment);
 
                 createJobForStatusUpdateEmail(req.getPostId(), req.getStatus(), orgId, UserContext.current().getUserId());
-                notificationService.addPostStatusUpdateNotification(existingPost, UserContext.current().getUserId());
+                statusUpdated = true;
             }
 
             existingPost.setStatus(req.getStatus());
+
+            if (statusUpdated) {
+                notificationService.addPostStatusUpdateNotification(existingPost, UserContext.current().getUserId());
+            }
         }
         if (req.getApproved() != null) {
             existingPost.setApproved(req.getApproved());
