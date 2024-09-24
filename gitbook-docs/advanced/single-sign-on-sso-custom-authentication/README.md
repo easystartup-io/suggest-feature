@@ -28,7 +28,7 @@ This process involves setting up a dedicated page on your website to handle SSO 
 
 #### Implementation Steps
 
-<figure><img src="../../.gitbook/assets/image (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
 
 1. Set up a dedicated SSO page on your website (e.g., `https://yourdomain.com/sso/suggestfeature`).
 2. Navigate to your Suggest Feature Dashboard → Page Settings → Custom JWT-based SSO Configuration, and enter the URL of the page you created in the SSO URL field.
@@ -345,7 +345,7 @@ Here's an expanded example of a JWT payload that incorporates these consideratio
 
 ### Token Key Management - Refresh Tokens
 
-<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (4).png" alt=""><figcaption></figcaption></figure>
 
 Suggest Feature uses a two-key system for SSO authentication, providing flexibility and security in key management.
 

@@ -6,7 +6,7 @@ icon: page
 
 #### How to Create a New Post
 
-<figure><img src="../../.gitbook/assets/image (7).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (28).png" alt=""><figcaption></figcaption></figure>
 
 Learn how to collect and manage user feedback through posts in Suggest Feature.
 
@@ -29,7 +29,7 @@ As an admin, you can create a post directly from the Feedback tab in your Sugges
 
 End-users can easily submit their feedback or suggestions by visiting your public Suggest Feature page (e.g., yourcompany.suggestfeature.com). All users with access to a specific board are allowed to create new posts.
 
-<figure><img src="../../.gitbook/assets/image (6).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (27).png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="info" %}
 **Note:** End-users can delete their own posts if there are no comments and no other votes on the post.
@@ -55,7 +55,7 @@ If you're migrating to Suggest Feature or need to bulk import feedback, you can 
 
 When creating a new post via the Suggest Feature portal or widget, users can attach multiple files to provide additional context or details. For more details, please go to [files and attachment faq](../../faq/attachments-and-image-file-uploads.md)
 
-<figure><img src="../../.gitbook/assets/image (5).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (26).png" alt=""><figcaption></figcaption></figure>
 
 #### Supported File Types <a href="#supported-file-types" id="supported-file-types"></a>
 

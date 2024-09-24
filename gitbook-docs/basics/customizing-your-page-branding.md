@@ -10,7 +10,7 @@ Personalize your Suggest Feature experience to align with your brand identity us
 
 Navigate to the **Page Settings** section in your Suggest Feature dashboard to customize your branding.
 
-<figure><img src="../.gitbook/assets/image (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (6).png" alt=""><figcaption></figcaption></figure>
 
 ### Available Customization Options
 
@@ -31,7 +31,7 @@ Navigate to the **Page Settings** section in your Suggest Feature dashboard to c
 * Recommended size: (Standard is 16x16 or 32x32 pixels)
 * Favicon is the small icon which is visible on the browser tab
 
-<figure><img src="../.gitbook/assets/image (13).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (34).png" alt=""><figcaption></figcaption></figure>
 
 #### Title
 
@@ -58,13 +58,13 @@ Navigate to the **Page Settings** section in your Suggest Feature dashboard to c
 * Add a link back to your main website
 * Customize the link text and URL
 
-<figure><img src="../.gitbook/assets/image (12).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (33).png" alt=""><figcaption></figcaption></figure>
 
 ### Navbar Preview
 
 A live preview of your navigation bar is available at the bottom of the settings page, allowing you to see how your branding choices will appear to users.
 
-<figure><img src="../.gitbook/assets/image (11).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (32).png" alt=""><figcaption></figcaption></figure>
 
 ### **Saving Changes**
 

@@ -21,7 +21,7 @@ As an admin, you have the power to:
 
 **1. Editing a Post**
 
-<figure><img src="../../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (31).png" alt=""><figcaption></figcaption></figure>
 
 Need to tweak a post for clarity or to refine its content? As an admin, you can easily make these changes:
 
@@ -29,7 +29,7 @@ Need to tweak a post for clarity or to refine its content? As an admin, you can 
 
 **2. Deleting a Post**
 
-<figure><img src="../../.gitbook/assets/image (8).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (29).png" alt=""><figcaption></figcaption></figure>
 
 Sometimes, a post may need to be permanently removed. To delete a post:
 
@@ -43,7 +43,7 @@ Sometimes, a post may need to be permanently removed. To delete a post:
 
 **6. Reporting a Post as Spam**
 
-<figure><img src="../../.gitbook/assets/image (9).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (30).png" alt=""><figcaption></figcaption></figure>
 
 If a post violates guidelines or appears to be spam, mark it as such:
 
