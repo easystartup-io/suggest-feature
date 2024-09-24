@@ -28,9 +28,11 @@ To update a post's status, navigate to the post in the admin view:
 1. Choose a new status from the dropdown menu.
 2. It will automatically update the status.
 
-All users who have voted on the post and have access to the board will receive a notification, ensuring everyone stays informed about the progress. Something similar to the below image
+All users who have voted on the post and have access to the board will receive an email notification, ensuring everyone stays informed about the progress. Something similar to the below image
 
-<figure><img src="../../.gitbook/assets/image (9).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+
+For more details you can visit [email-notifications-for-status-updates.md](../emails/email-notifications-for-status-updates.md "mention")
 
 **Displaying Statuses on the User Roadmap**
 

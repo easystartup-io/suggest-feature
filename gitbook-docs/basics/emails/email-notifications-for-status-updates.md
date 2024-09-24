@@ -1,5 +1,5 @@
 ---
-icon: envelope-open
+icon: star
 ---
 
 # Email notifications for Status Updates
@@ -10,7 +10,7 @@ We'll keep your voters informed whenever a post status changes!
 
 **Who Gets These Notifications?**
 
-* **End-users** who have voted on the post.
+* **End-users** who have voted or commented on the post.
 
 **When Are Notifications Sent?**
 
@@ -20,7 +20,7 @@ We'll keep your voters informed whenever a post status changes!
 
 * The notification emails will match your brand's style
 
-<figure><img src="../../.gitbook/assets/image (8).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
 
 ***
 

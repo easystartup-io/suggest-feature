@@ -2,12 +2,9 @@
 
 * [🙏 Welcome](README.md)
 
-## Getting Started
-
-* [The Basics](getting-started/quickstart.md)
-
 ## Basics
 
+* [Getting Started](basics/quickstart.md)
 * [Boards](basics/boards/README.md)
   * [Accessing Board Settings](basics/boards/accessing-board-settings.md)
   * [Add a board](basics/boards/add-a-board.md)
@@ -20,7 +17,6 @@
   * [Managing Posts](basics/posts/managing-posts.md)
   * [Comments](basics/posts/comments.md)
   * [Post statuses](basics/posts/post-statuses.md)
-  * [Email notifications for Status Updates](basics/posts/email-notifications-for-status-updates.md)
   * [Modify the "Create Post" form](basics/posts/modify-the-create-post-form.md)
 * [Roadmap](basics/roadmap/README.md)
   * [Enable or disable roadmap](basics/roadmap/enable-or-disable-roadmap.md)
@@ -29,6 +25,10 @@
 * [Adding Team Members](basics/adding-team-members.md)
 * [Custom Domain Setup](basics/custom-domain-setup.md)
 * [Customizing Your Page Branding](basics/customizing-your-page-branding.md)
+* [Emails](basics/emails/README.md)
+  * [Email notifications for Status Updates](basics/emails/email-notifications-for-status-updates.md)
+  * [Admin Comment Emails](basics/emails/admin-comment-emails.md)
+  * [Reply Comment Emails](basics/emails/reply-comment-emails.md)
 
 ## ADVANCED
 
