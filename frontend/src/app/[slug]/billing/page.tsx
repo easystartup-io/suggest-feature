@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, isPast } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -190,7 +190,14 @@ const BillingPage = ({ params }) => {
           subscription && subscription.trial &&
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Subscription</CardTitle>
+              <CardTitle>
+                Subscription
+                <div className="mt-2">
+                  <Badge variant={isPast(new Date(subscription.trialEndDate)) ? "destructive" : "secondary"}>
+                    {isPast(new Date(subscription.trialEndDate)) ? 'Expired' : 'Active'}
+                  </Badge>
+                </div>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -200,10 +207,13 @@ const BillingPage = ({ params }) => {
                     Trial
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Trial end date</span>
-                  <span className="font-semibold">
-                    {`Expiring in ${formatDistanceToNow(new Date(subscription.trialEndDate), { addSuffix: true })}`}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Trial end date</span>
+                  <span className="font-semibold text-sm">
+                    {isPast(new Date(subscription.trialEndDate))
+                      ? `Expired ${formatDistanceToNow(new Date(subscription.trialEndDate), { addSuffix: true })}`
+                      : `Expiring ${formatDistanceToNow(new Date(subscription.trialEndDate), { addSuffix: true })}`
+                    }
                   </span>
                 </div>
               </div>
