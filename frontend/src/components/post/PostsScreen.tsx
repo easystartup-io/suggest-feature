@@ -358,6 +358,7 @@ const PostsScreen: React.FC = ({ params }) => {
 
   const [postsSort, setPostsSort] = useState('trending')
   const [postsStatusFilter, setPostsStatusFilter] = useState('')
+  const [selectedBoardSlug, setSelectedBoardSlug] = useState(params.id || 'all');
 
   const defaultLayout = layout ? JSON.parse(layout) : [35, 65]
 
@@ -369,7 +370,7 @@ const PostsScreen: React.FC = ({ params }) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        boardSlug: params.id,
+        boardSlug: selectedBoardSlug === 'all' ? (params.id ? params.id : undefined) : selectedBoardSlug,
         sortString: postsSort,
         statusFilter: postsStatusFilter
       })
@@ -391,7 +392,7 @@ const PostsScreen: React.FC = ({ params }) => {
 
   useEffect(() => {
     refetchPosts();
-  }, [postsSort, postsStatusFilter])
+  }, [postsSort, postsStatusFilter, selectedBoardSlug])
 
   useEffect(() => {
     refetchPosts();
@@ -444,7 +445,10 @@ const PostsScreen: React.FC = ({ params }) => {
         "x-org-slug": params.slug,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ boardSlug: params.id, query: value })
+      body: JSON.stringify({
+        boardSlug: selectedBoardSlug === 'all' ? (params.id ? params.id : undefined) : selectedBoardSlug,
+        query: value
+      })
     })
       .then((res) => res.json())
       .then((data) => {
@@ -484,7 +488,6 @@ const PostsScreen: React.FC = ({ params }) => {
       setCurrentPost(null)
     }
 
-
   }
 
   if (!data) return <Loading />
@@ -495,6 +498,27 @@ const PostsScreen: React.FC = ({ params }) => {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-2xl">{(board && board.name && `Board - ${board.name}`) || 'All posts'}</h1>
         <div className="flex gap-2 items-center">
+          <Select value={selectedBoardSlug} onValueChange={(val) => {
+            if (params.id) {
+              router.push(`/${params.slug}/boards/${val}/posts`)
+            }
+            setSelectedBoardSlug(val)
+          }}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Board" />
+            </SelectTrigger>
+            <SelectContent>
+              {
+                params.id ? null :
+                  <SelectItem value="all">All Boards</SelectItem>
+              }
+              {allBoards.map((board) => (
+                <SelectItem key={board.slug} value={board.slug}>
+                  {board.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {
             allPostsScreen ? null :
               <Button onClick={() => router.push(`/${params.slug}/boards/${params.id}`)}

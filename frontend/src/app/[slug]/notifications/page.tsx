@@ -54,51 +54,51 @@ const NotificationItem = ({ notification }) => {
       case 'POST':
         return (
           <>
-            New post: <strong>"{data.post.title}"</strong> by {actionUser.name}
+            New post: <strong>&apos;{data.post.title}&apos;</strong> by {actionUser.name}
           </>
         );
       case 'COMMENT':
         if (data.comment.replyToCommentId) {
           return (
             <>
-              New reply on <strong>"{data.post.title}"</strong> by {actionUser.name}: "{data.comment.content}"
+              New reply on <strong>&apos;{data.post.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
             </>
           );
         } else {
           return (
             <>
-              New comment on <strong>"{data.post.title}"</strong> by {actionUser.name}: "{data.comment.content}"
+              New comment on <strong>&quot;{data.post.title}&quot;</strong> by {actionUser.name}: &quot;{data.comment.content}&quot;
             </>
           );
         }
       case 'POST_STATUS_UPDATE':
         return (
           <>
-            Status update for <strong>"{data.post.title}"</strong>: {data.post.status} (by {actionUser.name})
+            Status update for <strong>&apos;{data.post.title}&apos;</strong>: {data.post.status} (by {actionUser.name})
           </>
         );
       case 'UPVOTE':
         return (
           <>
-            <strong>"{data.post.title}"</strong> was upvoted by {actionUser.name}
+            <strong>&apos;{data.post.title}&apos;</strong> was upvoted by {actionUser.name}
           </>
         );
       case 'FOLLOW':
         return (
           <>
-            <strong>"{data.post.title}"</strong> is now followed by {actionUser.name}
+            <strong>&apos;{data.post.title}&apos;</strong> is now followed by {actionUser.name}
           </>
         );
       case 'MENTION':
         return (
           <>
-            You were mentioned in <strong>"{data.post.title}"</strong> by {actionUser.name}: "{data.comment.content}"
+            You were mentioned in <strong>&apos;{data.post.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
           </>
         );
       default:
         return (
           <>
-            Notification related to <strong>"{data.post.title}"</strong>
+            Notification related to <strong>&apos;{data.post.title}&apos;</strong>
           </>
         );
     }
