@@ -29,6 +29,7 @@
   * [Email notifications for Status Updates](basics/emails/email-notifications-for-status-updates.md)
   * [Admin Comment Emails](basics/emails/admin-comment-emails.md)
   * [Reply Comment Emails](basics/emails/reply-comment-emails.md)
+* [Notifications](basics/notifications.md)
 
 ## ADVANCED
 
