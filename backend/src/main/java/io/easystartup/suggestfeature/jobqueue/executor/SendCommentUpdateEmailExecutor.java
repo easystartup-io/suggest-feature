@@ -33,6 +33,7 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
     /**
      * 1. Send any admin public comment to voters
      * 2. If admin does a root level comment, send to others on that thread
+     * 3. Send reply to user of the parent comment always, unless self reply
      */
 
     @Override
@@ -45,10 +46,7 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
         }
 
         Member member = authService.get().getMemberForOrgId(comment.getCreatedByUserId(), orgId);
-        // Send emails only for admin comments, else it will be spam
-        if (member == null) {
-            return;
-        }
+
         boolean isUserAdmin = false;
         if (member != null) {
             isUserAdmin = true;
@@ -79,6 +77,8 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
             Map<String, Comment> commentMap = comments.stream().collect(Collectors.toMap(Comment::getId, c -> c));
             Comment rootComment = Util.findRootComment(commentMap, comment);
 
+            Comment parentComment = commentMap.get(comment.getReplyToCommentId());
+
             // Something is deleted
             if (rootComment == null) {
                 return;
@@ -94,6 +94,16 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
                 userIds.add(rootCommentFromList.getCreatedByUserId());
                 userIds.addAll(addAllPeopleWhoHaveCommented(rootCommentFromList));
             }
+            if (parentComment != null) {
+                userIds.add(parentComment.getCreatedByUserId());
+            }
+        }
+
+        // remove the user who commented
+        userIds.remove(comment.getCreatedByUserId());
+
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
         }
 
         String postUrl = getPostUrl(post, organization);
@@ -115,11 +125,12 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
     }
 
     private static Set<String> addAllPeopleWhoHaveCommented(Comment rootCommentFromList) {
-        // Add all users who have commented on the same thread
         Set<String> resp = new HashSet<>();
-        for (Comment c : rootCommentFromList.getComments()) {
-            resp.add(c.getCreatedByUserId());
-            if (CollectionUtils.isNotEmpty(c.getComments())) {
+        resp.add(rootCommentFromList.getCreatedByUserId());
+
+        if (CollectionUtils.isNotEmpty(rootCommentFromList.getComments())) {
+            for (Comment c : rootCommentFromList.getComments()) {
+                resp.add(c.getCreatedByUserId());
                 resp.addAll(addAllPeopleWhoHaveCommented(c));
             }
         }
