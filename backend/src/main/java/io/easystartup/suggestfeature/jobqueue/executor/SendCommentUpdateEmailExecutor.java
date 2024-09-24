@@ -64,11 +64,12 @@ public class SendCommentUpdateEmailExecutor implements JobExecutor {
         User commentCreatedByUser = authService.get().getUserByUserId(comment.getCreatedByUserId());
 
         Set<String> userIds = new HashSet<>();
-        // If admin commented root, send to all voters, else send to all commenters
+        // If admin commented root, send to all voters, including post creator, else send to all commenters
         if (comment.getReplyToCommentId() == null) {
             // Send email to voters
             List<Voter> voters = fetchVoters(post.getId());
             voters.forEach(voter -> userIds.add(voter.getUserId()));
+            userIds.add(post.getCreatedByUserId());
         } else {
             // Send email to commentators of that post
             List<Comment> comments = mongoConnection.get().getDefaultMongoTemplate().find(Query.query(Criteria.where(Comment.FIELD_POST_ID).is(post.getId())), Comment.class);
