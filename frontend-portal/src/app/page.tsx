@@ -85,6 +85,11 @@ const PostList = ({ posts }) => {
             <div className="line-clamp-2 text-xs text-muted-foreground">
               {item.description.substring(0, 300)}
             </div>
+            <div className="w-full flex items-center justify-end">
+              <div className="line-clamp-2 text-xs text-muted-foreground">
+                {item.boardName.substring(0, 300)}
+              </div>
+            </div>
           </button>
         ))}
       </div>

@@ -103,6 +103,7 @@ public class PublicPortalPostRestApi {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(new Query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId())), Board.class);
+        Map<String, Board> boardMap = boardList.stream().collect(Collectors.toMap(Board::getId, board -> board));
         Map<String, String> boardIdVsSlug = boardList.stream().collect(Collectors.toMap(Board::getId, Board::getSlug));
         Set<String> disabledBoards = new HashSet<>();
         if (org.getRoadmapSettings() != null && CollectionUtils.isNotEmpty(org.getRoadmapSettings().getDisabledBoards())) {
@@ -124,6 +125,11 @@ public class PublicPortalPostRestApi {
 
         for (Post post : posts) {
             post.setBoardSlug(boardIdVsSlug.get(post.getBoardId()));
+            Board board = boardMap.get(post.getBoardId());
+            if (board == null) {
+                continue;
+            }
+            post.setBoardName(board.getName());
         }
 
         // Group posts based on status

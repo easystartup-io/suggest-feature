@@ -74,7 +74,7 @@ const NotificationItem = ({ notification }) => {
       case 'POST_STATUS_UPDATE':
         return (
           <>
-            Status update for <strong>&apos;{data.post.title}&apos;</strong>: {data.post.status} (by {actionUser.name})
+            Status update for <strong>&apos;{data.post.title}&apos;</strong>: {data.status} (by {actionUser.name})
           </>
         );
       case 'UPVOTE':
