@@ -99,8 +99,6 @@ function PostDetails({ params, data, refetch }) {
               {statusConfig[status].label}
             </div>
           </SelectValue>
-          {/* {status.icon} */}
-          {/* {status.label} */}
         </SelectTrigger>
         <SelectContent>
           {Object.keys(statusConfig).map((key) => {

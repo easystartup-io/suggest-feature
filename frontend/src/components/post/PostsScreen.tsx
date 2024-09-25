@@ -28,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { useDebouncedCallback } from 'use-debounce';
 import { SortOptionsComboBox } from "@/components/SortComboBox";
 import { StatusFilterComboBox } from "@/components/StatusFilterComboBox";
+import { Badge } from "../ui/badge";
 
 export const statusConfig = {
   "OPEN": {
@@ -602,8 +603,13 @@ const PostsScreen: React.FC = ({ params }) => {
                     <div className="line-clamp-2 text-xs text-muted-foreground">
                       {item.description.substring(0, 300)}
                     </div>
-                    <div className="flex space-x-4 items-center text-xs font-semibold text-muted-foreground">
-                      <ChevronUp className="h-3 w-3" /> {item.votes || 0}  <MessageSquare className="h-3 w-3" /> {item.commentCount || 0}
+                    <div className="flex items-center justify-between text-xs w-full">
+                      <div className="flex space-x-4 items-center font-semibold text-muted-foreground">
+                        <ChevronUp className="h-3 w-3" /> {item.votes || 0}  <MessageSquare className="h-3 w-3" /> {item.commentCount || 0}
+                      </div>
+                      <div>
+                        {item.boardName}
+                      </div>
                     </div>
                   </button>
                 ))}

@@ -72,6 +72,8 @@ public class PostsRestApi {
 
         validationService.validate(req);
 
+        Map<String, Board> boardMap = new HashMap<>();
+
         Criteria criteriaDefinitionForText = Criteria.where(Post.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
         Criteria criteriaDefinitionForRegex = Criteria.where(Post.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
         if (StringUtils.isNotBlank(req.getBoardSlug())) {
@@ -79,12 +81,14 @@ public class PostsRestApi {
             if (board == null) {
                 throw new UserVisibleException("Board not found");
             }
+            boardMap.put(board.getId(), board);
             criteriaDefinitionForText.and(Post.FIELD_BOARD_ID).is(board.getId());
             criteriaDefinitionForRegex.and(Post.FIELD_BOARD_ID).is(board.getId());
         } else {
             // Need to do this so that posts from deleted boards don't come in response
             Criteria boardFetch = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(UserContext.current().getOrgId());
             List<Board> board = mongoConnection.getDefaultMongoTemplate().find(new Query(boardFetch), Board.class);
+            boardMap = board.stream().collect(Collectors.toMap(Board::getId, board1 -> board1));
             List<String> boardIds = board.stream().map(Board::getId).collect(Collectors.toList());
             criteriaDefinitionForText.and(Post.FIELD_BOARD_ID).in(boardIds);
             criteriaDefinitionForRegex.and(Post.FIELD_BOARD_ID).in(boardIds);
@@ -125,6 +129,12 @@ public class PostsRestApi {
         Set<String> postIds = new HashSet<>();
         posts.removeIf(post -> !postIds.add(post.getId()));
         Collections.sort(posts, Comparator.comparing(Post::getCreatedAt).reversed());
+        for (Post post : posts) {
+            Board board = boardMap.get(post.getBoardId());
+            if (board != null) {
+                post.setBoardName(board.getName());
+            }
+        }
 
         return Response.ok(JacksonMapper.toJson(posts)).build();
     }
@@ -457,14 +467,17 @@ public class PostsRestApi {
     public Response fetchPosts(FetchPostsRequestDTO req) {
         String orgId = UserContext.current().getOrgId();
         Criteria criteriaDefinition = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId);
+        Map<String, Board> boardMap = new HashMap<>();
         if (StringUtils.isNotBlank(req.getBoardSlug())) {
             Criteria boardFetch = Criteria.where(Board.FIELD_SLUG).is(req.getBoardSlug()).and(Board.FIELD_ORGANIZATION_ID).is(orgId);
             Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(boardFetch), Board.class);
+            boardMap.put(board.getId(), board);
             criteriaDefinition.and(Post.FIELD_BOARD_ID).is(board.getId());
         } else {
             // Need to do this so that posts from deleted boards don't come in response
             Criteria boardFetch = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId);
             List<Board> board = mongoConnection.getDefaultMongoTemplate().find(new Query(boardFetch), Board.class);
+            boardMap = board.stream().collect(Collectors.toMap(Board::getId, board1 -> board1));
             List<String> boardIds = board.stream().map(Board::getId).collect(Collectors.toList());
             criteriaDefinition.and(Post.FIELD_BOARD_ID).in(boardIds);
         }
@@ -478,15 +491,26 @@ public class PostsRestApi {
         }
 
         query.with(sort);
+        Map<String, Board> finalBoardMap = boardMap;
         List<Post> posts;
         if (StringUtils.isNotBlank(req.getSortString()) && req.getSortString().equals("trending")) {
             posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
             posts.forEach(post -> {
                 post.setTrendingScore(Util.calculateTrendingScore(post.getVotes(), post.getCreatedAt()));
+                Board board = finalBoardMap.get(post.getBoardId());
+                if (board != null) {
+                    post.setBoardName(board.getName());
+                }
             });
             posts.sort(Comparator.comparing(Post::getTrendingScore).reversed());
         } else {
             posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
+            posts.forEach(post -> {
+                Board board = finalBoardMap.get(post.getBoardId());
+                if (board != null) {
+                    post.setBoardName(board.getName());
+                }
+            });
         }
         return Response.ok(JacksonMapper.toJson(posts)).build();
     }

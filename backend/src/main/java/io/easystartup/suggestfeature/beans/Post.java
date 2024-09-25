@@ -89,6 +89,10 @@ public class Post {
     @Transient
     private String boardSlug;
 
+    // Just used in response DTO
+    @Transient
+    private String boardName;
+
     private String status = "OPEN";
     private String priority;
     private String slug;
@@ -296,5 +300,13 @@ public class Post {
 
     public void setTrendingScore(Double trendingScore) {
         this.trendingScore = trendingScore;
+    }
+
+    public String getBoardName() {
+        return boardName;
+    }
+
+    public void setBoardName(String boardName) {
+        this.boardName = boardName;
     }
 }
