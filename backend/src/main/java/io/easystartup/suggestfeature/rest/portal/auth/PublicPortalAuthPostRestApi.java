@@ -157,6 +157,7 @@ public class PublicPortalAuthPostRestApi {
         }
         Criteria criteriaDefinition1 = Criteria.where(Board.FIELD_SLUG).is(slug).and(Board.FIELD_ORGANIZATION_ID).is(org.getId());
         Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition1), Board.class);
+        Map<String, Board> boardMap = Map.of(board.getId(), board);
         if (board == null || board.isPrivateBoard()) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
@@ -179,7 +180,10 @@ public class PublicPortalAuthPostRestApi {
         }
 
 
-        posts.forEach(post -> post.setBoardSlug(slug));
+        posts.forEach(post -> {
+            post.setBoardSlug(slug);
+            post.setBoardName(board.getName());
+        });
 
 
         populateSelfVotedInPosts(posts, org.getId(), UserContext.current().getUserId());

@@ -1,5 +1,5 @@
 "use client"
-import { Calendar, CheckCircle, ChevronUp, Circle, Eye, File, FileAudio, FileImage, FileText, FileVideo, Loader, Paperclip, Play, Search, XCircle } from "lucide-react"
+import { Calendar, CheckCircle, ChevronUp, Circle, Eye, File, FileAudio, FileImage, FileText, FileVideo, Loader, MessageSquare, Paperclip, Play, Search, XCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -141,6 +141,10 @@ const PostList = ({ posts, setPosts, params }) => {
             </div>
             <div className="line-clamp-2 text-xs text-muted-foreground">
               {item.description.substring(0, 300)}
+            </div>
+            <div className="flex items-center justify-end w-full text-xs text-muted-foreground">
+              <MessageSquare className="w-3 h-3 inline-block mr-1 text-muted-foreground" />
+              {item.commentCount}
             </div>
           </div>
         </button>
