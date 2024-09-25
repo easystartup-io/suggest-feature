@@ -93,7 +93,12 @@ function PostDetails({ params, data, refetch }) {
           aria-label="Select status"
           className={cn(statusConfig[status].bgColor, "px-3")}
         >
-          <SelectValue placeholder="Status" />
+          <SelectValue placeholder="Status">
+            <div className="flex items-center justify-start">
+              {statusConfig[status].icon}
+              {statusConfig[status].label}
+            </div>
+          </SelectValue>
           {/* {status.icon} */}
           {/* {status.label} */}
         </SelectTrigger>
