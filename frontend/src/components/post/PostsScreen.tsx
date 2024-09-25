@@ -125,7 +125,7 @@ function AddPostDialog({ params, refetch, allBoards }) {
         body: JSON.stringify({
           title,
           description,
-          boardSlug: params.id,
+          boardSlug: params.id || boardSlug,
           status,
           attachments: attachments
         })
