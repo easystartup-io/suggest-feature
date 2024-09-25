@@ -80,7 +80,7 @@ const NotificationItem = ({ notification }) => {
       case 'UPVOTE':
         return (
           <>
-            <strong>&apos;{data.post.title}&apos;</strong> was upvoted by {actionUser.name}
+            Upvote milestone <strong>{data.upVoteCount}</strong> reached for <strong>&apos;{data.post.title}&apos;</strong>
           </>
         );
       case 'FOLLOW':
@@ -216,6 +216,7 @@ const NotificationsPage = ({ params }) => {
             <SelectItem value="POST">Posts</SelectItem>
             <SelectItem value="COMMENT">Comments</SelectItem>
             <SelectItem value="POST_STATUS_UPDATE">Status Updates</SelectItem>
+            <SelectItem value="UPVOTE">Upvote Milestones</SelectItem>
           </SelectContent>
         </Select>
 

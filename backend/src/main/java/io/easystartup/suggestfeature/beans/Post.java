@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author indianBond
@@ -42,6 +43,30 @@ public class Post {
     public static final String FIELD_VOTES = "votes";
     public static final String FIELD_COMMENT_COUNT = "commentCount";
     public static final String FIELD_SLUG = "slug";
+    public static final Set<Long> MILESTONES = Set.of(
+            5L,
+            10L,
+            25L,
+            50L,
+            100L,
+            250L,
+            500L,
+            1000L,
+            2500L,
+            5000L,
+            10_000L,
+            25_000L,
+            50_000L,
+            100_000L,
+            250_000L,
+            500_000L,
+            1_000_000L,
+            2_500_000L,
+            5_000_000L,
+            10_000_000L,
+            20_000_000L,
+            40_000_000L
+    );
 
     @Id
     private String id;

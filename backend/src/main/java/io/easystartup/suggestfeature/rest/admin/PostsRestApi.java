@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
@@ -438,8 +439,11 @@ public class PostsRestApi {
                 mongoConnection.getDefaultMongoTemplate().remove(new Query(criteriaDefinition), Voter.class);
             }
 
-            mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_VOTES, upvote ? 1 : -1), Post.class);
+            Post newUpdatedPost = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(Criteria.where(Post.FIELD_ID).is(postId)), new Update().inc(Post.FIELD_VOTES, upvote ? 1 : -1), FindAndModifyOptions.options().returnNew(true), Post.class);
 
+            if (newUpdatedPost != null && Post.MILESTONES.contains(newUpdatedPost.getVotes())) {
+                notificationService.addUpvoteMilestoneUpdateNotification(newUpdatedPost);
+            }
         } catch (DuplicateKeyException e) {
             throw new UserVisibleException("Already upvoted");
         }

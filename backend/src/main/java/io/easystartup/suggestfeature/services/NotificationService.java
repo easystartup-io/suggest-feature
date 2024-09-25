@@ -53,6 +53,10 @@ public class NotificationService {
         addNotification(NotificationType.POST_STATUS_UPDATE, userId, post.getOrganizationId(), post.getBoardId(), Map.of("postId", post.getId(), "status", post.getStatus()), true, null);
     }
 
+    public void addUpvoteMilestoneUpdateNotification(Post post) {
+        addNotification(NotificationType.UPVOTE, null, post.getOrganizationId(), post.getBoardId(), Map.of("postId", post.getId(), "upVoteCount", post.getVotes()), false, System.currentTimeMillis());
+    }
+
     public void addNotification(NotificationType type, String userId, String organizationId, String boardId, Map<String, Object> data, boolean teamMember, Long createdTime) {
         try {
             Notification notification = new Notification();
@@ -96,6 +100,7 @@ public class NotificationService {
         for (Map.Entry<NotificationType, List<Notification>> notificationTypeListEntry : collect.entrySet()) {
             switch (notificationTypeListEntry.getKey()) {
                 case POST_STATUS_UPDATE:
+                case UPVOTE:
                 case POST:
                     populatePostData(notificationTypeListEntry.getValue());
                     break;
@@ -149,7 +154,10 @@ public class NotificationService {
             }
             post.setUser(Util.getSafeUser(userMap.get(post.getCreatedByUserId()), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
             String status = (String) notification.getData().get("status");
-            notification.setData(Map.of("post", post, "status", status));
+            status = status == null ? post.getStatus() : status;
+            Long upVoteCount = (Long) notification.getData().get("upVoteCount");
+            upVoteCount = upVoteCount == null ? post.getVotes() : upVoteCount;
+            notification.setData(Map.of("post", post, "status", status, "upVoteCount", upVoteCount));
         }
     }
 
