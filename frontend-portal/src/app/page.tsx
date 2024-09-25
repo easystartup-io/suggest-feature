@@ -7,7 +7,7 @@ import { useInit } from "@/context/InitContext"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { cloneElement, useEffect, useState } from "react"
 import { useTheme } from "next-themes"
 
 export const statusConfig = {
@@ -46,48 +46,43 @@ const PostList = ({ posts }) => {
 
   return (
     <ScrollArea className="h-full overflow-y-auto">
-      <div className="flex flex-col gap-2 px-4 pt-0">
+      <div className="grid gap-4 p-4">
         {posts && posts.length > 0 && posts.map((item) => (
           <button
             key={item.id}
             className={cn(
-              "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
+              "flex flex-col items-start gap-2 rounded-lg border p-4 text-left text-sm transition-all hover:bg-accent",
+              "shadow-sm hover:shadow-md"
             )}
             onClick={() => {
               router.push(`/b/${item.boardSlug}/p/${item.slug}`)
             }}
           >
-            <div className="flex w-full flex-col gap-1">
-              <div className="flex items-center">
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold">
-                    {(() => {
-                      const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                      return st.icon
-                    })()
-                    }
-                    {item.title}
-                  </div>
-                </div>
-                <div
-                  className={cn(
-                    "ml-auto text-xs",
-                    "text-muted-foreground"
-                  )}
-                >
-                  {formatDistanceToNow(new Date(item.createdAt), {
-                    addSuffix: true,
-                  })}
-                  {/* <Badge className="ml-2">{item.votes}</Badge> */}
-                </div>
+            <div className="flex w-full items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
+                  // return cloneElement(st.icon, { className: "w-5 h-5" });
+                  return st.icon;
+                })()}
+                <span className="font-semibold line-clamp-1">{item.title}</span>
               </div>
+              <span className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+              </span>
             </div>
-            <div className="line-clamp-2 text-xs text-muted-foreground">
-              {item.description.substring(0, 300)}
-            </div>
-            <div className="w-full flex items-center justify-end">
-              <div className="line-clamp-2 text-xs text-muted-foreground">
-                {item.boardName.substring(0, 300)}
+
+            <p className="line-clamp-2 text-sm text-muted-foreground flex-grow">
+              {item.description}
+            </p>
+
+            <div className="w-full flex items-center justify-between mt-2">
+              <Badge variant="secondary" className="text-xs">
+                {item.boardName}
+              </Badge>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>👍 {item.votes || 0}</span>
+                <span>💬 {item.commentCount || 0}</span>
               </div>
             </div>
           </button>
