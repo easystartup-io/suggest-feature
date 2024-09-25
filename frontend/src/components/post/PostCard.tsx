@@ -20,8 +20,18 @@ import MultiAttachmentUploadButton from '../MultiAttachmentUploadButton';
 import { statusConfig } from '@/components/post/PostsScreen';
 
 
-function FullScreenPostDialog({ id, params, deleteFromParentRender }) {
+export function FullScreenPostDialog({ id, params, deleteFromParentRender }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!id) {
+      return
+    }
+    // Open dialog automatically on mobile
+    if (window.innerWidth < 768) {
+      setIsOpen(true);
+    }
+  }, [id]);
 
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)} onOpenChange={setIsOpen}>

@@ -4,7 +4,7 @@ import AttachmentComponent from "@/components/AttachmentComponent";
 import { Icons } from "@/components/icons";
 import Loading from "@/components/Loading";
 import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButton";
-import { PostCard } from "@/components/post/PostCard";
+import { FullScreenPostDialog, PostCard } from "@/components/post/PostCard";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -380,7 +380,7 @@ const PostsScreen: React.FC = ({ params }) => {
       .then((data) => {
         setData(data)
         setTempData(data)
-        if (data && data.length > 0) {
+        if (data && data.length > 0 && window.innerWidth > 768) {
           setCurrentPost({
             post: data[0],
             id: data[0].id
@@ -432,7 +432,7 @@ const PostsScreen: React.FC = ({ params }) => {
   const searchOnDb = useDebouncedCallback((value) => {
     if (value.trim() === '') {
       setData(tempData)
-      if (tempData && tempData.length > 0) {
+      if (tempData && tempData.length > 0 && window.innerWidth > 768) {
         setCurrentPost({
           post: tempData[0],
           id: tempData[0].id
@@ -454,7 +454,7 @@ const PostsScreen: React.FC = ({ params }) => {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
-        if (data && data.length > 0) {
+        if (data && data.length > 0 && window.innerWidth > 768) {
           setCurrentPost({
             post: data[0],
             id: data[0].id
@@ -568,11 +568,16 @@ const PostsScreen: React.FC = ({ params }) => {
                       "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
                       currentPost && currentPost.id === item.id && "bg-muted"
                     )}
-                    onClick={() =>
-                      setCurrentPost({
-                        post: item,
-                        id: item.id
-                      })}
+                    onClick={() => {
+                      setCurrentPost((val) => {
+                        return {
+                          instanceVersion: val ? val.instanceVersion + 1 : 1,
+                          post: item,
+                          id: item.id
+                        }
+                      })
+                    }
+                    }
                   >
                     <div className="flex w-full flex-col gap-1">
                       <div className="flex items-center">
@@ -604,8 +609,8 @@ const PostsScreen: React.FC = ({ params }) => {
                       {item.description.substring(0, 300)}
                     </div>
                     <div className="flex items-center justify-between text-xs w-full">
-                      <div className="flex space-x-4 items-center font-semibold text-muted-foreground">
-                        <ChevronUp className="h-3 w-3" /> {item.votes || 0}  <MessageSquare className="h-3 w-3" /> {item.commentCount || 0}
+                      <div className="flex items-center font-semibold text-muted-foreground ">
+                        <ChevronUp className="h-3 w-3 mr-1" /> {item.votes || 0}  <MessageSquare className="h-3 w-3 mx-1 ml-3" /> {item.commentCount || 0}
                       </div>
                       <div>
                         {item.boardName}
@@ -616,12 +621,12 @@ const PostsScreen: React.FC = ({ params }) => {
               </div>
             </ScrollArea>
           </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
+          <ResizableHandle withHandle className="hidden md:flex" />
+          <ResizablePanel defaultSize={defaultLayout[1]} minSize={30} className="hidden md:flex">
             {
               currentPost && currentPost.id &&
               <PostCard
-                key={currentPost.id}
+                key={currentPost.instanceVersion || currentPost.id}
                 id={currentPost.id}
                 params={params}
                 deleteFromParentRender={() => deletePostFromView(currentPost.id)}
