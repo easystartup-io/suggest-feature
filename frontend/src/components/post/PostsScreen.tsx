@@ -569,13 +569,20 @@ const PostsScreen: React.FC = ({ params }) => {
                       currentPost && currentPost.id === item.id && "bg-muted"
                     )}
                     onClick={() => {
-                      setCurrentPost((val) => {
-                        return {
-                          instanceVersion: val ? val.instanceVersion + 1 : 1,
+                      if (window.innerWidth < 768) {
+                        setCurrentPost((val) => {
+                          return {
+                            instanceVersion: val ? val.instanceVersion + 1 : 1,
+                            post: item,
+                            id: item.id
+                          }
+                        })
+                      } else {
+                        setCurrentPost({
                           post: item,
                           id: item.id
-                        }
-                      })
+                        })
+                      }
                     }
                     }
                   >
