@@ -11,7 +11,7 @@ import { Calendar, CheckCircle, ChevronUp, Circle, Expand, Eye, Flag, Loader, Pl
 import { useEffect, useRef, useState } from 'react';
 import { Icons } from '../icons';
 import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Textarea } from '../ui/textarea';
 import { useToast } from "@/components/ui/use-toast"
 import Voters from '../Voters';
@@ -40,9 +40,13 @@ export function FullScreenPostDialog({ id, params, deleteFromParentRender }) {
           <Expand />
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[600px] max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl flex flex-col items-center justify-between">
-        <ScrollArea className="w-full h-full">
-          <PostCard id={id} params={params} disableExpand={true} deleteFromParentRender={deleteFromParentRender} />
+      <DialogContent className="h-[90vh] max-w-5xl p-0 w-[95vw]">
+        <ScrollArea className="h-full w-full">
+          <div className="p-6 min-w-[50vw]">
+            <PostCard id={id} params={params} disableExpand={true} deleteFromParentRender={deleteFromParentRender} />
+          </div>
+          <ScrollBar orientation="vertical" />
+          <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </DialogContent>
     </Dialog>
@@ -218,7 +222,7 @@ function CommentSection({ params, refetch, comments, deleteFromParentRender }) {
 
 function CommentCard({ comment, refetch, params, deleteFromParentRender }) {
   return (
-    <div className="ml-16">
+    <div className="ml-8">
       <UserHeader user={comment.user} />
       <PostContent data={comment} params={params} refetch={refetch} deleteFromParentRender={deleteFromParentRender} />
       {/* <CommentContent content={comment.content} /> */}
@@ -393,7 +397,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
     <div>
       <div className="ml-16">
         {/* One for post and another for comment  description vs content */}
-        <p className=''>
+        <p className='break-words'>
           {
             data.newStatus ?
               <div className='flex items-center space-x-2'>
@@ -696,11 +700,11 @@ export const PostCard = ({ id, params, disableExpand = false, deleteFromParentRe
     )
   }
   return (
-    <div className="flex flex-1 w-full flex-col h-full">
+    <div className="flex flex-col w-full h-full">
       <TitleHeader data={data} refetch={refetch} params={params} id={id} disableExpand={disableExpand} deleteFromParentRender={deleteFromParentRender} />
-      <ScrollArea className="overflow-y-auto w-full">
-        <div className='grid gap-2 md:grid-cols-4'>
-          <div className='md:col-span-3 h-full'>
+      <div className='flex-grow overflow-auto'>
+        <div className='grid gap-2 md:grid-cols-4 min-w-[50vw]'>
+          <div className='order-2 md:order-1 md:col-span-3 h-full'>
             <UserHeader user={data.user} />
             <PostContent data={data} params={params} refetch={refetch} deleteFromParentRender={deleteFromParentRender} />
             <NewCommentInputOld data={data} params={params} refetch={refetch} />
@@ -708,11 +712,11 @@ export const PostCard = ({ id, params, disableExpand = false, deleteFromParentRe
             {/* <ActionButtons data={data} /> */}
             <CommentSection comments={data.comments} refetch={refetch} params={params} deleteFromParentRender={deleteFromParentRender} />
           </div>
-          <div className='md:flex md:justify-center'>
+          <div className='order-1 md:order-2 md:flex md:justify-center'>
             <PostDetails data={data} params={params} refetch={refetch} key={data.id} />
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

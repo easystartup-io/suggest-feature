@@ -139,7 +139,7 @@ function CommentSection({ params, refetch, comments }) {
 
 function CommentCard({ comment, refetch, params }) {
   return (
-    <div className="ml-16">
+    <div className="ml-8">
       <UserHeader user={comment.user} />
       <PostContent data={comment} refetch={refetch} params={params} />
       {/* <CommentContent content={comment.content} /> */}
