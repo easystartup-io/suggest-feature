@@ -51,7 +51,7 @@ export const statusConfig = {
   }
 };
 
-const PostList = ({ posts, setPosts, params }) => {
+const PostList = ({ posts, setPosts, params, setTempPosts }) => {
   const router = useRouter();
   const { user, verifyLoginOrPrompt } = useAuth()
 
@@ -69,6 +69,18 @@ const PostList = ({ posts, setPosts, params }) => {
       .then((res) => res.json())
       .then((data) => {
         setPosts((prev) => {
+          return prev.map((item) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                votes: data.votes,
+                selfVoted: upvote
+              }
+            }
+            return item
+          })
+        })
+        setTempPosts((prev) => {
           return prev.map((item) => {
             if (item.id === id) {
               return {
@@ -381,7 +393,7 @@ export default function Dashboard({ params }) {
                 }
                 <div className="bg-white dark:bg-background p-4 rounded-lg md:col-span-2 w-full">
                   {
-                    posts && <PostList posts={posts} setPosts={setPosts} params={params} />
+                    posts && <PostList posts={posts} setPosts={setPosts} params={params} setTempPosts={setTempPosts} />
                   }
                 </div>
               </div>
