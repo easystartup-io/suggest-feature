@@ -62,10 +62,9 @@ const PostList = ({ posts }) => {
               <div className="flex items-center gap-2">
                 {(() => {
                   const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                  // return cloneElement(st.icon, { className: "w-5 h-5" });
                   return st.icon;
                 })()}
-                <span className="font-semibold line-clamp-1">{item.title}</span>
+                <span className="font-semibold line-clamp-2">{item.title}</span>
               </div>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
