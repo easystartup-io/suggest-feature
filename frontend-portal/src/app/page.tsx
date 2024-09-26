@@ -12,31 +12,31 @@ import { useTheme } from "next-themes"
 
 export const statusConfig = {
   "OPEN": {
-    icon: <Circle className="w-4 h-4 inline-block mr-2 text-blue-500" />,
+    icon: <Circle className="w-4 h-4 inline-block text-blue-500 flex-shrink-0" />,
     label: "OPEN"
   },
   "UNDER REVIEW": {
-    icon: <Eye className="w-4 h-4 inline-block mr-2 text-yellow-500" />,
+    icon: <Eye className="w-4 h-4 inline-block text-yellow-500 flex-shrink-0" />,
     label: "UNDER REVIEW"
   },
   "PLANNED": {
-    icon: <Calendar className="w-4 h-4 inline-block mr-2 text-blue-500" />,
+    icon: <Calendar className="w-4 h-4 inline-block text-blue-500 flex-shrink-0" />,
     label: "PLANNED"
   },
   "IN PROGRESS": {
-    icon: <Loader className="w-4 h-4 inline-block mr-2 text-orange-500" />,
+    icon: <Loader className="w-4 h-4 inline-block text-orange-500 flex-shrink-0" />,
     label: "IN PROGRESS"
   },
   "LIVE": {
-    icon: <Play className="w-4 h-4 inline-block mr-2 text-green-500" />,
+    icon: <Play className="w-4 h-4 inline-block text-green-500 flex-shrink-0" />,
     label: "LIVE"
   },
   "COMPLETE": {
-    icon: <CheckCircle className="w-4 h-4 inline-block mr-2 text-green-500" />,
+    icon: <CheckCircle className="w-4 h-4 inline-block text-green-500 flex-shrink-0" />,
     label: "COMPLETE"
   },
   "CLOSED": {
-    icon: <XCircle className="w-4 h-4 inline-block mr-2 text-red-500" />,
+    icon: <XCircle className="w-4 h-4 inline-block text-red-500 flex-shrink-0" />,
     label: "CLOSED"
   }
 };
@@ -59,19 +59,21 @@ const PostList = ({ posts }) => {
             }}
           >
             <div className="flex w-full items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                  return st.icon;
-                })()}
-                <span className="font-semibold line-clamp-2">{item.title}</span>
+              <div className="flex items-center">
+                <div className="w-5 h-5 flex items-center justify-center">
+                  {(() => {
+                    const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
+                    return st.icon;
+                  })()}
+                </div>
+                <div className="font-semibold line-clamp-3 pl-2">{item.title}</div>
               </div>
-              <span className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
-              </span>
+              </div>
             </div>
 
-            <p className="line-clamp-2 text-sm text-muted-foreground flex-grow">
+            <p className="line-clamp-3 text-sm text-muted-foreground flex-grow">
               {item.description}
             </p>
 

@@ -252,7 +252,8 @@ export default function Dashboard({ params }) {
       setPosts(tempPosts)
       return
     }
-    fetch(`/api/portal/unauth/posts/search-post`, {
+
+    fetch(`/api/portal/${user ? 'auth' : 'unauth'}/posts/search-post`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'

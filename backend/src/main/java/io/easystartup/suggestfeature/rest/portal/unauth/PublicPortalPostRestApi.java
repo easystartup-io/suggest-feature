@@ -8,9 +8,9 @@ import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.Post;
 import io.easystartup.suggestfeature.beans.RoadmapSettings;
 import io.easystartup.suggestfeature.dto.SearchPostDTO;
-import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.SearchUtil;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
@@ -23,11 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -41,19 +39,12 @@ import static io.easystartup.suggestfeature.utils.Util.populatePost;
 @Component
 public class PublicPortalPostRestApi {
 
-    private static final String EMPTY_JSON_LIST = "[]";
     private final MongoTemplateFactory mongoConnection;
     // Loading cache of host vs page
     private final Cache<String, String> hostOrgCache = CacheBuilder.newBuilder()
             .maximumSize(20_000)
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
-
-    private final Cache<SearchPostCacheKey, String> searchPostCache = CacheBuilder.newBuilder()
-            .maximumSize(100_000)
-            .expireAfterWrite(1, TimeUnit.MINUTES)
-            .build();
-
     @Autowired
     public PublicPortalPostRestApi(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
@@ -146,72 +137,8 @@ public class PublicPortalPostRestApi {
     @Consumes("application/json")
     @Produces("application/json")
     public Response searchPost(@Context HttpServletRequest request, SearchPostDTO req) throws ExecutionException {
-        if (StringUtils.isBlank(req.getQuery())) {
-            throw new UserVisibleException("Search query is required");
-        }
-        req.setQuery(req.getQuery().trim().substring(0, Math.min(150, req.getQuery().length())));
-        req.setBoardSlug(req.getBoardSlug().trim().substring(0, Math.min(150, req.getBoardSlug().length())));
-        if (StringUtils.isBlank(req.getBoardSlug())) {
-            throw new UserVisibleException("Slug is required");
-        }
         String host = request.getHeader("host");
-        String returnValue = searchPostCache.get(new SearchPostCacheKey(req.getQuery(), req.getBoardSlug(), host), () -> {
-
-            Organization org = getOrg(host);
-            if (org == null) {
-                return EMPTY_JSON_LIST;
-            }
-            Criteria boardCriteriaDefinition = Criteria.where(Board.FIELD_ORGANIZATION_ID).is(org.getId()).and(Board.FIELD_SLUG).is(req.getBoardSlug());
-            Board board = mongoConnection.getDefaultMongoTemplate().findOne(new Query(boardCriteriaDefinition), Board.class);
-            if (board == null || board.isPrivateBoard()) {
-                return EMPTY_JSON_LIST;
-            }
-
-            Criteria criteriaDefinitionForText = Criteria.where(Post.FIELD_ORGANIZATION_ID).is(org.getId());
-            Criteria criteriaDefinitionForRegex = Criteria.where(Post.FIELD_ORGANIZATION_ID).is(org.getId());
-            if (StringUtils.isNotBlank(req.getBoardSlug())) {
-                criteriaDefinitionForText.and(Post.FIELD_BOARD_ID).is(board.getId());
-                criteriaDefinitionForRegex.and(Post.FIELD_BOARD_ID).is(board.getId());
-            }
-
-            TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(req.getQuery());
-
-            Query queryForText = new Query(criteriaDefinitionForText);
-            queryForText.addCriteria(textCriteria);
-            queryForText.limit(20);
-
-            List<Post> posts = new CopyOnWriteArrayList<>();
-
-            List<Thread> threads = new ArrayList<>();
-
-            Runnable runnable = () -> {
-                posts.addAll(mongoConnection.getDefaultMongoTemplate().find(queryForText, Post.class));
-            };
-            // new virtual thread every task and wait for it to be done
-            threads.add(Thread.startVirtualThread(runnable));
-
-            {
-                criteriaDefinitionForRegex.and(Post.FIELD_TITLE).regex(req.getQuery(), "i");
-                Query queryForRegex = new Query(criteriaDefinitionForRegex);
-                queryForRegex.limit(20);
-                threads.add(Thread.startVirtualThread(() -> {
-                    posts.addAll(mongoConnection.getDefaultMongoTemplate().find(queryForRegex, Post.class));
-                }));
-            }
-            for (Thread thread : threads) {
-                try {
-                    thread.join(TimeUnit.SECONDS.toMillis(2));
-                } catch (InterruptedException ignored) {
-                    // ignore
-                }
-            }
-            // remove posts with same  post Id. cant be compared with object.equals as it is a mongo object
-            Set<String> postIds = new HashSet<>();
-            posts.removeIf(post -> !postIds.add(post.getId()));
-            Collections.sort(posts, Comparator.comparing(Post::getCreatedAt).reversed());
-            return JacksonMapper.toJson(posts);
-        });
-
+        String returnValue = SearchUtil.searchPosts(host, req);
         return Response.ok(returnValue).build();
     }
 

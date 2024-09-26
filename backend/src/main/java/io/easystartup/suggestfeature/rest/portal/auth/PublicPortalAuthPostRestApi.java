@@ -1,7 +1,11 @@
 package io.easystartup.suggestfeature.rest.portal.auth;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.easystartup.suggestfeature.beans.*;
+import io.easystartup.suggestfeature.dto.SearchPostDTO;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.jobqueue.executor.SendCommentUpdateEmailExecutor;
@@ -11,6 +15,7 @@ import io.easystartup.suggestfeature.services.NotificationService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.SearchUtil;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static io.easystartup.suggestfeature.utils.Util.*;
 
@@ -189,6 +195,20 @@ public class PublicPortalAuthPostRestApi {
         populateSelfVotedInPosts(posts, org.getId(), UserContext.current().getUserId());
 
         return Response.ok().entity(JacksonMapper.toJson(posts)).build();
+    }
+
+    @POST
+    @Path("/search-post")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response searchPost(@Context HttpServletRequest request, SearchPostDTO req) throws ExecutionException, JsonProcessingException {
+        String host = request.getHeader("host");
+        String returnValue = SearchUtil.searchPosts(host, req);
+        TypeReference<List<Post>> typeReference = new TypeReference<>() {
+        };
+        List<Post> posts = new ObjectMapper().readValue(returnValue, typeReference);
+        populateSelfVotedInPosts(posts, getOrg(host).getId(), UserContext.current().getUserId());
+        return Response.ok(JacksonMapper.toJson(posts)).build();
     }
 
     @POST
