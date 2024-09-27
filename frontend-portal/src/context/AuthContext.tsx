@@ -6,14 +6,16 @@ import Cookies from 'js-cookie';
 
 interface User {
   username: string;
+  name: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (username: string) => Promise<void>;
-  verifyCode: (username: string, code: string) => Promise<void>;
+  verifyCode: (username: string, code: string) => Promise<User>;
   oauth2Login: (response: string, redirectToPage: string) => void;
+  updateUserName: (name: string) => Promise<void>;
   logout: () => void;
   verifyLoginOrPrompt: () => boolean
   registerSetOpenLoginDialog: (setOpenDialog: any) => void;
@@ -106,11 +108,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { token, user } = await response.json();
       Cookies.set('token', token);
       setUser(user);
+      return user;
     } else {
       console.error('Login failed');
+      const { message } = await response.json();
+      throw new Error(message);
     }
   };
 
+  const updateUserName = async (name) => {
+    try {
+      const token = Cookies.get('token');
+      const res = await fetch(`${API_BASE_URL}/api/portal/auth/update-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({ name })
+      })
+
+      if (res.ok) {
+        const userResponse = await res.json();
+        setUser(userResponse);
+      }
+    } catch (error) {
+      throw error
+    }
+  }
 
   const oauth2Login = (response: string, redirectToPage: string) => {
     try {
@@ -131,7 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login, registerSetOpenLoginDialog, verifyLoginOrPrompt }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login, registerSetOpenLoginDialog, verifyLoginOrPrompt, updateUserName }}>
       {children}
     </AuthContext.Provider>
   );

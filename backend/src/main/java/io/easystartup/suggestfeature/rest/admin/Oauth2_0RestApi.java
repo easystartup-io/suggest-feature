@@ -23,6 +23,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -181,6 +183,26 @@ public class Oauth2_0RestApi {
                         user.setCreatedAt(System.currentTimeMillis());
                         mongoConnection.getDefaultMongoTemplate().insert(user);
                         existingUser = user;
+                    } else {
+                        boolean update = false;
+                        Update userUpdate = new Update();
+                        if (StringUtils.isBlank(existingUser.getProfilePic()) && StringUtils.isNotBlank(profilePic)) {
+                            // Copy profile pic to local cloudflare instance else  google is blocking it
+                            String ppic = Util.uploadCopy(existingUser.getId(), one.getOrganizationId(), profilePic);
+                            existingUser.setProfilePic(ppic);
+                            update = true;
+                            userUpdate.set(User.FIELD_PROFILE_PIC, ppic);
+                        }
+
+                        if (StringUtils.isBlank(existingUser.getName()) && StringUtils.isNotBlank(name)) {
+                            update = true;
+                            existingUser.setName(name);
+                            userUpdate.set(User.FIELD_NAME, name);
+                        }
+
+                        if (update) {
+                            mongoConnection.getDefaultMongoTemplate().updateFirst(new Query(Criteria.where(User.FIELD_ID).is(existingUser.getId())), userUpdate, User.class);
+                        }
                     }
 
                     if (one.getOrganizationId() != null) {
@@ -268,6 +290,4 @@ public class Oauth2_0RestApi {
 
         return "";
     }
-
-
 }

@@ -105,7 +105,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } else {
       console.error('Login failed');
-      throw new Error('Failed to login');
+      const { message } = await response.json();
+      throw new Error(message);
     }
   };
 

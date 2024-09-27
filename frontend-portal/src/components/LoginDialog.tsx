@@ -19,7 +19,7 @@ import { useAuth } from "@/context/AuthContext"
 import { useInit } from "@/context/InitContext"
 
 function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
-  const { verifyCode } = useAuth()
+  const { verifyCode, updateUserName } = useAuth()
   const { org } = useInit();
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
@@ -44,6 +44,13 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
         toast({
           title: "Verification code sent",
         })
+      } else {
+        const { message } = await res.json();
+        toast({
+          title: "Error",
+          description: message,
+          variant: "destructive",
+        })
       }
       setCurrentState("otp")
     } catch (e) {
@@ -55,13 +62,31 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    if (currentState === "email") {
-      sendMagicLink(email)
-    } else {
-      verifyCode(email, verificationCode)
+    try {
+      if (currentState === "email") {
+        await sendMagicLink(email)
+      } else if (currentState === "otp") {
+        const user = await verifyCode(email, verificationCode)
+        console.log(user)
+        if (user && !user.name) {
+          setCurrentState("name")
+          console.log(user)
+        }
+      } else if (currentState === "name") {
+        const name = lastName ? `${firstName} ${lastName}` : firstName;
+        await updateUserName(name)
+        // User updated successfully
+        setOpenLoginDialog(false)
+      }
+    } catch (e) {
+      toast({
+        title: "Error",
+        description: e.message,
+        variant: "destructive"
+      })
     }
     setTimeout(() => {
       setIsLoading(false)
@@ -76,8 +101,10 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
       return isLogin
         ? 'Enter your email below to login to your account'
         : 'Enter your information to create an account'
-    } else {
+    } else if (currentState === "otp") {
       return 'Enter the verification code sent to your email'
+    } else if (currentState === "name") {
+      return 'Please provide your name to complete the sign-up process'
     }
   }
 
@@ -135,7 +162,7 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
               ))
             }
             {org?.ssoSettings?.exclusiveSSO ? null : (
-              currentState === "email" ? (
+              currentState === "email" && (
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -147,7 +174,9 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
                     required
                   />
                 </div>
-              ) : (
+              ))}
+            {org?.ssoSettings?.exclusiveSSO ? null : (
+              currentState === "otp" && (
                 <div className="flex items-center justify-center">
                   <InputOTP
                     id="verificationCode"
@@ -166,6 +195,30 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
                 </div>
               ))
             }
+            {currentState === "name" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="first-name">First name</Label>
+                  <Input
+                    id="first-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Tony"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="last-name">Last name</Label>
+                  <Input
+                    id="last-name"
+                    placeholder="Stark"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            )}
             {org?.ssoSettings?.exclusiveSSO ? null :
               <Button
                 type="submit"
@@ -177,7 +230,7 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
                 className="w-full"
               >
                 {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-                {isLogin ? "Login" : "Sign up"}
+                {isLogin ? (currentState === 'name' ? 'Finish Sign up' : "Login") : "Sign up"}
               </Button>
             }
             {currentState === "email" && (

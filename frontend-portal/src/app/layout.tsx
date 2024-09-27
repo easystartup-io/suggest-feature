@@ -162,7 +162,7 @@ function Header({ params }) {
               </Button>
             }
             <ModeToggle />
-            {user ?
+            {user && user.name ?
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" size="icon" className="rounded-full">

@@ -1,10 +1,5 @@
 package io.easystartup.suggestfeature.services;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import com.amazonaws.services.simpleemail.model.*;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import io.easystartup.suggestfeature.beans.*;
@@ -92,11 +87,8 @@ public class AuthService {
 
     public LoginResponse getLoginSignUpResponseJson(User user, boolean portal) {
         StopWatch stopWatch = StopWatch.createStarted();
-        User safeUser = new User();
-        safeUser.setEmail(user.getEmail());
-        safeUser.setProfilePic(user.getProfilePic());
-        safeUser.setId(user.getId());
-        safeUser.setName(user.getName());
+        User safeUser = getSafeLoggedInUser(user);
+
         String jwtToken = createJWTToken("suggestFeature", "user", TimeUnit.DAYS.toMillis(90), safeUser);
         stopWatch.stop();
         user.setPassword(null);
@@ -113,6 +105,17 @@ public class AuthService {
         }
 
         return new LoginResponse("Bearer " + jwtToken, safeUser, null, null);
+    }
+
+    public User getSafeLoggedInUser(User user) {
+        User safeUser = new User();
+        safeUser.setId(user.getId());
+        safeUser.setEmail(user.getEmail());
+        safeUser.setProfilePic(user.getProfilePic());
+
+        // Do not make fake name and set, because will ask user to enter name while logging in if no name set
+        safeUser.setName(user.getName());
+        return safeUser;
     }
 
     /**

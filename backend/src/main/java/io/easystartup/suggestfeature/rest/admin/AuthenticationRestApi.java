@@ -1,12 +1,12 @@
 package io.easystartup.suggestfeature.rest.admin;
 
-import io.easystartup.suggestfeature.services.AuthService;
-import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
-import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.LoginRequest;
+import io.easystartup.suggestfeature.filters.UserVisibleException;
+import io.easystartup.suggestfeature.services.AuthService;
+import io.easystartup.suggestfeature.services.ValidationService;
+import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
-import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * @author indianBond
@@ -58,7 +57,7 @@ public class AuthenticationRestApi {
         EmailValidator emailValidator = EmailValidator.getInstance();
         boolean valid = emailValidator.isValid(req.getEmail());
         if (!valid) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid email").build();
+            throw new UserVisibleException("Invalid email", Response.Status.BAD_REQUEST);
         }
         req.setEmail(req.getEmail().trim());
         req.setMagicToken(req.getMagicToken().trim());
@@ -66,16 +65,16 @@ public class AuthenticationRestApi {
         Criteria criteria = Criteria.where(User.FIELD_EMAIL).is(req.getEmail());
         User user = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), User.class);
         if (user == null) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("No such user").build();
+            throw new UserVisibleException("No such user", Response.Status.UNAUTHORIZED);
         }
 
         if (user.getUserBlockedUntil() != null && user.getUserBlockedUntil() > System.currentTimeMillis()) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("User blocked, try after sometime!").build();
+            throw new UserVisibleException("User blocked, try after sometime!", Response.Status.UNAUTHORIZED);
         }
 
         if (user.getIncorrectAttemptCount() != null && user.getIncorrectAttemptCount() > 10) {
             authService.blockUserUntil(req.getEmail(), System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10));
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Too many attempts, try after sometime").build();
+            throw new UserVisibleException("Too many attempts, try after sometime", Response.Status.UNAUTHORIZED);
         }
 
         if (user.getMagicLinkCode().equals(req.getMagicToken()) && user.getMagicLinkValidTill()!=null && user.getMagicLinkValidTill() > System.currentTimeMillis()) {
@@ -83,13 +82,13 @@ public class AuthenticationRestApi {
             return Response.ok(JacksonMapper.toJson(authService.getLoginSignUpResponseJson(user, false))).build();
         } else if (!user.getMagicLinkCode().equals(req.getMagicToken())) {
             authService.incIncorrectAttemptCount(req.getEmail());
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid magic token").build();
+            throw new UserVisibleException("Invalid code", Response.Status.UNAUTHORIZED);
         } else if (user.getMagicLinkValidTill()!=null && user.getMagicLinkValidTill() < System.currentTimeMillis()) {
             authService.resetMagicLinkCount(req.getEmail());
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Magic token expired").build();
+            throw new UserVisibleException("Magic code expired", Response.Status.UNAUTHORIZED);
         }
 
-        return Response.status(Response.Status.UNAUTHORIZED).entity("Magic token not valid").build();
+        throw new UserVisibleException("Magic code not valid", Response.Status.UNAUTHORIZED);
     }
 
     @POST
@@ -102,7 +101,7 @@ public class AuthenticationRestApi {
         EmailValidator emailValidator = EmailValidator.getInstance();
         boolean valid = emailValidator.isValid(req.getEmail());
         if (!valid) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid email").build();
+            throw new UserVisibleException("Invalid email", Response.Status.BAD_REQUEST);
         }
 
         Criteria criteria = Criteria.where(User.FIELD_EMAIL).is(req.getEmail());
@@ -127,25 +126,8 @@ public class AuthenticationRestApi {
             } else if (StringUtils.isNotBlank(req.getLastName())) {
                 user1.setName(req.getLastName().trim());
             } else {
-                // Extract name from email
-                String nameToSet = null;
-                String[] parts = req.getEmail().split("@");
-                // If email contains separators then separate and join to form name
-                if (parts.length > 1) {
-                    String[] nameParts = parts[0].split("[._-]");
-                    StringBuilder name = new StringBuilder();
-                    for (String part : nameParts) {
-                        // Remove numbers
-                        name.append(StringUtils.capitalize(part)).append(" ");
-                    }
-                    // Remove numbers
-
-                    nameToSet = name.toString().trim();
-                } else {
-                    // Capitalize
-                    nameToSet = StringUtils.capitalize(parts[0].trim());
-                }
-                user1.setName(nameToSet);
+                // Ask user instead of guessing this
+//                generateAndSetNameFromEmail(req, user1);
             }
             user1.setMagicLinkCode(linkCode);
             user1.setMagicLinkValidTill(magicLinkValidTill);
@@ -156,13 +138,13 @@ public class AuthenticationRestApi {
 
         // Todo: Write job which unblocks users after 10 minutes. For now they have to raise support ticket
         if (user.getUserBlockedUntil() != null && user.getUserBlockedUntil() > System.currentTimeMillis()) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("User blocked, try after sometime!").build();
+            throw new UserVisibleException("User blocked, try after sometime!", Response.Status.UNAUTHORIZED);
         } else if (user.getIncorrectAttemptCount() != null && user.getIncorrectAttemptCount() > 10) {
             authService.blockUserUntil(req.getEmail(), magicLinkValidTill);
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Too many attempts, try after sometime").build();
+            throw new UserVisibleException("Too many attempts, try after sometime", Response.Status.UNAUTHORIZED);
         } else if (user.getIncorrectAttemptCount() != null && user.getMagicLinkSentCount() > 10) {
             authService.blockUserUntil(req.getEmail(), magicLinkValidTill);
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Too many attempts, try after sometime").build();
+            throw new UserVisibleException("Too many attempts, try after sometime", Response.Status.UNAUTHORIZED);
         }
 
         authService.sendMagicLink(req.getEmail(), linkCode);
@@ -174,7 +156,29 @@ public class AuthenticationRestApi {
             }
         }
 
-        return Response.ok().build();
+        return Response.ok("{}").build();
+    }
+
+    private static void generateAndSetNameFromEmail(LoginRequest req, User user1) {
+        // Extract name from email
+        String nameToSet = null;
+        String[] parts = req.getEmail().split("@");
+        // If email contains separators then separate and join to form name
+        if (parts.length > 1) {
+            String[] nameParts = parts[0].split("[._-]");
+            StringBuilder name = new StringBuilder();
+            for (String part : nameParts) {
+                // Remove numbers
+                name.append(StringUtils.capitalize(part)).append(" ");
+            }
+            // Remove numbers
+
+            nameToSet = name.toString().trim();
+        } else {
+            // Capitalize
+            nameToSet = StringUtils.capitalize(parts[0].trim());
+        }
+        user1.setName(nameToSet);
     }
 
     public static String generateMagicLinkCode() {
