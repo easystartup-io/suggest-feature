@@ -5,6 +5,7 @@ import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.SubscriptionDetails;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.CreateMemberRequest;
+import io.easystartup.suggestfeature.dto.LoginResponse;
 import io.easystartup.suggestfeature.dto.OrganizationRequest;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
@@ -76,31 +77,41 @@ public class UserRestApi {
     @Produces("application/json")
     public Response updateUser(User request) {
         if (request.getName() == null || request.getName().isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Name cannot be empty").build();
+            throw new UserVisibleException("Name cannot be empty");
         }
         String userId = UserContext.current().getUserId();
-        Criteria criteria = Criteria.where(User.FIELD_ID).is(userId);
-        Update set = new Update()
-                .set(User.FIELD_NAME, request.getName())
-                .set(User.FIELD_PROFILE_PIC, request.getProfilePic());
-        User user = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(criteria), set, FindAndModifyOptions.options().returnNew(true).upsert(false), User.class);
 
-        if (StringUtils.isNotBlank(user.getProfilePic())) {
+        if (StringUtils.isNotBlank(request.getProfilePic())) {
             // Just validating that its a valid url
             try {
-                URL url = new URL(user.getProfilePic());
+                URL url = new URL(request.getProfilePic());
             } catch (MalformedURLException e) {
                 throw new UserVisibleException("Invalid profile pic");
             }
         }
 
-        User safeUser = new User();
-        safeUser.setName(user.getName());
-        safeUser.setEmail(user.getEmail());
-        safeUser.setId(user.getId());
-        safeUser.setProfilePic(user.getProfilePic());
-        safeUser.setVerifiedEmail(true);
-        return Response.ok(JacksonMapper.toJson(safeUser)).build();
+        Update update = new Update();
+        boolean updateRequired = false;
+        if (StringUtils.isNotBlank(request.getName())) {
+            update.set(User.FIELD_NAME, request.getName().trim());
+            updateRequired = true;
+        }
+        if (StringUtils.isNotBlank(request.getProfilePic())) {
+            update.set(User.FIELD_PROFILE_PIC, request.getProfilePic());
+            updateRequired = true;
+        }
+
+        User user;
+        if (updateRequired) {
+            Criteria criteria = Criteria.where(User.FIELD_ID).is(userId);
+            user = mongoConnection.getDefaultMongoTemplate().findAndModify(new Query(criteria), update, FindAndModifyOptions.options().returnNew(true).upsert(false), User.class);
+        } else {
+            user = mongoConnection.getDefaultMongoTemplate().findById(userId, User.class);
+        }
+
+        LoginResponse loginSignUpResponseJson = authService.getLoginSignUpResponseJson(user, false);
+
+        return Response.ok(JacksonMapper.toJson(loginSignUpResponseJson)).build();
     }
 
     @GET

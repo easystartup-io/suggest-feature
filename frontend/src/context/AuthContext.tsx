@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface User {
   username: string;
+  name: string;
 }
 
 interface AuthContextType {
@@ -14,7 +15,8 @@ interface AuthContextType {
   loading: boolean;
   failed: boolean;
   login: (username: string) => Promise<void>;
-  verifyCode: (username: string, code: string) => Promise<void>;
+  verifyCode: (username: string, code: string) => Promise<User>;
+  updateUserName: (name: string) => Promise<void>;
   oauth2Login: (response: string) => void;
   logout: () => void;
 }
@@ -98,10 +100,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { token, user, organizationSlug } = await response.json();
       Cookies.set('token', token);
       setUser(user);
-      if (organizationSlug && organizationSlug.length > 0) {
-        router.push(`/${organizationSlug}/dashboard`);
+      if (user && user.name) {
+        if (organizationSlug && organizationSlug.length > 0) {
+          router.push(`/${organizationSlug}/dashboard`);
+        } else {
+          router.push(`/create-org`);
+        }
       } else {
-        router.push(`/create-org`);
+        return user
       }
     } else {
       console.error('Login failed');
@@ -109,6 +115,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(message);
     }
   };
+
+  const updateUserName = async (name) => {
+    try {
+      const token = Cookies.get('token');
+
+      const res = await fetch(`${API_BASE_URL}/api/auth/user/update-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({ name })
+      })
+
+      if (res.ok) {
+        const { user, organizationSlug } = await res.json();
+        setUser(user);
+        if (organizationSlug && organizationSlug.length > 0) {
+          router.push(`/${organizationSlug}/dashboard`);
+        } else {
+          router.push(`/create-org`);
+        }
+      }
+    } catch (error) {
+      throw error
+    }
+  }
 
 
   const oauth2Login = (response: string) => {
@@ -134,7 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login, failed }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyCode, logout, oauth2Login, failed, updateUserName }}>
       {children}
     </AuthContext.Provider>
   );
