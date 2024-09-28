@@ -8,7 +8,7 @@ export default function AutoLink({ text }) {
         if (match) {
           const url = match[0];
           return (
-            <a className="underline text-blue-400" target="_blank" href={url.startsWith('http') ? url : `http://${url}`}>{url}</a>
+            <a key={word} className="underline text-blue-400" target="_blank" href={url.startsWith('http') ? url : `http://${url}`}>{url}</a>
           );
         }
         return word;
