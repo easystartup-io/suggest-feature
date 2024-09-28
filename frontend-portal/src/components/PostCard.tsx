@@ -12,6 +12,7 @@ import { Calendar, CheckCircle, ChevronUp, Circle, Eye, Flag, Loader, Play, Repl
 import { useState } from 'react';
 import { Icons } from './icons';
 import Voters from './Voters';
+import AutoLink from './AutoLink';
 
 export const statusConfig = {
   "OPEN": {
@@ -212,8 +213,7 @@ function PostContent({ data, refetch, params }) {
                   {data.newStatus && statusConfig[data.newStatus].label}
                 </div>
               </div>
-              : (data.description || data.content)
-          }
+              : <AutoLink text={(data.description || data.content)} />}
         </p>
 
         <AttachmentComponent

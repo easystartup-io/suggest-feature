@@ -18,6 +18,7 @@ import Voters from '../Voters';
 import AttachmentComponent from '@/components/AttachmentComponent';
 import MultiAttachmentUploadButton from '../MultiAttachmentUploadButton';
 import { statusConfig } from '@/components/post/PostsScreen';
+import AutoLink from '../Autolink';
 
 
 export function FullScreenPostDialog({ id, params, deleteFromParentRender }) {
@@ -409,7 +410,7 @@ function PostContent({ data, params, refetch, deleteFromParentRender }) {
                   {data.newStatus && statusConfig[data.newStatus].label}
                 </div>
               </div>
-              : (data.description || data.content)
+              : <AutoLink text={(data.description || data.content)} />
           }
         </p>
 
