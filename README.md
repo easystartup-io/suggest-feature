@@ -39,7 +39,7 @@ We welcome contributions! Please review our [CODE_OF_CONDUCT.md](./CODE_OF_CONDU
 
 ## 📜 License
 
-This project is licensed under the terms specified in the [LICENSE.md](./LICENSE.md).
+This project is licensed under the terms specified in the [LICENSE](./LICENSE).
 
 ## 📬 Get In Touch
 
