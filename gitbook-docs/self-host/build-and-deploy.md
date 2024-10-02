@@ -96,3 +96,165 @@ You can use the Dockerfile located in the `backend` directory to build and run t
     ```bash
     docker run -p 8081:8081 suggest-feature-backend
     ```
+
+### Admin App and User Portal Setup
+
+1.  **Admin App Setup**
+
+    *   Navigate to the `frontend` directory:
+
+        ```bash
+        cd suggest-feature/frontend
+        ```
+    *   Install the dependencies and build the application:
+
+        ```bash
+        npm install
+        npm run build
+        ```
+    *   Start the server:
+
+        ```bash
+        node server.js
+        ```
+
+    The admin app will run on port `3000`.
+2. **User Portal Setup**
+   *   Navigate to the `frontend-portal` directory:
+
+       ```bash
+       cd suggest-feature/frontend-portal
+       ```
+   *   Install the dependencies and build the application:
+
+       ```bash
+       npm install
+       npm run build
+       ```
+   *   Start the server on port `3001`:
+
+       ```bash
+       npm start
+       ```
+
+**Using Docker for Admin and User Portal Apps**
+
+You can also use Docker to run both the admin and user portal apps:
+
+1. **Admin App Docker Setup**
+   *   Navigate to the `frontend` directory:
+
+       ```bash
+       cd suggest-feature/frontend
+       ```
+   *   Build the Docker image:
+
+       ```bash
+       docker build -t suggest-feature-admin .
+       ```
+   *   Run the container:
+
+       ```bash
+       docker run -p 3000:3000 suggest-feature-admin
+       ```
+2. **User Portal Docker Setup**
+   *   Navigate to the `frontend-portal` directory:
+
+       ```bash
+       cd suggest-feature/frontend-portal
+       ```
+   *   Build the Docker image:
+
+       ```bash
+       docker build -t suggest-feature-portal .
+       ```
+   *   Run the container:
+
+       ```bash
+       docker run -p 3001:3000 suggest-feature-portal
+       ```
+
+#### Nginx Configuration
+
+To ensure proper routing for the admin app, user portal, and backend API, set up your Nginx configuration as follows:
+
+1.  Create a new Nginx configuration file:
+
+    ```bash
+    sudo nano /etc/nginx/sites-available/suggest-feature
+    ```
+2.  Add the following configuration:
+
+    ```nginx
+    server {
+        listen 80;
+        server_name admin.yourdomain.com;
+
+        # Serve the Admin App
+        location / {
+            proxy_pass http://localhost:3000; # Admin app running on port 3000
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Redirect all /api requests to the backend
+        location /api/ {
+            proxy_pass http://localhost:8081; # Backend running on port 8081
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    server {
+        listen 80;
+        server_name portal.yourdomain.com;
+
+        # Serve the User Portal
+        location / {
+            proxy_pass http://localhost:3001; # User portal running on port 3001
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Redirect all /api requests to the backend
+        location /api/ {
+            proxy_pass http://localhost:8081; # Backend running on port 8081
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    ```
+
+    > Replace `admin.yourdomain.com` and `portal.yourdomain.com` with your actual domain names.
+3.  Enable the configuration by creating a symbolic link:
+
+    ```bash
+    sudo ln -s /etc/nginx/sites-available/suggest-feature /etc/nginx/sites-enabled/
+    ```
+4.  Test the Nginx configuration:
+
+    ```bash
+    sudo nginx -t
+    ```
+5.  Reload Nginx:
+
+    ```bash
+    sudo systemctl reload nginx
+    ```
+
+### MongoDB Setup
+
+* Ensure you have MongoDB installed and running on your server.
+* Create a database and user with appropriate privileges.
+
+#### Docker Compose (Coming Soon)
+
+We will soon provide a `docker-compose.yml` file that will enable you to run the entire stack (backend, admin app, user portal, and MongoDB) with a single command.
