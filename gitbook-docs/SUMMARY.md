@@ -43,3 +43,12 @@
 * [Add and Manage Organizations](faq/add-and-manage-organizations.md)
 * [Importing Data from Other Feedback Tools](faq/importing-data-from-other-feedback-tools.md)
 * [White Label Services](faq/white-label-services.md)
+
+## SELF HOST
+
+* [Architecture](self-host/architecture.md)
+* [Build and deploy](self-host/build-and-deploy.md)
+
+## MISC
+
+* [GDPR & Privacy Compliance](misc/gdpr-and-privacy-compliance.md)
