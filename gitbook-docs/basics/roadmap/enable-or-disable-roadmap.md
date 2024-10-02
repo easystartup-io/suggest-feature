@@ -6,7 +6,7 @@ icon: circle-check
 
 You have the option to enable or disable the Roadmap Page entirely. This gives you control over whether the roadmap is accessible to your users, allowing you to keep development plans private if necessary.
 
-<figure><img src="../../.gitbook/assets/image (17).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (20).png" alt=""><figcaption></figcaption></figure>
 
 **How to:**
 

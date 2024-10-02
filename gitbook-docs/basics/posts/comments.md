@@ -6,7 +6,7 @@ icon: comment-pen
 
 The **Comments Section** in Suggest Feature provides a platform for interactive discussions on each post. Here, users can leave comments, ask questions, or provide additional context related to the features or bugs reported.
 
-<figure><img src="../../.gitbook/assets/image (14).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (17).png" alt=""><figcaption></figcaption></figure>
 
 ## Comments Section Overview
 

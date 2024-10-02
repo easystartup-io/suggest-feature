@@ -13,7 +13,7 @@ Suggest Feature provides a comprehensive notification system to keep you informe
 1. Log in to your Suggest Feature account.
 2. In the left sidebar, click on "All Notifications" to access the full Notifications page.
 
-<figure><img src="../.gitbook/assets/image (36).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (39).png" alt=""><figcaption></figcaption></figure>
 
 ### Notification Types
 
@@ -29,7 +29,7 @@ Suggest Feature sends notifications for various activities:
 
 The Notifications page offers several filtering options to help you find relevant information quickly:
 
-<figure><img src="../.gitbook/assets/image (37).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (40).png" alt=""><figcaption></figcaption></figure>
 
 #### Filter by Type
 

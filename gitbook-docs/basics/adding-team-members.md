@@ -14,7 +14,7 @@ All Suggest Feature plans, except `Basic` include unlimited team members. You ca
 
 Invite your colleagues to collaborate on Suggest Feature and manage user feedback efficiently. This guide explains how to add team members to your Suggest Feature organization.
 
-<figure><img src="../.gitbook/assets/image (5).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (8).png" alt=""><figcaption></figcaption></figure>
 
 ### Overview
 

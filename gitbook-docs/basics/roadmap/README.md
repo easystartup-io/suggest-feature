@@ -4,7 +4,7 @@ icon: map-location
 
 # Roadmap
 
-<figure><img src="../../.gitbook/assets/image (16).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (19).png" alt=""><figcaption></figcaption></figure>
 
 One of the components of Suggest Feature is our **Roadmap Page**, designed to keep your users informed and engaged with your product's development journey.
 

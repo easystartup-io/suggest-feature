@@ -21,7 +21,7 @@ The default statuses available are:
 
 **Updating the Status of a Post**
 
-<figure><img src="../../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (13).png" alt=""><figcaption></figcaption></figure>
 
 To update a post's status, navigate to the post in the admin view:
 
@@ -36,6 +36,6 @@ For more details you can visit [email-notifications-for-status-updates.md](../em
 
 **Displaying Statuses on the User Roadmap**
 
-<figure><img src="../../.gitbook/assets/image (12).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/image (15).png" alt=""><figcaption></figcaption></figure>
 
 When a post status is updated, it is reflected in the user-facing roadmap, visible on your Suggest Feature homepage. You can also customize which columns are displayed on the roadmap by adjusting the settings in the **Roadmap** section.

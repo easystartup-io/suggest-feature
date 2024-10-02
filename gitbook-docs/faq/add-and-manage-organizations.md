@@ -10,7 +10,7 @@ With Suggest Feature, you can manage feedback for multiple products, projects, o
 
 **Adding a New Organization**
 
-<figure><img src="../.gitbook/assets/image (24).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (27).png" alt=""><figcaption></figcaption></figure>
 
 To create a new organization, click the **+** button located at the top of the main menu:
 
