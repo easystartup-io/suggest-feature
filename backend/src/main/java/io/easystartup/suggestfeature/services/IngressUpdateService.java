@@ -54,7 +54,7 @@ public class IngressUpdateService {
     }
 
     private void syncIngressAndVerifiedCustomHostnameDomains() {
-        if (!Util.isProdEnv()) {
+        if (!Util.isProdEnv() || Util.isSelfHosted()) {
             return;
         }
         while (podRunning.get()) {
