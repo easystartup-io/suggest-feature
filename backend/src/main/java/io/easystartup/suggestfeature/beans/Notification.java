@@ -30,6 +30,7 @@ public class Notification {
 
     public enum NotificationType {
         POST,
+        CHANGELOG,
         COMMENT,
         POST_STATUS_UPDATE,
         UPVOTE,

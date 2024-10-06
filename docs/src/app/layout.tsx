@@ -15,9 +15,7 @@ const fontSans = FontSans({
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
   description: "Suggest Feature is a platform for sharing and voting on feature requests.",
-  openGraph: {
-    "images": "https://suggestfeature.com/logo.jpeg"
-  }
+  metadataBase: new URL('https://suggestfeature.com'),
 };
 
 export default function RootLayout({

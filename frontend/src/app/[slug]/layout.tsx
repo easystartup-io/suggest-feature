@@ -8,6 +8,7 @@ import { Crisp } from "crisp-sdk-web"
 import { useTheme } from "next-themes"
 import {
   BellRing,
+  Blocks,
   BookOpenText,
   CircleDollarSign,
   Clipboard,
@@ -90,6 +91,7 @@ const navigationItems = [
   { href: 'all-posts', icon: MessagesSquare, label: 'All posts' },
   { href: 'boards', icon: Clipboard, label: 'Boards' },
   { href: 'roadmap', icon: Map, label: 'Roadmap' },
+  // { href: 'changelog', icon: Blocks, label: 'Changelog' },
   { href: 'members', icon: UserRoundCog, label: 'Team Members' },
   { href: 'customers', icon: Users, label: 'Customers' },
   { href: 'billing', icon: CircleDollarSign, label: 'Billing' },

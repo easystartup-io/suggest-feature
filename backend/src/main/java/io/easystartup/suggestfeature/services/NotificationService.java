@@ -1,11 +1,8 @@
 package io.easystartup.suggestfeature.services;
 
 
-import io.easystartup.suggestfeature.beans.Comment;
-import io.easystartup.suggestfeature.beans.Notification;
+import io.easystartup.suggestfeature.beans.*;
 import io.easystartup.suggestfeature.beans.Notification.NotificationType;
-import io.easystartup.suggestfeature.beans.Post;
-import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.GetNotificationRequestDTO;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
@@ -43,6 +40,10 @@ public class NotificationService {
 
     public void addPostNotification(Post post, boolean teamMember) {
         addNotification(NotificationType.POST, post.getCreatedByUserId(), post.getOrganizationId(), post.getBoardId(), Map.of("postId", post.getId()), teamMember, post.getCreatedAt());
+    }
+
+    public void addChangelogNotification(Changelog changelog, boolean teamMember) {
+        addNotification(NotificationType.CHANGELOG, changelog.getCreatedByUserId(), changelog.getOrganizationId(), null, Map.of("changelogId", changelog.getId()), teamMember, changelog.getCreatedAt());
     }
 
     public void addCommentNotification(Comment comment, boolean teamMember) {

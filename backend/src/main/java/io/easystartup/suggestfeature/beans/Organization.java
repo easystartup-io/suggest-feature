@@ -40,6 +40,7 @@ public class Organization {
     private Long createdAt;
     private List<String> allowedProviders = Lists.newArrayList("GOOGLE", "FACEBOOK", "GITHUB", "LINKEDIN", "CUSTOM");
     private RoadmapSettings roadmapSettings;
+    private ChangelogSettings changelogSettings;
     private String logo;
     private String favicon;
     private boolean hideOrgName;
@@ -285,5 +286,13 @@ public class Organization {
         public void setExclusiveSSO(boolean exclusiveSSO) {
             this.exclusiveSSO = exclusiveSSO;
         }
+    }
+
+    public ChangelogSettings getChangelogSettings() {
+        return changelogSettings;
+    }
+
+    public void setChangelogSettings(ChangelogSettings changelogSettings) {
+        this.changelogSettings = changelogSettings;
     }
 }

@@ -358,23 +358,17 @@ public class Util {
 
     public static Sort getSort(String sortString) {
         if (StringUtils.isBlank(sortString)) {
-            return Sort.by(Sort.Direction.DESC, Post.FIELD_CREATED_AT);
+            return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT);
         }
         switch (sortString) {
-            case "trending" -> {
-                return Sort.by(Sort.Direction.DESC, Post.FIELD_VOTES);
-            }
-            case "top" -> {
-                return Sort.by(Sort.Direction.DESC, Post.FIELD_VOTES);
-            }
             case "newest" -> {
-                return Sort.by(Sort.Direction.DESC, Post.FIELD_CREATED_AT);
+                return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT);
             }
             case "oldest" -> {
-                return Sort.by(Sort.Direction.ASC, Post.FIELD_CREATED_AT);
+                return Sort.by(Sort.Direction.ASC, Changelog.FIELD_CREATED_AT);
             }
             default -> {
-                return Sort.by(Sort.Direction.DESC, Post.FIELD_CREATED_AT);
+                return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT);
             }
         }
     }
