@@ -6,6 +6,13 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Suggest Feature - Share and Vote on Feature Requests",
+  description: "Suggest Feature is a platform for sharing and voting on feature requests.",
+  metadataBase: new URL('https://suggestfeature.com'),
+};
 
 const FeatureIcon = ({ children }) => (
   <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
