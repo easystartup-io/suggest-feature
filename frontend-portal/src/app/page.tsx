@@ -41,12 +41,10 @@ async function getInitialPosts() {
   const res = await fetch(`${protocol}://${host}/api/portal/unauth/posts/get-roadmap-posts`, {
     headers: {
       'Content-Type': 'application/json',
-      // Add any other necessary headers here
     },
   })
 
   if (!res.ok) {
-    // Handle error
     console.error('Failed to fetch posts')
     return {}
   }

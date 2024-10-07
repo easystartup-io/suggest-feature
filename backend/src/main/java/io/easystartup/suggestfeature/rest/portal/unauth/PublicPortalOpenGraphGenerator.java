@@ -1,6 +1,7 @@
 package io.easystartup.suggestfeature.rest.portal.unauth;
 
 
+import com.luciad.imageio.webp.WebPReadParam;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
@@ -13,18 +14,26 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +105,7 @@ public class PublicPortalOpenGraphGenerator {
             g2d.fillRect(0, 0, width, height);
 
             // Load and draw logo
-            BufferedImage logo = ImageIO.read(new URL(logoUrl));
+            BufferedImage logo = loadImage(logoUrl);
             int logoHeight = height / 3;
             int logoWidth = (int) ((double) logo.getWidth() / logo.getHeight() * logoHeight);
             int logoX = 50;
@@ -143,6 +152,47 @@ public class PublicPortalOpenGraphGenerator {
                     LOGGER.error("Failed to delete temporary file", e);
                 }
             }
+        }
+    }
+
+    private BufferedImage loadImage(String imageUrl) throws Exception {
+        if (imageUrl.toLowerCase().endsWith(".svg")) {
+            return convertSvgToPng(imageUrl);
+        } else if (imageUrl.toLowerCase().endsWith(".webp")) {
+            return readWebpImage(imageUrl);
+        } else {
+            return ImageIO.read(new URL(imageUrl));
+        }
+    }
+
+    private BufferedImage convertSvgToPng(String svgUrl) throws Exception {
+        PNGTranscoder t = new PNGTranscoder();
+        TranscoderInput input = new TranscoderInput(new URL(svgUrl).openStream());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        TranscoderOutput output = new TranscoderOutput(outputStream);
+        t.transcode(input, output);
+        byte[] imgData = outputStream.toByteArray();
+        return ImageIO.read(new ByteArrayInputStream(imgData));
+    }
+
+    private BufferedImage readWebpImage(String webpUrl) throws Exception {
+        URL url = new URL(webpUrl);
+        ImageReader reader = null;
+        ImageInputStream iis = null;
+        try {
+            iis = ImageIO.createImageInputStream(url.openStream());
+            Iterator<ImageReader> readers = ImageIO.getImageReadersByMIMEType("image/webp");
+            if (!readers.hasNext()) {
+                throw new IllegalStateException("No WebP image reader found");
+            }
+            reader = readers.next();
+            reader.setInput(iis);
+            WebPReadParam readParam = new WebPReadParam();
+            readParam.setBypassFiltering(true);
+            return reader.read(0, readParam);
+        } finally {
+            if (reader != null) reader.dispose();
+            if (iis != null) iis.close();
         }
     }
 

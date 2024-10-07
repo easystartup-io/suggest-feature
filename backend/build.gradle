@@ -40,6 +40,8 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.16.1'
     implementation group: 'commons-validator', name: 'commons-validator', version: '1.9.0'
     implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
+    implementation group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.17'
+    implementation group: 'com.github.gotson', name: 'webp-imageio', version: '0.2.2'
 
     // For dotenv file
     implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '3.0.1'

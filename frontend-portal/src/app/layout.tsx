@@ -1,6 +1,5 @@
 "use client"
 import { ThemeProvider } from "@/components/theme-provider"
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -9,7 +8,6 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLab
 import { ArrowLeft, CircleUser } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
-import withInit from "@/hoc/withInit";
 import { InitContextProvider, useInit } from "@/context/InitContext";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
