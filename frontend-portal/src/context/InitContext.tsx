@@ -1,8 +1,4 @@
-"use client";
-
-import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import React, { createContext, useState, ReactNode, useContext } from 'react';
 
 interface InitContextType {
   org: any;
@@ -14,8 +10,6 @@ const InitContext = createContext<InitContextType | undefined>(undefined);
 export const InitContextProvider = ({ children }: { children: ReactNode }) => {
   const [org, setOrg] = useState(null);
   const [boards, setBoards] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   return (
     <InitContext.Provider value={{ org, setOrg, boards, setBoards }}>

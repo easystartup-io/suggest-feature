@@ -180,7 +180,7 @@ public class Util {
                         .contentType(contentType)
                         .build();
 
-                try (S3Client s3Client = S3Client.create()) {
+                try (S3Client s3Client = s3Client()) {
                     s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
                     return Util.getEnvVariable("S3_CDN_URL", "https://assets.suggestfeature.com/") + key;
                 }
@@ -198,6 +198,42 @@ public class Util {
         } catch (Throwable e) {
             LOGGER.error("Failed to upload file from external URL: " + externalUrl, e);
             return externalUrl;
+        }
+    }
+
+    public static String uploadCopyOfLocalFile(String userId, String orgId, String localFilePath, String prefix) {
+        if (StringUtils.isBlank(localFilePath)) {
+            return null;
+        }
+        File localFile = new File(localFilePath);
+        String BUCKET_NAME = Util.getEnvVariable("S3_BUCKET", "suggest-feature");
+        try {
+            String fileName = localFile.getName();
+            String extension = getExtensionFromFileName(fileName);
+
+            // Construct the S3 key
+            String key = (orgId != null ? orgId + "/" : "") + userId + "/" + UUID.randomUUID() + "." + extension;
+
+            if (StringUtils.isNotBlank(prefix)) {
+                key = prefix + "/" + key;
+            }
+
+            // Get content type
+            String contentType = Files.probeContentType(localFile.toPath());
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(BUCKET_NAME)
+                    .key(key)
+                    .contentType(contentType)
+                    .build();
+
+            try (S3Client s3Client = s3Client()) {
+                s3Client.putObject(putObjectRequest, RequestBody.fromFile(localFile));
+                return Util.getEnvVariable("S3_CDN_URL", "https://assets.suggestfeature.com/") + key;
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Failed to upload file from local path: " + localFilePath, e);
+            return null;
         }
     }
 

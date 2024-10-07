@@ -1,5 +1,3 @@
-import { useInit } from "@/context/InitContext";
-
 const withInit = (WrappedComponent: React.ComponentType) => {
   const ComponentWithInit = (props: any) => {
     return <WrappedComponent {...props} />;
