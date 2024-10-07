@@ -1,6 +1,6 @@
 import React from 'react';
 import WistiaEmbed from "@/components/WistiaEmbed";
-import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign } from "lucide-react";
+import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign, ExternalLink } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,16 @@ const Hero = () => (
             <div className='flex items-center'>
               Get Started
               <ArrowRight className="ml-2 -mr-1 w-6 h-6" />
+            </div>
+          </Button>
+        </Link>
+        <Link href="https://feedback.suggestfeature.com" passHref={true}
+          target="_blank"
+        >
+          <Button size="lg" asChild className='py-3 px-5 font-medium text-base text-gray-900 text-center rounded-lg border border-gray-700 bg-white hover:bg-gray-900/10 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900 h-[13.5]'>
+            <div className='flex items-center'>
+              Live Page
+              <ExternalLink className="ml-2 -mr-1 w-6 h-6" />
             </div>
           </Button>
         </Link>
