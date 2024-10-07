@@ -95,7 +95,7 @@ const Hero = () => (
         >
           <Button size="lg" asChild className='py-3 px-5 font-medium text-base text-gray-900 text-center rounded-lg border border-gray-700 bg-white hover:bg-gray-900/10 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900 h-[13.5]'>
             <div className='flex items-center'>
-              Live Page
+              Live Demo
               <ExternalLink className="ml-2 -mr-1 w-6 h-6" />
             </div>
           </Button>
