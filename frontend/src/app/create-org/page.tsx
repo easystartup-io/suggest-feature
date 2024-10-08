@@ -71,7 +71,8 @@ const CreateOrgForm: React.FC = () => {
           organizationName: orgName,
           organizationSlug: fixedOrgSlug,
           favicon: favicon,
-          logo: logo
+          logo: logo,
+          websiteUrl: orgUrl
         })
       });
 
@@ -83,9 +84,10 @@ const CreateOrgForm: React.FC = () => {
           router.push(`/create-org`);
         }
       } else {
+        const { message } = await response.json();
         toast({
           variant: "destructive",
-          title: "Failed to create organization. Please try again.",
+          title: message,
         });
       }
     } catch (error) {
@@ -174,23 +176,6 @@ const CreateOrgForm: React.FC = () => {
           {(favicon || logo) && (
             <div className="grid gap-4">
               <div>
-                <Label className="block mb-2">Favicon</Label>
-                <div className='flex items-center space-x-4'>
-                  <div className="w-20 h-20">
-                    <ImageComponent src={favicon} alt="Favicon" className="w-full h-full" />
-                    <ImagePlaceholder className="w-full h-full hidden" />
-                  </div>
-                  <div>
-                    <FileUploadButton
-                      uploading={uploadingFavicon}
-                      setUploading={setUploadingFavicon}
-                      setUploadedFileUrl={setFavicon}
-                      uploadedFileUrl={favicon}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
                 <Label className="block mb-2">Logo</Label>
                 <div className='flex items-center space-x-4'>
                   <div className="w-20 h-20">
@@ -203,6 +188,23 @@ const CreateOrgForm: React.FC = () => {
                       setUploading={setUploadingLogo}
                       setUploadedFileUrl={setLogo}
                       uploadedFileUrl={logo}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label className="block mb-2">Favicon</Label>
+                <div className='flex items-center space-x-4'>
+                  <div className="w-20 h-20">
+                    <ImageComponent src={favicon} alt="Favicon" className="w-full h-full" />
+                    <ImagePlaceholder className="w-full h-full hidden" />
+                  </div>
+                  <div>
+                    <FileUploadButton
+                      uploading={uploadingFavicon}
+                      setUploading={setUploadingFavicon}
+                      setUploadedFileUrl={setFavicon}
+                      uploadedFileUrl={favicon}
                     />
                   </div>
                 </div>

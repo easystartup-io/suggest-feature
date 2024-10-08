@@ -218,7 +218,7 @@ public class UserRestApi {
             subscriptionDetails.setUserId(userId);
             mongoConnection.getDefaultMongoTemplate().insert(subscriptionDetails);
         } catch (Exception e) {
-            throw new UserVisibleException("Slug already exists. Try a different slug", Response.Status.BAD_REQUEST);
+            throw new UserVisibleException("Slug already exists. Please try a different slug", Response.Status.BAD_REQUEST);
         }
         return Response.ok(JacksonMapper.toJson(organization)).build();
     }
