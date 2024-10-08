@@ -51,12 +51,12 @@ public class PublicPortalChangelogRestApi {
     public Response getChangelog(@Context HttpServletRequest request) {
         String host = request.getHeader("host");
         Organization org = getOrg(host);
-        if (org == null || (org.getRoadmapSettings() != null && !org.getRoadmapSettings().isEnabled())) {
+        if (org == null || (org.getChangelogSettings() != null && !org.getChangelogSettings().isEnabled())) {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         Criteria criteriaDefinition = Criteria.where(Changelog.FIELD_ORGANIZATION_ID).is(org.getId());
         Query query = new Query(criteriaDefinition);
-        query.with(Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT));
+        query.with(Sort.by(Sort.Direction.DESC, Changelog.FIELD_CHANGELOG_DATE));
         List<Changelog> changelogs = mongoConnection.getDefaultMongoTemplate().find(query, Changelog.class);
 
         return Response.ok().entity(JacksonMapper.toJson(changelogs)).build();
@@ -72,7 +72,8 @@ public class PublicPortalChangelogRestApi {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         Criteria criteriaDefinition = Criteria.where(Changelog.FIELD_SLUG).is(changelogSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
-        Changelog changelog = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Changelog.class);
+        Query query = new Query(criteriaDefinition);
+        Changelog changelog = mongoConnection.getDefaultMongoTemplate().findOne(query, Changelog.class);
 
         return Response.ok().entity(JacksonMapper.toJson(changelog)).build();
     }

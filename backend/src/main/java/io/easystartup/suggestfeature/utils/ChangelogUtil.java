@@ -22,6 +22,6 @@ public class ChangelogUtil {
             baseDomain = "https://" + slug + ".suggestfeature.com";
         }
 
-        return baseDomain + "/c/" + changelog.getSlug();
+        return baseDomain + "/changelog/" + changelog.getSlug();
     }
 }

@@ -2,6 +2,7 @@ package io.easystartup.suggestfeature.jobqueue.executor;
 
 
 import io.easystartup.suggestfeature.beans.Changelog;
+import io.easystartup.suggestfeature.beans.ChangelogSubscriber;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.jobqueue.scheduler.JobExecutor;
@@ -13,6 +14,8 @@ import io.easystartup.suggestfeature.utils.LazyService;
 import io.easystartup.suggestfeature.utils.RateLimiters;
 import io.easystartup.suggestfeature.utils.Util;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.HashSet;
 import java.util.List;
@@ -49,10 +52,11 @@ public class SendChangelogEmailExecutor implements JobExecutor {
         // Send every comment to post author and send to people who have interacted with the comment/post
         String senderEmail = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
         Organization organization = authService.get().getOrgById(orgId);
-        User commentCreatedByUser = authService.get().getUserByUserId(changelog.getCreatedByUserId());
+        User changelogCreatedByUser = authService.get().getUserByUserId(changelog.getCreatedByUserId());
 
         Set<String> userIds = new HashSet<>();
-        // If admin commented root, send to all voters, including post creator, else send to all commenters
+        mongoConnection.get().getDefaultMongoTemplate().find(Query.query(Criteria.where(ChangelogSubscriber.FIELD_ORGANIZATION_ID).is(orgId)), ChangelogSubscriber.class)
+                .forEach(subscriber -> userIds.add(subscriber.getUserId()));
 
         if (CollectionUtils.isEmpty(userIds)) {
             return;
@@ -62,7 +66,7 @@ public class SendChangelogEmailExecutor implements JobExecutor {
 
         // Prepare email content
         String subject = "Changelog added " + escapeHtml(changelog.getTitle());
-        String bodyHtml = constructEmailBodyHtml(organization, changelog, commentCreatedByUser, changelogUrl);
+        String bodyHtml = constructEmailBodyHtml(organization, changelog, changelogCreatedByUser, changelogUrl);
 
         List<User> users = authService.get().getUsersByUserIds(userIds);
 

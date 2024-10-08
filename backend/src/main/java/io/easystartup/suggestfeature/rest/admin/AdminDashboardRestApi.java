@@ -14,7 +14,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -73,6 +72,11 @@ public class AdminDashboardRestApi {
         Criteria criteria = Criteria.where(Post.FIELD_ORGANIZATION_ID).is(orgId);
         if (!boardId.equals("ALL")) {
             criteria.and(Post.FIELD_BOARD_ID).is(boardId);
+        } else {
+            // Don't include deleted boards
+            List<Board> boardList = mongoConnection.getDefaultMongoTemplate().find(Query.query(Criteria.where(Board.FIELD_ORGANIZATION_ID).is(orgId)), Board.class);
+            List<String> boardIds = boardList.stream().map(Board::getId).collect(Collectors.toList());
+            criteria.and(Post.FIELD_BOARD_ID).in(boardIds);
         }
         addTimeCriteria(req.getTimeFrame(), criteria);
 

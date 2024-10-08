@@ -134,8 +134,13 @@ public class ChangelogRestApi {
         }
         existingChangelog.setPostIds(req.getPostIds());
         existingChangelog.setModifiedAt(System.currentTimeMillis());
+        existingChangelog.setDraft(req.isDraft());
+        existingChangelog.setTags(req.getTags());
         // To ensure only this org postIds are being set
         existingChangelog.setPostIds(getPostIdsForCurrentOrg(req.getPostIds(), orgId));
+        if (req.getChangelogDate() != null) {
+            existingChangelog.setChangelogDate(req.getChangelogDate());
+        }
 
         mongoConnection.getDefaultMongoTemplate().save(existingChangelog);
         return Response.ok(JacksonMapper.toJson(existingChangelog)).build();
@@ -145,7 +150,7 @@ public class ChangelogRestApi {
     @Path("/create-changelog")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response createPost(Changelog changelog) {
+    public Response createChangelog(Changelog changelog) {
         String userId = UserContext.current().getUserId();
         String orgId = UserContext.current().getOrgId();
 
@@ -169,6 +174,9 @@ public class ChangelogRestApi {
             changelog.setSlug(existingChangelog.getSlug());
         }
         changelog.setOrganizationId(orgId);
+        if (changelog.getChangelogDate() == null) {
+            changelog.setChangelogDate(System.currentTimeMillis());
+        }
         try {
             if (isNew) {
                 try {

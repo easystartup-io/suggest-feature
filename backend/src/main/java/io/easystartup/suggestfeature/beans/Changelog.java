@@ -33,6 +33,7 @@ public class Changelog {
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
     public static final String FIELD_TAGS = "tags";
     public static final String FIELD_CREATED_AT = "createdAt";
+    public static final String FIELD_CHANGELOG_DATE = "changelogDate";
     public static final String FIELD_SLUG = "slug";
 
     @Id
@@ -43,9 +44,15 @@ public class Changelog {
     @NotBlank
     @Size(max = 100_000)
     private String content;
+
+    private String coverImage;
     @Indexed
     private String organizationId;
     private String createdByUserId;
+
+    private Long changelogDate;
+
+    private boolean draft;
 
     private List<String> postIds;
 
@@ -150,5 +157,29 @@ public class Changelog {
 
     public void setPostIds(List<String> postIds) {
         this.postIds = postIds;
+    }
+
+    public Long getChangelogDate() {
+        return changelogDate;
+    }
+
+    public void setChangelogDate(Long changelogDate) {
+        this.changelogDate = changelogDate;
+    }
+
+    public boolean isDraft() {
+        return draft;
+    }
+
+    public void setDraft(boolean draft) {
+        this.draft = draft;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
 }

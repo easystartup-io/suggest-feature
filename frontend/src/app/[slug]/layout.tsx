@@ -21,6 +21,7 @@ import {
   Moon,
   Notebook,
   Plus,
+  ScrollText,
   Sun,
   UserRoundCog,
   Users
@@ -87,14 +88,16 @@ const AlertBar = ({ params, isTrialPeriod, isSubscriptionValid }) => {
 const navigationItems = [
   { href: 'dashboard', icon: Home, label: 'Dashboard' },
   { href: 'notifications', icon: BellRing, label: 'All Notifications' },
-  { href: 'page', icon: BookOpenText, label: 'Page Settings' },
+  { type: 'label', label: 'MODULES' },
   { href: 'all-posts', icon: MessagesSquare, label: 'All posts' },
   { href: 'boards', icon: Clipboard, label: 'Boards' },
   { href: 'roadmap', icon: Map, label: 'Roadmap' },
-  // { href: 'changelog', icon: Blocks, label: 'Changelog' },
-  { href: 'members', icon: UserRoundCog, label: 'Team Members' },
+  { href: 'changelog', icon: ScrollText, label: 'Changelog (🚀 alpha)' },
   { href: 'customers', icon: Users, label: 'Customers' },
+  { type: 'label', label: 'ORGANIZATION' },
+  { href: 'page', icon: BookOpenText, label: 'Page Settings' },
   { href: 'billing', icon: CircleDollarSign, label: 'Billing' },
+  { href: 'members', icon: UserRoundCog, label: 'Team Members' },
   { hrefExternal: 'https://docs.suggestfeature.com', icon: Notebook, label: 'Docs' },
 ]
 
@@ -123,22 +126,29 @@ function Navigation({ items, isActive, setCurrentSection, params, isCollapsed })
   return (
     <nav className={cn("grid items-start px-2 text-lg md:text-sm font-medium lg:px-4",
       isCollapsed && "px-0 lg:px-0")}>
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          target={item.hrefExternal ? "_blank" : "_self"}
-          href={item.hrefExternal ? item.hrefExternal : `/${params.slug}/${item.href}`}
-          className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive(item.href)}`,
-            isCollapsed && "justify-center lg:mx-2")}
-          onClick={() => {
-            if (item.hrefExternal) return;
-            setCurrentSection(item.href)
-          }}
-        >
-          <item.icon className="h-5 w-5 md:h-4 md:w-4" />
-          {isCollapsed ? null : item.label}
-        </Link>
-      ))}
+      {items.map((item) => {
+        if (item.type === 'divider') {
+          return <div className="border-t border-dashed border-muted w-full"></div>
+        } else if (item.type === 'label') {
+          return <div key={item.label} className="text-muted-foreground font-bold text-xs mt-4 w-full flex items-center px-3 py-2">{isCollapsed ? item.label.substring(0, 3) : item.label}</div>
+        } else {
+          return <Link
+            key={item.href}
+            target={item.hrefExternal ? "_blank" : "_self"}
+            href={item.hrefExternal ? item.hrefExternal : `/${params.slug}/${item.href}`}
+            className={cn(`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive(item.href)}`,
+              isCollapsed && "justify-center lg:mx-2")}
+            onClick={() => {
+              if (item.hrefExternal) return;
+              setCurrentSection(item.href)
+            }}
+          >
+            <item.icon className="h-5 w-5 md:h-4 md:w-4" />
+            {isCollapsed ? null : item.label}
+          </Link>
+        }
+      }
+      )}
     </nav>
   )
 }

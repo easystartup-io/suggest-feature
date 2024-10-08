@@ -43,7 +43,7 @@ public class PublicPortalPostRestApi {
     // Loading cache of host vs page
     private final Cache<String, String> hostOrgCache = CacheBuilder.newBuilder()
             .maximumSize(20_000)
-            .expireAfterWrite(30, TimeUnit.SECONDS)
+            .expireAfterWrite(10, TimeUnit.SECONDS)
             .build();
     @Autowired
     public PublicPortalPostRestApi(MongoTemplateFactory mongoConnection) {

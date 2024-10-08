@@ -396,17 +396,17 @@ public class Util {
 
     public static Sort getSort(String sortString) {
         if (StringUtils.isBlank(sortString)) {
-            return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT);
+            return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CHANGELOG_DATE);
         }
         switch (sortString) {
             case "newest" -> {
-                return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT);
+                return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CHANGELOG_DATE);
             }
             case "oldest" -> {
-                return Sort.by(Sort.Direction.ASC, Changelog.FIELD_CREATED_AT);
+                return Sort.by(Sort.Direction.ASC, Changelog.FIELD_CHANGELOG_DATE);
             }
             default -> {
-                return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CREATED_AT);
+                return Sort.by(Sort.Direction.DESC, Changelog.FIELD_CHANGELOG_DATE);
             }
         }
     }

@@ -89,7 +89,9 @@ const OnboardingWorkflow = ({ params }) => {
       console.error(err);
       toast({ title: 'Failed to create post', variant: 'destructive' });
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     }
   };
 
@@ -97,7 +99,7 @@ const OnboardingWorkflow = ({ params }) => {
     <Dialog open={true} onOpenChange={() => {
       toast({ title: 'Sorry, cannot skip Onboarding Workflow 🤞' });
     }} modal={true}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[625px]">
         <DialogHeader className="space-y-4 mt-4">
           <div className="w-full">
             <div className="w-full bg-gray-200 rounded-full h-2">

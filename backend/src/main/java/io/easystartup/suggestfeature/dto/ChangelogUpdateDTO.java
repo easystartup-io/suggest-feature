@@ -18,6 +18,8 @@ public class ChangelogUpdateDTO {
     private String title;
     private String content;
     private List<String> tags;
+    private Long changelogDate;
+    private boolean draft;
 
     public ChangelogUpdateDTO() {
     }
@@ -60,5 +62,21 @@ public class ChangelogUpdateDTO {
 
     public void setPostIds(List<String> postIds) {
         this.postIds = postIds;
+    }
+
+    public Long getChangelogDate() {
+        return changelogDate;
+    }
+
+    public void setChangelogDate(Long changelogDate) {
+        this.changelogDate = changelogDate;
+    }
+
+    public boolean isDraft() {
+        return draft;
+    }
+
+    public void setDraft(boolean draft) {
+        this.draft = draft;
     }
 }
