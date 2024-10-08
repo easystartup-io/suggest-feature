@@ -8,7 +8,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -50,6 +53,7 @@ public class WebPageExtractorUtil {
             doc = Jsoup.connect(url).userAgent(USER_AGENT).get();
         } catch (Exception e) {
             LOGGER.error("Error extracting web page info " + url, e);
+            doc = Jsoup.parse(getHtmlContentManually(url), url);
         }
 
         if (doc == null) {
@@ -131,9 +135,30 @@ public class WebPageExtractorUtil {
         }
 
         // If not found, try to find a prominent image
-        Elements images = doc.select("img[src~=(?i)\\.(png|jpe?g)]");
+        // Find images with src containing svg, png, jpg, jpeg
+        // or <object type="image/svg+xml" data="https://fdn.gsmarena.com/vv/assets12/i/logo.svg"><img src="https://fdn.gsmarena.com/vv/assets12/i/logo-fallback.gif" alt="GSMArena.com"></object>
+
+        try {
+            for (Element element : doc.select("object[type=image/svg+xml]")) {
+                if (element.hasAttr("data")) {
+                    String data = element.absUrl("data");
+                    if (data.contains("logo") && data.startsWith("http")) {
+                        return data;
+                    }
+                }
+            }
+        } catch (Throwable ignore) {
+        }
+
+        Elements images = doc.select("img[src~=(?i)\\.(svg|png|jpe?g)]");
         for (Element image : images) {
             if (image.hasAttr("alt") && image.attr("alt").toLowerCase().contains("logo")) {
+                return image.absUrl("src");
+            } else if (image.hasAttr("title") && image.attr("title").toLowerCase().contains("logo")) {
+                return image.absUrl("src");
+            } else if (image.hasAttr("class") && image.attr("class").toLowerCase().contains("logo")) {
+                return image.absUrl("src");
+            } else if (image.absUrl("src").contains("logo")) {
                 return image.absUrl("src");
             }
         }
@@ -169,5 +194,27 @@ public class WebPageExtractorUtil {
         public String getLogo() {
             return logo;
         }
+    }
+
+    private static String getHtmlContentManually(String url) throws IOException {
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", USER_AGENT);
+
+        int responseCode = con.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return response.toString();
+        } else {
+            LOGGER.error("Manual HTTP GET request failed." + url + " Response Code: " + responseCode);
+        }
+        return null;
     }
 }

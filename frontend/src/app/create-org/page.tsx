@@ -159,7 +159,10 @@ const CreateOrgForm: React.FC = () => {
       <CardContent>
         <div className="grid gap-6">
           <div className="grid gap-2">
-            <Label htmlFor="orgUrl">Your Organization Website URL (To auto populate logo and favicon)</Label>
+            <Label htmlFor="orgUrl">
+              Your Organization Website URL (To auto populate logo and favicon) <span className='text-muted-foreground'>(Optional)</span>
+
+            </Label>
             <div className="flex gap-2">
               <Input
                 id="orgUrl"
@@ -176,7 +179,9 @@ const CreateOrgForm: React.FC = () => {
           {(favicon || logo) && (
             <div className="grid gap-4">
               <div>
-                <Label className="block mb-2">Logo</Label>
+                <Label className="block mb-2">
+                  Logo <span className='text-muted-foreground'>(Optional)</span>
+                </Label>
                 <div className='flex items-center space-x-4'>
                   <div className="w-20 h-20">
                     <ImageComponent src={logo} alt="Logo" className="w-full h-full" />
@@ -193,7 +198,9 @@ const CreateOrgForm: React.FC = () => {
                 </div>
               </div>
               <div>
-                <Label className="block mb-2">Favicon</Label>
+                <Label className="block mb-2">
+                  Favicon <span className='text-muted-foreground'>(Optional)</span>
+                </Label>
                 <div className='flex items-center space-x-4'>
                   <div className="w-20 h-20">
                     <ImageComponent src={favicon} alt="Favicon" className="w-full h-full" />
