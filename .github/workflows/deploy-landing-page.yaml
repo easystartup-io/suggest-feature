@@ -13,7 +13,7 @@ defaults:
 
 jobs:
   build:
-    name: Build Docusaurus
+    name: Build Landing Page
     runs-on: ubuntu-latest
     outputs:
       job_successful: ${{ steps.job_successful.outputs.job_successful }}

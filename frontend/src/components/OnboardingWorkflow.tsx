@@ -94,9 +94,17 @@ const OnboardingWorkflow = ({ params }) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={() => { }}>
+    <Dialog open={true} onOpenChange={() => {
+      toast({ title: 'Sorry, cannot skip Onboarding Workflow 🤞' });
+    }} modal={true}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+        <DialogHeader className="space-y-4 mt-4">
+          <div className="w-full">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${(step / 2) * 100}%` }}></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">Step {step} of 2</p>
+          </div>
           <DialogTitle>{step === 1 ? "Create Your First Board" : "Create Your First Post"}</DialogTitle>
           <DialogDescription>
             {step === 1 ? "Let's start by creating a board for your projects." : "Great! Now let's add your first post to the board."}
