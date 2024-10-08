@@ -129,7 +129,11 @@ public class PagesRestApi {
         existingOrg.setLogo(organization.getLogo());
         existingOrg.setFavicon(organization.getFavicon());
 
-        existingOrg.setReturnToSiteUrl(organization.getReturnToSiteUrl());
+        String returnToSiteUrl = organization.getReturnToSiteUrl();
+        if (StringUtils.isNotBlank(returnToSiteUrl) && !returnToSiteUrl.startsWith("http")) {
+            returnToSiteUrl = "https://" + returnToSiteUrl;
+        }
+        existingOrg.setReturnToSiteUrl(returnToSiteUrl);
         existingOrg.setReturnToSiteUrlText(organization.getReturnToSiteUrlText());
         existingOrg.setEnableReturnToSiteUrl(organization.isEnableReturnToSiteUrl());
 
