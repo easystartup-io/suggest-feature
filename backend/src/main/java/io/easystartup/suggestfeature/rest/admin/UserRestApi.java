@@ -7,12 +7,14 @@ import io.easystartup.suggestfeature.beans.User;
 import io.easystartup.suggestfeature.dto.CreateMemberRequest;
 import io.easystartup.suggestfeature.dto.LoginResponse;
 import io.easystartup.suggestfeature.dto.OrganizationRequest;
+import io.easystartup.suggestfeature.dto.WebPageDetailsDTO;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.WebPageExtractorUtil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
@@ -136,6 +138,29 @@ public class UserRestApi {
     }
 
     @POST
+    @Path("/fetch-web-page-details")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response details(WebPageDetailsDTO req) {
+        String url = req.getUrl();
+        if (req == null || url == null || url.isEmpty()) {
+            throw new UserVisibleException("Invalid URL");
+        }
+        UserContext userContext = UserContext.current();
+        String userId = userContext.getUserId();
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            // Do nothing
+        } else {
+            url = "https://" + url;
+        }
+        WebPageExtractorUtil.WebPageData pageData = WebPageExtractorUtil.getPageData(userId, null, url);
+        if (pageData == null) {
+            return Response.ok("{}").build();
+        }
+        return Response.ok(JacksonMapper.toJson(pageData)).build();
+    }
+
+    @POST
     @Path("/create-org")
     @Consumes("application/json")
     @Produces("application/json")
@@ -153,6 +178,20 @@ public class UserRestApi {
         organization.setCreatedAt(System.currentTimeMillis());
         organization.setSlug(req.getOrganizationSlug());
         organization.setName(req.getOrganizationName());
+
+        if (StringUtils.isNotBlank(req.getFavicon())) {
+            organization.setFavicon(req.getFavicon());
+        }
+        if (StringUtils.isNotBlank(req.getLogo())) {
+            organization.setLogo(req.getLogo());
+        }
+        String websiteUrl = req.getWebsiteUrl();
+        if (StringUtils.isNotBlank(websiteUrl) && !websiteUrl.startsWith("http")) {
+            websiteUrl = "https://" + websiteUrl;
+        }
+        if (StringUtils.isNotBlank(websiteUrl)) {
+            organization.setReturnToSiteUrl(websiteUrl);
+        }
 
         Organization.SSOSettings ssoSettings = new Organization.SSOSettings();
         ssoSettings.setPrimaryKey(UUID.randomUUID().toString());

@@ -131,6 +131,9 @@ public class PagesRestApi {
 
         String returnToSiteUrl = organization.getReturnToSiteUrl();
         if (StringUtils.isNotBlank(returnToSiteUrl) && !returnToSiteUrl.startsWith("http")) {
+            if (returnToSiteUrl.startsWith("mailto:")) {
+                throw new UserVisibleException("Invalid return to site url");
+            }
             returnToSiteUrl = "https://" + returnToSiteUrl;
         }
         existingOrg.setReturnToSiteUrl(returnToSiteUrl);

@@ -43,6 +43,8 @@ dependencies {
     implementation group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.17'
     implementation group: 'com.github.gotson', name: 'webp-imageio', version: '0.2.2'
 
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.18.1'
+
     // For dotenv file
     implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '3.0.1'
 
