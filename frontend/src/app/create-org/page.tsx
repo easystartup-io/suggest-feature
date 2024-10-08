@@ -183,7 +183,7 @@ const CreateOrgForm: React.FC = () => {
                   Logo <span className='text-muted-foreground'>(Optional)</span>
                 </Label>
                 <div className='flex items-center space-x-4'>
-                  <div className="w-20 h-20">
+                  <div className="min-w-20 h-20">
                     <ImageComponent src={logo} alt="Logo" className="w-full h-full" />
                     <ImagePlaceholder className="w-full h-full hidden" />
                   </div>

@@ -166,6 +166,8 @@ public class Util {
             String key = (orgId != null ? orgId + "/" : "") + userId + "/" + UUID.randomUUID() + "." + extension;
 
             // Get file content and content type from the external URL
+            url.openConnection().setRequestProperty("User-Agent", "DuckDuckBot/1.1; (+http://duckduckgo.com/duckduckbot.html)");
+            url.openConnection().setRequestProperty("Accept", "*/*");
             String contentType = url.openConnection().getContentType();
 
             // Write to temp file before uploading

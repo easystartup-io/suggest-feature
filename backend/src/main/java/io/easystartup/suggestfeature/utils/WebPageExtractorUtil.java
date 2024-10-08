@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
 
 /*
  * @author indianBond
@@ -21,7 +23,8 @@ import java.net.URL;
 public class WebPageExtractorUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageExtractorUtil.class);
-    private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";
+    private static final String USER_AGENT = "DuckDuckBot/1.1; (+http://duckduckgo.com/duckduckbot.html)";
+    private static final String COMMON_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";
 
     public static WebPageData getPageData(String userId, String orgId, String url) {
         try {
@@ -50,10 +53,14 @@ public class WebPageExtractorUtil {
     private static WebPageData extractWebPageInfo(String url) throws IOException {
         Document doc = null;
         try {
-            doc = Jsoup.connect(url).userAgent(USER_AGENT).get();
+            doc = Jsoup.connect(url).userAgent(COMMON_USER_AGENT).get();
         } catch (Exception e) {
             LOGGER.error("Error extracting web page info " + url, e);
-            doc = Jsoup.parse(getHtmlContentManually(url), url);
+            String htmlContentManually = getHtmlContentManually(url);
+            if (htmlContentManually == null) {
+                return null;
+            }
+            doc = Jsoup.parse(htmlContentManually, url);
         }
 
         if (doc == null) {
@@ -201,20 +208,38 @@ public class WebPageExtractorUtil {
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("User-Agent", USER_AGENT);
+        con.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+        con.setRequestProperty("Accept-Language", "en-SG,en-GB;q=0.9,en-US;q=0.8,en;q=0.7");
+        con.setRequestProperty("Upgrade-Insecure-Requests", "1");
+        con.setRequestProperty("dnt", "1");
+        con.setRequestProperty("Cache-Control", "no-cache");
+
+
+        // Accept gzip encoding
+        con.setRequestProperty("Accept-Encoding", "gzip, deflate");
 
         int responseCode = con.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
+            String encoding = con.getContentEncoding();
+            InputStreamReader reader;
+
+            if ("gzip".equalsIgnoreCase(encoding)) {
+                reader = new InputStreamReader(new GZIPInputStream(con.getInputStream()), StandardCharsets.UTF_8);
+            } else {
+                reader = new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8);
+            }
+
+            BufferedReader in = new BufferedReader(reader);
             StringBuilder response = new StringBuilder();
+            String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
             in.close();
             return response.toString();
         } else {
-            LOGGER.error("Manual HTTP GET request failed." + url + " Response Code: " + responseCode);
+            LOGGER.error("Manual HTTP GET request failed. " + url + " Response Code: " + responseCode);
+            return null;
         }
-        return null;
     }
 }
