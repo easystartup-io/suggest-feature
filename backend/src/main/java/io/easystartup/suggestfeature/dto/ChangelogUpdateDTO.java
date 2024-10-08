@@ -20,6 +20,7 @@ public class ChangelogUpdateDTO {
     private List<String> tags;
     private Long changelogDate;
     private boolean draft;
+    private String coverImage;
 
     public ChangelogUpdateDTO() {
     }
@@ -78,5 +79,13 @@ public class ChangelogUpdateDTO {
 
     public void setDraft(boolean draft) {
         this.draft = draft;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
 }

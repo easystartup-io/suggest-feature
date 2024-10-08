@@ -136,6 +136,7 @@ public class ChangelogRestApi {
         existingChangelog.setModifiedAt(System.currentTimeMillis());
         existingChangelog.setDraft(req.isDraft());
         existingChangelog.setTags(req.getTags());
+        existingChangelog.setCoverImage(req.getCoverImage());
         // To ensure only this org postIds are being set
         existingChangelog.setPostIds(getPostIdsForCurrentOrg(req.getPostIds(), orgId));
         if (req.getChangelogDate() != null) {

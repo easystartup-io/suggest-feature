@@ -95,7 +95,12 @@ const ChangelogEditor = ({ params }) => {
       data.content = JSON.parse(data.content || '{}');
       setChangelogData(data);
       setIsDraft(data.draft);
+
+      if (typeof window !== 'undefined' && !editorRef.current) {
+        initEditor();
+      }
       if (editorRef.current) {
+        console.log(data.content)
         editorRef.current.render(data.content);
       }
     } catch (error) {
@@ -212,7 +217,7 @@ const ChangelogEditor = ({ params }) => {
   };
 
   return (
-    <Card className="w-full mx-auto mt-4 border-0">
+    <Card className="w-full mx-auto mt-4 border-0 px-4">
       {/* <CardHeader> */}
       {/*   <CardTitle>Changelog Editor</CardTitle> */}
       {/* </CardHeader> */}
