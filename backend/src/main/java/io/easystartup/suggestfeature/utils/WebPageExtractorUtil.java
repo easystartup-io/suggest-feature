@@ -123,11 +123,6 @@ public class WebPageExtractorUtil {
     }
 
     private static String extractLogo(Document doc, String url) {
-        // Try to extract from Open Graph meta tag
-        String logo = doc.select("meta[property=og:image]").attr("content");
-        if (!logo.isEmpty()) {
-            return logo;
-        }
 
         // Try to extract from schema.org metadata
         Elements schema = doc.select("script[type=application/ld+json]");
@@ -168,6 +163,12 @@ public class WebPageExtractorUtil {
             } else if (image.absUrl("src").contains("logo")) {
                 return image.absUrl("src");
             }
+        }
+
+        // Try to extract from Open Graph meta tag
+        String logo = doc.select("meta[property=og:image]").attr("content");
+        if (!logo.isEmpty()) {
+            return logo;
         }
 
         return null;
