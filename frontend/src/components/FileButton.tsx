@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Icons } from './icons';
 import { cn } from '@/lib/utils';
 
-export default function FileUploadButton({ uploading, setUploading, uploadedFileUrl, setUploadedFileUrl }) {
+export default function FileUploadButton({ uploading, setUploading, uploadedFileUrl, setUploadedFileUrl, className = '', innerRef = null }) {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleFileChange = (event) => {
@@ -39,7 +39,7 @@ export default function FileUploadButton({ uploading, setUploading, uploadedFile
   };
 
   return (
-    <div className="flex items-center justify-center space-y-4">
+    <div className={cn("flex items-center justify-center space-y-4", className)}>
       {uploading &&
         <Button
           disabled={true}
@@ -50,6 +50,7 @@ export default function FileUploadButton({ uploading, setUploading, uploadedFile
         </Button>
       }
       <Input
+        ref={innerRef}
         className={cn(!uploading ? '' : 'hidden')}
         type="file"
         onChange={handleFileChange}

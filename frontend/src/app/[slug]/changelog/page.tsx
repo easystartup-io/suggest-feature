@@ -43,8 +43,8 @@ const Dashboard: React.FC = ({ params }) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        title: "New Changelog",
-        content: "New Changelog Content",
+        title: "Enter title here",
+        content: "{}",
         draft: true
       })
     })
