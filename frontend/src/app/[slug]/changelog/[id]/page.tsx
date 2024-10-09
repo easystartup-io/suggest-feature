@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import FileUploadButton from '@/components/FileButton';
 import { Icons } from '@/components/icons';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 
 const EditorJS = dynamic(() => import('@editorjs/editorjs'), { ssr: false });
 
@@ -25,6 +26,7 @@ const ChangelogEditor = ({ params }) => {
   const [newTag, setNewTag] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchChangelogData();
@@ -191,7 +193,7 @@ const ChangelogEditor = ({ params }) => {
     if (window.confirm('Are you sure you want to delete this changelog?')) {
       try {
         const response = await fetch('/api/auth/changelog/delete-changelog', {
-          method: 'DELETE',
+          method: 'POST',
           headers: {
             "x-org-slug": params.slug,
             "Content-Type": "application/json"
@@ -205,7 +207,7 @@ const ChangelogEditor = ({ params }) => {
           title: "Changelog Deleted",
           description: "The changelog has been successfully deleted.",
         });
-        // Redirect or handle deletion success
+        router.push(`/${params.slug}/changelog`);
       } catch (error) {
         toast({
           title: "Error",

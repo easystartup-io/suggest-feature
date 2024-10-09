@@ -128,7 +128,9 @@ function Navigation({ items, isActive, setCurrentSection, params, isCollapsed })
       isCollapsed && "px-0 lg:px-0")}>
       {items.map((item) => {
         if (item.type === 'divider') {
-          return <div className="border-t border-dashed border-muted w-full"></div>
+          return <div
+            key={item.label}
+            className="border-t border-dashed border-muted w-full"></div>
         } else if (item.type === 'label') {
           return <div key={item.label} className={cn("text-muted-foreground font-bold text-xs mt-4 w-full flex items-center px-3 py-2", isCollapsed && 'justify-center px-0')}>{isCollapsed ? item.label.substring(0, 3) : item.label}</div>
         } else {
