@@ -21,7 +21,7 @@ import java.util.List;
 @Document
 @JsonIgnoreProperties(ignoreUnknown = true)
 @CompoundIndexes({
-        @CompoundIndex(name = "organizationId_1_createdAt_1", def = "{'organizationId': 1, 'createdAt': 1}"),
+        @CompoundIndex(name = "organizationId_1_changelogDate_1", def = "{'organizationId': 1, 'changelogDate': 1}"),
         // Needed for search functionality Todo: Remove this index and implement search functionality using es/manticore
         @CompoundIndex(name = "organizationId_1_title_1", def = "{'organizationId': 1, 'title': 'text'}"),
         // For regex based search on title
@@ -35,15 +35,19 @@ public class Changelog {
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_CHANGELOG_DATE = "changelogDate";
     public static final String FIELD_SLUG = "slug";
+    public static final String FIELD_DRAFT = "draft";
 
     @Id
     private String id;
     @NotBlank
     @Size(max = 500)
     private String title;
+
     @NotBlank
     @Size(max = 100_000)
     private String content;
+
+    private String html;
 
     private String coverImage;
     @Indexed
@@ -79,19 +83,19 @@ public class Changelog {
         this.id = id;
     }
 
-    public @NotBlank @Size(max = 500) String getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(@NotBlank @Size(max = 500) String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public @NotBlank @Size(max = 100_000) String getContent() {
+    public String getContent() {
         return content;
     }
 
-    public void setContent(@NotBlank @Size(max = 100_000) String content) {
+    public void setContent(String content) {
         this.content = content;
     }
 
@@ -181,5 +185,13 @@ public class Changelog {
 
     public void setCoverImage(String coverImage) {
         this.coverImage = coverImage;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 }

@@ -133,6 +133,7 @@ public class ChangelogRestApi {
             existingChangelog.setContent(req.getContent());
         }
         existingChangelog.setPostIds(req.getPostIds());
+        existingChangelog.setHtml(req.getHtml());
         existingChangelog.setModifiedAt(System.currentTimeMillis());
         existingChangelog.setDraft(req.isDraft());
         existingChangelog.setTags(req.getTags());

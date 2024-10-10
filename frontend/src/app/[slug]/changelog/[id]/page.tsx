@@ -10,12 +10,13 @@ import FileUploadButton from '@/components/FileButton';
 import { Icons } from '@/components/icons';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import Blocknote from '@/components/Blocknote';
+import Loading from '@/components/Loading';
+import { useTheme } from 'next-themes';
 
-const EditorJS = dynamic(() => import('@editorjs/editorjs'), { ssr: false });
 
 const ChangelogEditor = ({ params }) => {
   const { toast } = useToast();
-  const editorRef = useRef(null);
   const [changelogData, setChangelogData] = useState({
     title: '',
     content: null,
@@ -27,60 +28,15 @@ const ChangelogEditor = ({ params }) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
   const router = useRouter();
+  const [html, setHtml] = useState('');
+  const [content, setContent] = useState(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     fetchChangelogData();
   }, [params.id, params.slug]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      initEditor();
-    }
-  }, []);
-
-  const initEditor = async () => {
-    const EditorJS = (await import('@editorjs/editorjs')).default;
-    const Header = (await import('@editorjs/header')).default;
-    const List = (await import('@editorjs/list')).default;
-    const Embed = (await import('@editorjs/embed')).default;
-    const Image = (await import('@editorjs/image')).default;
-    const Code = (await import('@editorjs/code')).default;
-
-    if (!editorRef.current) {
-      const editor = new EditorJS({
-        holder: 'editorjs',
-        tools: {
-          header: Header,
-          list: List,
-          embed: Embed,
-          image: {
-            class: Image,
-            config: {
-              uploader: {
-                uploadByFile(file) {
-                  // Implement your file upload logic here
-                  return Promise.resolve({
-                    success: 1,
-                    file: {
-                      url: 'https://example.com/image.png',
-                    }
-                  });
-                }
-              }
-            }
-          },
-          code: Code,
-        },
-        data: changelogData.content,
-        onChange: async () => {
-          const content = await editor.save();
-          setChangelogData(prev => ({ ...prev, content }));
-        },
-      });
-
-      editorRef.current = editor;
-    }
-  };
 
   const fetchChangelogData = async () => {
     try {
@@ -97,14 +53,11 @@ const ChangelogEditor = ({ params }) => {
       data.content = JSON.parse(data.content || '{}');
       setChangelogData(data);
       setIsDraft(data.draft);
+      setHtml(data.html);
+      setContent(data.content);
 
-      if (typeof window !== 'undefined' && !editorRef.current) {
-        initEditor();
-      }
-      if (editorRef.current) {
-        console.log(data.content)
-        editorRef.current.render(data.content);
-      }
+      setDataLoaded(true);
+
     } catch (error) {
       toast({
         title: "Error",
@@ -153,11 +106,11 @@ const ChangelogEditor = ({ params }) => {
   };
 
   const handleSave = async (saveAsDraft = true) => {
-    const content = await editorRef.current.save();
     const payload = {
       changelogId: params.id,
       title: changelogData.title,
       content: JSON.stringify(content),
+      html: html,
       tags: changelogData.tags || [],
       draft: saveAsDraft,
       coverImage: changelogData.coverImage
@@ -218,6 +171,10 @@ const ChangelogEditor = ({ params }) => {
     }
   };
 
+  if (!dataLoaded) {
+    return <Loading />
+  }
+
   return (
     <Card className="w-full mx-auto mt-4 border-0 px-4">
       {/* <CardHeader> */}
@@ -243,7 +200,7 @@ const ChangelogEditor = ({ params }) => {
             Delete
           </Button>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-6 ml-12">
           <Input
             type="text"
             name="title"
@@ -304,10 +261,16 @@ const ChangelogEditor = ({ params }) => {
           </div>
 
           {/* https://github.com/codex-team/editor.js/discussions/1910 */}
-          <div className="prose">
-            <div id="editorjs" className="rounded-md w-full whateverNameYouWantHere editor-container" />
-          </div>
 
+        </div>
+        <div className="prose min-h-96 mt-4">
+          <Blocknote
+            html={html}
+            setHtml={setHtml}
+            content={content}
+            setContent={setContent}
+            theme={theme}
+          />
         </div>
       </CardContent>
     </Card>

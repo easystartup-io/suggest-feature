@@ -44,7 +44,8 @@ const Dashboard: React.FC = ({ params }) => {
       },
       body: JSON.stringify({
         title: "Enter title here",
-        content: "{}",
+        content: "[]",
+        html: '',
         draft: true
       })
     })
@@ -74,44 +75,57 @@ const Dashboard: React.FC = ({ params }) => {
         </div>
       </div>
       <div
-        className="flex flex-1 justify-center rounded-lg border border-dashed shadow-sm" x-chunk="dashboard-02-chunk-1"
+        className="flex flex-col rounded-lg border border-dashed shadow-sm" x-chunk="dashboard-02-chunk-1"
       >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead className="text-center">Content</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data && data.map((board) => {
-              return (
-                <TableRow key={board.id} className="">
-                  <TableCell>{board.title}</TableCell>
 
-                  <TableCell className="text-center">
-                    {board.content}
-                  </TableCell>
-                  <TableCell className="text-right items-center">
-                    <div className="flex items-center justify-end gap-4">
-                      <Button
-                        onClick={() => router.push(`/${params.slug}/changelog/${board.id}`)}
-                        variant="outline"
-                        className="flex items-center gap-2"
-                      >
-                        <Edit className="" />
-                        Edit Changelog
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </main>
+        {
+          !data || data.length < 1 && <div className="w-full h-full min-h-64 justify-center items-center flex font-medium text-lg">
+            No changelog
+          </div>
+        }
+
+        {data && data.map((board) => {
+          return (
+            <div key={board.id} className="p-4 border-b hover:bg-primary/10 flex space-x-4 justify-between">
+              <div>
+                <div className="font-medium">{board.title}</div>
+                <div className='flex items-center space-x-4 mt-2'>
+                  <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden h-32">
+                    {board.coverImage ? (
+                      <img
+                        src={board.coverImage}
+                        alt="Cover"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        No cover image
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="">
+                <div dangerouslySetInnerHTML={{ __html: board.html }} >
+                </div>
+              </div>
+              <div className="">
+                <div className="flex items-center justify-end gap-4">
+                  <Button
+                    onClick={() => router.push(`/${params.slug}/changelog/${board.id}`)}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Edit className="" />
+                    Edit Changelog
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div >
+    </main >
   )
 }
 export default withAuth(Dashboard);

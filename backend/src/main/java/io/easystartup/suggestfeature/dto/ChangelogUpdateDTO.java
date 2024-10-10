@@ -17,6 +17,7 @@ public class ChangelogUpdateDTO {
     private List<String> postIds;
     private String title;
     private String content;
+    private String html;
     private List<String> tags;
     private Long changelogDate;
     private boolean draft;
@@ -87,5 +88,13 @@ public class ChangelogUpdateDTO {
 
     public void setCoverImage(String coverImage) {
         this.coverImage = coverImage;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 }
