@@ -6,8 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/context/AuthContext';
 import withAuth from '@/hoc/withAuth';
-import { Edit, Settings, Telescope } from "lucide-react";
+import { CalendarIcon, Edit, Settings, Telescope } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 
 
@@ -107,10 +108,26 @@ const Dashboard: React.FC = ({ params }) => {
               </div>
               <div dangerouslySetInnerHTML={{ __html: board.html }} className="prose dark:prose-invert col-span-5" />
               <div className="col-span-1">
+                <div className="text-sm space-y-2">
+                  <div>
+                    {board.draft ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Draft
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                        Published
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <span>{format(new Date(board.changelogDate), "MMMM do, yyyy")}</span>
+                  </div>
+                </div>
                 <Button
                   onClick={() => router.push(`/${params.slug}/changelog/${board.id}`)}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 mt-2"
                 >
                   <Edit className="" />
                   Edit
