@@ -86,9 +86,7 @@ const config = {
   },
   plugins: [
     require("tailwindcss-animate"),
-    require('@tailwindcss/typography')({
-      className: 'whateverNameYouWantHere',
-    }),
+    require('@tailwindcss/typography')
   ],
 } satisfies Config
 

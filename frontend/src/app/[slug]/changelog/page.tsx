@@ -86,8 +86,8 @@ const Dashboard: React.FC = ({ params }) => {
 
         {data && data.map((board) => {
           return (
-            <div key={board.id} className="p-4 border-b hover:bg-primary/10 flex space-x-4 justify-between">
-              <div>
+            <div key={board.id} className="p-4 border-b hover:bg-primary/10 grid grid-cols-8">
+              <div className="col-span-2">
                 <div className="font-medium">{board.title}</div>
                 <div className='flex items-center space-x-4 mt-2'>
                   <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden h-32">
@@ -105,21 +105,16 @@ const Dashboard: React.FC = ({ params }) => {
                   </div>
                 </div>
               </div>
-              <div className="">
-                <div dangerouslySetInnerHTML={{ __html: board.html }} >
-                </div>
-              </div>
-              <div className="">
-                <div className="flex items-center justify-end gap-4">
-                  <Button
-                    onClick={() => router.push(`/${params.slug}/changelog/${board.id}`)}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <Edit className="" />
-                    Edit Changelog
-                  </Button>
-                </div>
+              <div dangerouslySetInnerHTML={{ __html: board.html }} className="prose col-span-5" />
+              <div className="col-span-1">
+                <Button
+                  onClick={() => router.push(`/${params.slug}/changelog/${board.id}`)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="" />
+                  Edit
+                </Button>
               </div>
             </div>
           )
