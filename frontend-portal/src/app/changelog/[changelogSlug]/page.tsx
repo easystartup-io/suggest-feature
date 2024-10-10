@@ -37,12 +37,12 @@ export default async function ChangelogList({ params }) {
         <div className="w-full">
           <div className="w-full">
             <div className="flex items-center w-full space-x-1">
-              <Button variant="outline" className="rounded-r-none font-bold" >
-                <Link href='/changelog' className='flex'>
+              <Link href='/changelog' className='flex'>
+                <Button variant="outline" className="rounded-r-none font-bold flex" >
                   <ArrowLeft className="font-bold h-5 w-5 mr-2" />
                   Back to Changelog
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
