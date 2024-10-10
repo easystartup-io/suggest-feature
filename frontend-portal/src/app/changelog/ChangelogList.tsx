@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { headers } from 'next/headers';
+import Link from 'next/link'
+
 
 interface ChangelogItem {
   title: string;
@@ -38,8 +40,11 @@ export default async function ChangelogList() {
                 {format(new Date(item.changelogDate), 'MMMM d, yyyy')}
               </div>
               <div className='col-span-5'>
-                <div className="flex justify-between items-center">
-                  <div className="text-xl font-semibold">{item.title}</div>
+                <div className="flex justify-between items-center"
+                >
+                  <div className="text-xl font-semibold">
+                    <Link href={`/changelog/${item.slug}`}>{item.title}</Link>
+                  </div>
                 </div>
                 <div className="flex my-2 space-x-1">
                   {item.tags.map((tag, tagIndex) => (

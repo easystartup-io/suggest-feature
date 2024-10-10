@@ -1,3 +1,5 @@
-export default function Loading() {
-  return <div>Loading changelog...</div>;
+import Loading from "@/components/Loading";
+
+export default function LoadingYolo() {
+  return <Loading></Loading>;
 }
