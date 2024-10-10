@@ -80,6 +80,7 @@ public class Organization {
         safeOrg.setReturnToSiteUrl(getReturnToSiteUrl());
         safeOrg.setReturnToSiteUrlText(getReturnToSiteUrlText());
         safeOrg.setRoadmapSettings(getRoadmapSettings());
+        safeOrg.setChangelogSettings(getChangelogSettings());
 
         if (this.ssoSettings != null) {
             SSOSettings safeSsoSettings = new SSOSettings();

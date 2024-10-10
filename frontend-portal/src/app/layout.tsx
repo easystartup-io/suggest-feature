@@ -5,7 +5,7 @@ import "./globals.css";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, CircleUser } from "lucide-react";
+import { ArrowLeft, CircleUser, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import { InitContextProvider, useInit } from "@/context/InitContext";
@@ -158,6 +158,17 @@ function Header({ params }) {
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 {org.returnToSiteUrlText || `Return to ${org.name}`}
               </Button>
+            }
+            {
+              (!org.changelogSettings || (org.changelogSettings && org.changelogSettings.enabled)) &&
+              <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg"
+                onClick={() => {
+                  router.push('/changelog')
+                }}
+              >
+                <History className="mr-1" />
+                Changelog
+              </div>
             }
             <ModeToggle />
             {user && user.name ?

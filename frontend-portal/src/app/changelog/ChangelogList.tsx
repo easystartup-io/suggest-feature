@@ -31,35 +31,37 @@ export default async function ChangelogList() {
   const changelogItems = await getChangelogItems();
 
   return (
-    <div className="space-y-8">
+    <div className="">
       {changelogItems.map((item, index) => (
-        <Card key={index} className="overflow-hidden">
-          <CardHeader className="pb-0">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-xl font-semibold">{item.title}</CardTitle>
-              <div className="text-sm text-gray-500">
+        <div key={index} className="border-b">
+          <div className='border-0 shadow-none'>
+            <div className='grid grid-cols-6 my-4'>
+              <div className="text-sm font-medium col-span-1">
                 {format(new Date(item.changelogDate), 'MMMM d, yyyy')}
               </div>
-            </div>
-            <div className="flex gap-2 mt-2">
-              {item.tags.map((tag, tagIndex) => (
-                <Badge key={tagIndex} variant="secondary">{tag}</Badge>
-              ))}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {item.coverImage && (
-              <div className="mb-4">
-                <img
-                  src={item.coverImage}
-                  alt={item.title}
-                  className="rounded-lg object-cover w-full h-auto max-h-[400px]"
-                />
+              <div className='col-span-5'>
+                <div className="flex justify-between items-center">
+                  <div className="text-xl font-semibold">{item.title}</div>
+                </div>
+                <div className="flex my-2 space-x-1">
+                  {item.tags.map((tag, tagIndex) => (
+                    <Badge key={tagIndex} variant='secondary' className='rounded text-muted-foreground'>{tag.toUpperCase()}</Badge>
+                  ))}
+                </div>
+                {item.coverImage && (
+                  <div className="mb-4 w-full">
+                    <img
+                      src={item.coverImage}
+                      alt={item.title}
+                      className="rounded-lg object-cover w-full h-full"
+                    />
+                  </div>
+                )}
+                <div dangerouslySetInnerHTML={{ __html: item.html }} className="prose" />
               </div>
-            )}
-            <div dangerouslySetInnerHTML={{ __html: item.html }} className="prose max-w-none" />
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );
