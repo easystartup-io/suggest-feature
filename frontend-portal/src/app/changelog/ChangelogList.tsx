@@ -55,7 +55,7 @@ export default async function ChangelogList() {
                     />
                   </div>
                 )}
-                <div dangerouslySetInnerHTML={{ __html: item.html }} className="prose" />
+                <div dangerouslySetInnerHTML={{ __html: item.html }} className="prose dark:prose-invert" />
               </div>
             </div>
           </div>

@@ -105,7 +105,7 @@ const Dashboard: React.FC = ({ params }) => {
                   </div>
                 </div>
               </div>
-              <div dangerouslySetInnerHTML={{ __html: board.html }} className="prose col-span-5" />
+              <div dangerouslySetInnerHTML={{ __html: board.html }} className="prose dark:prose-invert col-span-5" />
               <div className="col-span-1">
                 <Button
                   onClick={() => router.push(`/${params.slug}/changelog/${board.id}`)}

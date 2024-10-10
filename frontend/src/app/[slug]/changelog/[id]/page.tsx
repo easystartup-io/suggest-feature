@@ -269,7 +269,7 @@ const ChangelogEditor = ({ params }) => {
           {/* https://github.com/codex-team/editor.js/discussions/1910 */}
 
         </div>
-        <div className="prose min-h-96 mt-4">
+        <div className="prose dark:prose-invert min-h-96 mt-4">
           <Blocknote
             html={html}
             setHtml={setHtml}
