@@ -100,6 +100,9 @@ public class NotificationService {
         Map<NotificationType, List<Notification>> collect = notifications.stream().collect(groupingBy(Notification::getType));
         for (Map.Entry<NotificationType, List<Notification>> notificationTypeListEntry : collect.entrySet()) {
             switch (notificationTypeListEntry.getKey()) {
+                case CHANGELOG:
+                    populateChangelogData(notificationTypeListEntry.getValue());
+                    break;
                 case POST_STATUS_UPDATE:
                 case UPVOTE:
                 case POST:
@@ -141,6 +144,23 @@ public class NotificationService {
         }
     }
 
+    private void populateChangelogData(List<Notification> value) {
+        Set<String> changelogIds = value.stream().map(notification -> (String) notification.getData().get("changelogId")).collect(Collectors.toSet());
+        Set<String> allUserIdsToFetch = new HashSet<>();
+        Map<String, Changelog> changelogMap = getChangelogs(changelogIds);
+        changelogMap.values().forEach(changelog -> allUserIdsToFetch.add(changelog.getCreatedByUserId()));
+        List<User> users = authService.getUsersByUserIds(allUserIdsToFetch);
+        Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
+        for (Notification notification : value) {
+            Changelog changelog = changelogMap.get((String) notification.getData().get("changelogId"));
+            if (changelog == null) {
+                continue;
+            }
+            changelog.setUser(Util.getSafeUser(userMap.get(changelog.getCreatedByUserId()), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
+            notification.setData(Map.of("changelog", changelog));
+        }
+    }
+
     private void populatePostData(List<Notification> value) {
         Set<String> postIds = value.stream().map(notification -> (String) notification.getData().get("postId")).collect(Collectors.toSet());
         Set<String> allUserIdsToFetch = new HashSet<>();
@@ -166,5 +186,11 @@ public class NotificationService {
         Query query = new Query(Criteria.where(Post.FIELD_ID).in(postIds));
         List<Post> posts = mongoConnection.getDefaultMongoTemplate().find(query, Post.class);
         return posts.stream().collect(Collectors.toMap(Post::getId, post -> post));
+    }
+
+    private Map<String, Changelog> getChangelogs(Set<String> changelogIds) {
+        Query query = new Query(Criteria.where(Changelog.FIELD_ID).in(changelogIds));
+        List<Changelog> changelogList = mongoConnection.getDefaultMongoTemplate().find(query, Changelog.class);
+        return changelogList.stream().collect(Collectors.toMap(Changelog::getId, post -> post));
     }
 }

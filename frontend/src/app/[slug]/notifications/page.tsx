@@ -39,42 +39,48 @@ const formatBadgeText = (text) => {
 };
 
 const UserBadge = ({ user }) => (
-  <Badge variant="outline" className={`ml-2 ${user.partOfOrg ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-    {user.partOfOrg ? <Users className="w-3 h-3 mr-1 inline" /> : <User className="w-3 h-3 mr-1 inline" />}
-    {user.partOfOrg ? 'Team Member' : 'User'}
+  <Badge variant="outline" className={`ml-2 ${user?.partOfOrg ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+    {user?.partOfOrg ? <Users className="w-3 h-3 mr-1 inline" /> : <User className="w-3 h-3 mr-1 inline" />}
+    {user?.partOfOrg ? 'Team Member' : 'User'}
   </Badge>
 );
 
 const NotificationItem = ({ notification }) => {
   const getNotificationContent = () => {
     const { type, data } = notification;
-    const actionUser = data.comment ? data.comment.user : data.post.user;
+    const actionUser = data.comment ? data.comment.user : data.changelog ? data.changelog?.user : data.post?.user;
 
     switch (type) {
+      case 'CHANGELOG':
+        return (
+          <>
+            New changelog: <strong>&apos;{data.changelog?.title}&apos;</strong> by {actionUser?.name}
+          </>
+        );
       case 'POST':
         return (
           <>
-            New post: <strong>&apos;{data.post.title}&apos;</strong> by {actionUser.name}
+            New post: <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}
           </>
         );
       case 'COMMENT':
         if (data.comment.replyToCommentId) {
           return (
             <>
-              New reply on <strong>&apos;{data.post.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
+              New reply on <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
             </>
           );
         } else {
           return (
             <>
-              New comment on <strong>&quot;{data.post.title}&quot;</strong> by {actionUser.name}: &quot;{data.comment.content}&quot;
+              New comment on <strong>&quot;{data.post?.title}&quot;</strong> by {actionUser.name}: &quot;{data.comment.content}&quot;
             </>
           );
         }
       case 'POST_STATUS_UPDATE':
         return (
           <>
-            Status update for <strong>&apos;{data.post.title}&apos;</strong>: {data.status} (by {actionUser.name})
+            Status update for <strong>&apos;{data.post?.title}&apos;</strong>: {data.status} (by {actionUser.name})
           </>
         );
       case 'UPVOTE':
@@ -86,19 +92,19 @@ const NotificationItem = ({ notification }) => {
       case 'FOLLOW':
         return (
           <>
-            <strong>&apos;{data.post.title}&apos;</strong> is now followed by {actionUser.name}
+            <strong>&apos;{data.post?.title}&apos;</strong> is now followed by {actionUser.name}
           </>
         );
       case 'MENTION':
         return (
           <>
-            You were mentioned in <strong>&apos;{data.post.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
+            You were mentioned in <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
           </>
         );
       default:
         return (
           <>
-            Notification related to <strong>&apos;{data.post.title}&apos;</strong>
+            Notification related to <strong>&apos;{data.post?.title}&apos;</strong>
           </>
         );
     }
@@ -123,7 +129,7 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
-  const actionUser = notification.data.comment ? notification.data.comment.user : notification.data.post.user;
+  const actionUser = notification.data.comment ? notification.data.comment.user : notification.data?.post?.user;
 
   return (
     <Card className="mb-4">
@@ -217,6 +223,7 @@ const NotificationsPage = ({ params }) => {
             <SelectItem value="COMMENT">Comments</SelectItem>
             <SelectItem value="POST_STATUS_UPDATE">Status Updates</SelectItem>
             <SelectItem value="UPVOTE">Upvote Milestones</SelectItem>
+            <SelectItem value="CHANGELOG">Changelog</SelectItem>
           </SelectContent>
         </Select>
 

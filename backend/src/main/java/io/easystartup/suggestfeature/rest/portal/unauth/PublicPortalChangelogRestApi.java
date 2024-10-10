@@ -73,6 +73,7 @@ public class PublicPortalChangelogRestApi {
             return Response.ok().entity(Collections.emptyList()).build();
         }
         Criteria criteriaDefinition = Criteria.where(Changelog.FIELD_SLUG).is(changelogSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
+        criteriaDefinition.and(Changelog.FIELD_DRAFT).ne(true);
         Query query = new Query(criteriaDefinition);
         Changelog changelog = mongoConnection.getDefaultMongoTemplate().findOne(query, Changelog.class);
 
