@@ -25,7 +25,8 @@ import java.util.List;
         // Needed for search functionality Todo: Remove this index and implement search functionality using es/manticore
         @CompoundIndex(name = "organizationId_1_title_1", def = "{'organizationId': 1, 'title': 'text'}"),
         // For regex based search on title
-        @CompoundIndex(name = "organizationId_1_title_1_regex", def = "{'organizationId': 1, 'title': 1}")
+        @CompoundIndex(name = "organizationId_1_title_1_regex", def = "{'organizationId': 1, 'title': 1}"),
+        @CompoundIndex(name = "organizationId_1_slug_1", def = "{'organizationId': 1, 'slug': 1}", unique = true),
 })
 public class Changelog {
 

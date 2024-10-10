@@ -129,12 +129,22 @@ public class ChangelogRestApi {
             // Dont change slug else it can cause issues for people having link to that changelog or emails which were sent
 //            existingPost.setSlug(Util.fixSlug(req.getTitle()));
         }
+
+        if (existingChangelog.isDraft() && !req.isDraft()) {
+            existingChangelog.setSlug(Util.fixSlug(existingChangelog.getTitle()));
+        } else if (!existingChangelog.isDraft() && StringUtils.isBlank(existingChangelog.getSlug())) {
+            existingChangelog.setSlug(Util.fixSlug(existingChangelog.getTitle()));
+        }
+
         if (StringUtils.isNotBlank(req.getContent())) {
             existingChangelog.setContent(req.getContent());
         }
         existingChangelog.setPostIds(req.getPostIds());
         existingChangelog.setHtml(req.getHtml());
         existingChangelog.setModifiedAt(System.currentTimeMillis());
+
+        // Only set slug during publishing
+
         existingChangelog.setDraft(req.isDraft());
         existingChangelog.setTags(req.getTags());
         existingChangelog.setCoverImage(req.getCoverImage());
@@ -144,7 +154,12 @@ public class ChangelogRestApi {
             existingChangelog.setChangelogDate(req.getChangelogDate());
         }
 
-        mongoConnection.getDefaultMongoTemplate().save(existingChangelog);
+        try {
+            mongoConnection.getDefaultMongoTemplate().save(existingChangelog);
+        } catch (DuplicateKeyException e) {
+            existingChangelog.setSlug(existingChangelog.getSlug() + "-" + new ObjectId().toString());
+            mongoConnection.getDefaultMongoTemplate().save(existingChangelog);
+        }
         return Response.ok(JacksonMapper.toJson(existingChangelog)).build();
     }
 
@@ -167,7 +182,7 @@ public class ChangelogRestApi {
             changelog.setCreatedAt(System.currentTimeMillis());
             changelog.setModifiedAt(System.currentTimeMillis());
             changelog.setCreatedByUserId(userId);
-            changelog.setSlug(Util.fixSlug(changelog.getTitle()));
+            changelog.setSlug(Util.fixSlug(changelog.getTitle())+ "-" + new ObjectId().toString());
             isNew = true;
         } else {
             changelog.setCreatedByUserId(existingChangelog.getCreatedByUserId());
