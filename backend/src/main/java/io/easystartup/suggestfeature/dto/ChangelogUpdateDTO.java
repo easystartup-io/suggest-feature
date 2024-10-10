@@ -26,11 +26,11 @@ public class ChangelogUpdateDTO {
     public ChangelogUpdateDTO() {
     }
 
-    public @NotBlank String getChangelogId() {
+    public String getChangelogId() {
         return changelogId;
     }
 
-    public void setChangelogId(@NotBlank String changelogId) {
+    public void setChangelogId(String changelogId) {
         this.changelogId = changelogId;
     }
 

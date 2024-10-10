@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import Blocknote from '@/components/Blocknote';
 import Loading from '@/components/Loading';
 import { useTheme } from 'next-themes';
+import { DatePickerDemo } from '@/components/Datepicker';
 
 
 const ChangelogEditor = ({ params }) => {
@@ -29,6 +30,7 @@ const ChangelogEditor = ({ params }) => {
   const fileInputRef = useRef(null);
   const router = useRouter();
   const [html, setHtml] = useState('');
+  const [date, setDate] = React.useState<Date>()
   const [content, setContent] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const { theme } = useTheme();
@@ -55,6 +57,7 @@ const ChangelogEditor = ({ params }) => {
       setIsDraft(data.draft);
       setHtml(data.html);
       setContent(data.content);
+      setDate(new Date(data.changelogDate))
 
       setDataLoaded(true);
 
@@ -113,6 +116,7 @@ const ChangelogEditor = ({ params }) => {
       html: html,
       tags: changelogData.tags || [],
       draft: saveAsDraft,
+      changelogDate: date?.getTime() || new Date().getTime(),
       coverImage: changelogData.coverImage
     };
 
@@ -238,7 +242,9 @@ const ChangelogEditor = ({ params }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Changelog Date</label>
+              <DatePickerDemo date={date} setDate={setDate} />
+              <label className="block text-sm font-medium text-gray-700 my-2">Tags</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {changelogData.tags && changelogData.tags.map((tag, index) => (
                   <Badge key={index} variant="secondary" className="flex items-center gap-1">
@@ -252,7 +258,7 @@ const ChangelogEditor = ({ params }) => {
                   type="text"
                   placeholder="Add a tag"
                   value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
+                  onChange={(e) => setNewTag(e.target.value?.toUpperCase())}
                   onKeyPress={handleKeyPress}
                 />
                 <Button onClick={handleAddTag}>Add Tag</Button>
