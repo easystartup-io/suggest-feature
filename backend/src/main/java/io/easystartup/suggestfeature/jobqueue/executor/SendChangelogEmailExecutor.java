@@ -87,7 +87,7 @@ public class SendChangelogEmailExecutor implements JobExecutor {
         String userProfilePic = commentCreatedByUser.getProfilePic();
         String userName = escapeHtml(commentCreatedByUser.getName());
         String userInitials = getUserInitials(userName, commentCreatedByUser.getEmail());
-        String userMessage = escapeHtml(changelog.getContent());
+        String userMessage = changelog.getHtml();
 
         String userNameField = userName + " from <span style=\"color: #4F46E5;\">" + organizationName + "</span>";
 
@@ -124,7 +124,7 @@ public class SendChangelogEmailExecutor implements JobExecutor {
                 + "<body>"
                 + "<div class=\"container\">"
                 + "<img src=\"" + logo + "\" alt=\"" + organizationName + "\" class=\"logo\" />"
-                + "<h1 class=\"title\">A new comment has been added to your post, <span class=\"post-title\">\"" + postTitle + "\"</span></h1>"
+                + "<h1 class=\"title\">New changelog has been added, <span class=\"post-title\">\"" + postTitle + "\"</span></h1>"
                 + "<div class=\"user-info\">"
                 + avatarHtml
                 + "<span class=\"user-name\">" + userNameField + "</span>"

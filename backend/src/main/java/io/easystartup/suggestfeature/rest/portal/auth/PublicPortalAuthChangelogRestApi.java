@@ -5,6 +5,7 @@ import io.easystartup.suggestfeature.beans.ChangelogSubscriber;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.filters.UserContext;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
+import io.easystartup.suggestfeature.utils.JacksonMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -31,6 +32,26 @@ public class PublicPortalAuthChangelogRestApi {
     @Autowired
     public PublicPortalAuthChangelogRestApi(MongoTemplateFactory mongoConnection) {
         this.mongoConnection = mongoConnection;
+    }
+
+
+    @GET
+    @Path("/get-changelog-subscription")
+    @Produces("application/json")
+    public Response getChangelogSubscription(@Context HttpServletRequest request) {
+        String host = request.getHeader("host");
+        Organization org = getOrg(host);
+        if (org == null) {
+            return Response.ok().entity(Collections.emptyList()).build();
+        }
+
+        Criteria criteria = Criteria.where(ChangelogSubscriber.FIELD_ORGANIZATION_ID).is(org.getId())
+                .and(ChangelogSubscriber.FIELD_USER_ID).is(UserContext.current().getUserId());
+        ChangelogSubscriber changelogSubscriber = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteria), ChangelogSubscriber.class);
+        if (changelogSubscriber == null) {
+            return Response.ok().entity("{}").build();
+        }
+        return Response.ok(JacksonMapper.toJson(changelogSubscriber)).build();
     }
 
     @GET

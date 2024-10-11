@@ -132,6 +132,10 @@ public class ChangelogRestApi {
 
         if (existingChangelog.isDraft() && !req.isDraft()) {
             existingChangelog.setSlug(Util.fixSlug(existingChangelog.getTitle()));
+
+            // Send notification once published
+            notificationService.addChangelogNotification(existingChangelog, true);
+            createJobForChangelogUpdated(existingChangelog.getId(), orgId);
         } else if (!existingChangelog.isDraft() && StringUtils.isBlank(existingChangelog.getSlug())) {
             existingChangelog.setSlug(Util.fixSlug(existingChangelog.getTitle()));
         }
@@ -204,8 +208,6 @@ public class ChangelogRestApi {
                     changelog.setSlug(changelog.getSlug() + "-" + slugSuffix.substring(0, 4) + "-" + slugSuffix.substring(4));
                     mongoConnection.getDefaultMongoTemplate().insert(changelog);
                 }
-                notificationService.addChangelogNotification(changelog, true);
-                createJobForChangelogUpdated(changelog.getId(), orgId);
             } else {
                 mongoConnection.getDefaultMongoTemplate().save(changelog);
             }
