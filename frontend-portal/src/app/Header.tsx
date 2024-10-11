@@ -29,8 +29,8 @@ function Custom404() {
 
 export default function Header({ params, initMetadata, userData }) {
 
-  const { user: clientUser, loading, logout, registerSetOpenLoginDialog } = useAuth()
-  const user = userData || clientUser;
+  const { user: clientUser, logout, registerSetOpenLoginDialog } = useAuth()
+  const user = clientUser ? clientUser : userData;
   const org = initMetadata.org
   const pathname = usePathname();
   const searchParams = useSearchParams()
@@ -82,80 +82,78 @@ export default function Header({ params, initMetadata, userData }) {
             }
           </div>
         </Link>
-        {!loading ?
-          <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            {
-              org.enableReturnToSiteUrl && org.returnToSiteUrl &&
-              <Button
-                variant="ghost"
-                type="button"
-                className="text-xs text-muted-foreground"
-                onClick={() => {
-                  window.open(org.returnToSiteUrl, '_blank');
-                }}
+        <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
+          {
+            org.enableReturnToSiteUrl && org.returnToSiteUrl &&
+            <Button
+              variant="ghost"
+              type="button"
+              className="text-xs text-muted-foreground"
+              onClick={() => {
+                window.open(org.returnToSiteUrl, '_blank');
+              }}
+            >
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              {org.returnToSiteUrlText || `Return to ${org.name}`}
+            </Button>
+          }
+          {
+            (!org.changelogSettings || (org.changelogSettings && org.changelogSettings.enabled)) &&
+            <Link href="/changelog">
+              <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg"
               >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                {org.returnToSiteUrlText || `Return to ${org.name}`}
-              </Button>
-            }
-            {
-              (!org.changelogSettings || (org.changelogSettings && org.changelogSettings.enabled)) &&
-              <Link href="/changelog">
-                <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg"
+                <History className="mr-1" />
+                Changelog
+              </div>
+            </Link>
+          }
+          <ModeToggle />
+          {user && user.name ?
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="icon" className="rounded-full">
+                  <Avatar>
+                    <AvatarImage src={`${user.profilePic}`} />
+                    <AvatarFallback>
+                      {(() => {
+                        const name = user.name || user.email.split('@')[0];
+                        const words = name.split(' ');
+
+                        let initials;
+
+                        if (words.length > 1) {
+                          // If the name has multiple words, take the first letter of each word
+                          initials = words.map(word => word[0]).join('').toUpperCase();
+                        } else {
+                          // If it's a single word, take the first two characters
+                          initials = name.slice(0, 2).toUpperCase();
+                        }
+
+                        // Ensure it returns exactly 2 characters
+                        return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
+                      })()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <Link
+                  href="/settings"
                 >
-                  <History className="mr-1" />
-                  Changelog
-                </div>
-              </Link>
-            }
-            <ModeToggle />
-            {user && user.name ?
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full">
-                    <Avatar>
-                      <AvatarImage src={`${user.profilePic}`} />
-                      <AvatarFallback>
-                        {(() => {
-                          const name = user.name || user.email.split('@')[0];
-                          const words = name.split(' ');
-
-                          let initials;
-
-                          if (words.length > 1) {
-                            // If the name has multiple words, take the first letter of each word
-                            initials = words.map(word => word[0]).join('').toUpperCase();
-                          } else {
-                            // If it's a single word, take the first two characters
-                            initials = name.slice(0, 2).toUpperCase();
-                          }
-
-                          // Ensure it returns exactly 2 characters
-                          return initials.length >= 2 ? initials.slice(0, 2) : initials.padEnd(2, initials[0]);
-                        })()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="sr-only">Toggle user menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <Link
-                    href="/settings"
-                  >
-                    <DropdownMenuItem className="cursor-pointer">
-                      Settings
-                    </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              :
-              <LoginDialog openLoginDialog={openLoginDialog} setOpenLoginDialog={setOpenLoginDialog} />}
-          </div>
-          : ""}
+                  <DropdownMenuItem className="cursor-pointer">
+                    Settings
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            :
+            <LoginDialog openLoginDialog={openLoginDialog} setOpenLoginDialog={setOpenLoginDialog} />}
+        </div>
       </header>
     </div>
   )

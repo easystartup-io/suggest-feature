@@ -14,10 +14,6 @@ const withAuth = (WrappedComponent: React.ComponentType) => {
       }
     }, [user, loading, router]);
 
-    if (loading || !user) {
-      return <Loading />;
-    }
-
     return <WrappedComponent {...props} />;
   };
   // Need to do this because getting Component defintion is missing display name error

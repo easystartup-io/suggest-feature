@@ -1,3 +1,4 @@
+"use client"
 import AttachmentComponent from '@/components/AttachmentComponent';
 import MultiAttachmentUploadButton from '@/components/MultiAttachmentUploadButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -201,7 +202,7 @@ function PostContent({ data, refetch, params }) {
   return (
     <div >
       <div className="ml-16">
-        <p className=''>
+        <div className=''>
           {
             data.newStatus ?
               <div className='flex items-center space-x-2'>
@@ -214,7 +215,7 @@ function PostContent({ data, refetch, params }) {
                 </div>
               </div>
               : <AutoLink text={(data.description || data.content)} />}
-        </p>
+        </div>
 
         <AttachmentComponent
           attachments={data.attachments}
@@ -364,12 +365,7 @@ function NewCommentInputOld({ data, params, refetch, inReplyToComment, postSubmi
 export const PostCard = ({ post, params, disableExpand = false, refetch }) => {
 
   if (post.length === 0 || Object.keys(post).length === 0) {
-    return (
-      <div className='flex h-full w-full justify-center items-center'>
-        < Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        Loading...
-      </div >
-    )
+    return (null)
   }
   return (
     <div className='grid md:grid-cols-3 gap-2'>

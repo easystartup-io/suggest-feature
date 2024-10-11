@@ -42,9 +42,9 @@ export default function Layout({
               </Button>
             </Link>
             <Select
-            // onValueChange={(val) => {
-            //   router.push('/b/' + val)
-            // }}
+              onValueChange={(val) => {
+                router.push('/b/' + val)
+              }}
             >
               <SelectTrigger className="w-[40px] px-2 flex items-center justify-center rounded-l-none ">
                 {""}

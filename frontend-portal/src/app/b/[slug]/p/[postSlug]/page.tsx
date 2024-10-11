@@ -1,7 +1,6 @@
 "use client"
 import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
 import { PostCard } from "@/components/PostCard"
-import { useInit } from "@/context/InitContext"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 
@@ -36,11 +35,10 @@ export const statusConfig = {
   }
 };
 
+
 export default function Dashboard({ params }) {
   const [post, setPost] = useState([]);
-  const { org, boards } = useInit()
-  const [board, setBoard] = useState({})
-  const { user, loading } = useAuth()
+  const { user } = useAuth()
 
   function refetchPost() {
     const host = window.location.host
@@ -57,21 +55,13 @@ export default function Dashboard({ params }) {
       }).catch((e) => {
         console.log(e)
       })
-
-    if (boards) {
-      const b = boards.find((item) => item.slug === params.slug);
-      setBoard(b)
-    }
   }
 
-
   useEffect(() => {
-    if (loading) {
-      return
+    if (params.postSlug) {
+      refetchPost()
     }
-
-    refetchPost()
-  }, [params, boards, user, loading])
+  }, [params.postSlug, user])
 
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-2 w-full">
