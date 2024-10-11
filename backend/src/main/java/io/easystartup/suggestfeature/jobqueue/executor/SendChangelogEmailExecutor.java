@@ -14,6 +14,7 @@ import io.easystartup.suggestfeature.utils.LazyService;
 import io.easystartup.suggestfeature.utils.RateLimiters;
 import io.easystartup.suggestfeature.utils.Util;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -65,7 +66,7 @@ public class SendChangelogEmailExecutor implements JobExecutor {
         String changelogUrl = getChangelogUrl(changelog, organization);
 
         // Prepare email content
-        String subject = "Changelog added " + escapeHtml(changelog.getTitle());
+        String subject = "Changelog added " + changelog.getTitle();
         String bodyHtml = constructEmailBodyHtml(organization, changelog, changelogCreatedByUser, changelogUrl);
 
         List<User> users = authService.get().getUsersByUserIds(userIds);
@@ -87,7 +88,13 @@ public class SendChangelogEmailExecutor implements JobExecutor {
         String userProfilePic = commentCreatedByUser.getProfilePic();
         String userName = escapeHtml(commentCreatedByUser.getName());
         String userInitials = getUserInitials(userName, commentCreatedByUser.getEmail());
-        String userMessage = changelog.getHtml();
+
+
+        String userMessage = "<h1 class=\"title\"><span class=\"post-title\">" + postTitle + "</span></h1>";
+        if (StringUtils.isNotBlank(changelog.getCoverImage())){
+            userMessage += "<img src=\"" + changelog.getCoverImage() + "\" alt=\"" + postTitle + "\" style=\"width: 100%; margin-bottom: 1.5rem;\" />";
+        }
+        userMessage += changelog.getHtml();
 
         String userNameField = userName + " from <span style=\"color: #4F46E5;\">" + organizationName + "</span>";
 
@@ -117,7 +124,6 @@ public class SendChangelogEmailExecutor implements JobExecutor {
                 + ".star-icon-container {position: absolute; bottom: -0.25rem; right: -0.25rem; background-color: white; border-radius: 9999px; padding: 0.125rem;}"
                 + ".star-icon {width: 1rem; height: 1rem;}"
                 + ".user-name {font-weight: 600;}"
-                + ".message {font-size: 1rem; color: #4b5563; margin: 1.5rem 0; line-height: 1.5; padding: 1rem; background-color: #f3f4f6; border-radius: 0.375rem;}"
                 + ".reply-button {display: inline-block; padding: 0.75rem 1.5rem; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-weight: 600; font-size: 0.875rem; transition: background-color 0.2s;}"
                 + ".reply-button:hover {background-color: #1d4ed8;}"
                 + "</style></head>"
@@ -129,8 +135,8 @@ public class SendChangelogEmailExecutor implements JobExecutor {
                 + avatarHtml
                 + "<span class=\"user-name\">" + userNameField + "</span>"
                 + "</div>"
-                + "<p class=\"message\">" + userMessage + "</p>"
-                + "<a href=\"" + changelogUrl + "\" class=\"reply-button\">REPLY</a>"
+                + "<p class=\"\">" + userMessage + "</p>"
+                + "<a href=\"" + changelogUrl + "\" class=\"reply-button\">View Changelog</a>"
                 + "</div>"
                 + "</body>"
                 + "</html>";
