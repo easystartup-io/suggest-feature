@@ -13,6 +13,7 @@ export default function ChangelogPage() {
         Follow up on the latest improvements and updates.
         <SubscribeToChangelog />
       </div>
+      <div className='mb-4'></div>
       <Suspense fallback={<Loading />}>
         <ChangelogList />
       </Suspense>

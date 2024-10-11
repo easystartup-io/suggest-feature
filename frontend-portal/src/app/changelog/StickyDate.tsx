@@ -32,7 +32,7 @@ export function StickyDate({ date, title, index }: StickyDateProps) {
   }, []);
 
   return (
-    <div className="sticky top-5 transition-transform duration-300">
+    <div className="sticky top-5 transition-transform duration-300 md:pr-4">
       <div ref={ref} className="text-sm font-medium">
         {date}
       </div>
