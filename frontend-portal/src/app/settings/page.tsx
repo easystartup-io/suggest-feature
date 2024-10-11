@@ -7,7 +7,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/context/AuthContext"
 import { useInit } from "@/context/InitContext"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Loading from "@/components/Loading"
 import { Icons } from "@/components/icons"
@@ -17,7 +16,6 @@ import { useToast } from "@/components/ui/use-toast"
 export default function Dashboard({ params }) {
   const [posts, setPosts] = useState([]);
   const { org, boards } = useInit()
-  const router = useRouter();
   const [name, setName] = useState('')
   const [profilePic, setProfilePic] = useState('')
   const { user, loading } = useAuth();

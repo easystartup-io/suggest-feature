@@ -64,6 +64,10 @@ async function RootLayout({
   return (
     <html lang="en">
       <title>{parsedData?.org?.name}</title>
+      {
+        parsedData?.org?.favicon &&
+        <link rel="icon" href={parsedData.org.favicon} sizes="any" />
+      }
       <body className={cn(inter.className, "bg-muted/40")}>
         <ThemeProvider
           attribute="class"

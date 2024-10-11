@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.ok) {
         const user = await response.json();
-        console.log(user)
+        // console.log(user)
         setUser(user);
 
         if (openLoginDialog) {
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const registerSetOpenLoginDialog = (setOpenDialog) => {
-    console.log('registerSetOpenLoginDialog')
+    // console.log('registerSetOpenLoginDialog')
     // This is a hack to store a function in a state, because react considers that we are using function to store state when trying to compute value using previous state
     setOpenLoginDialog(() => setOpenDialog)
   };

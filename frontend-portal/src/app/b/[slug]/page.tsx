@@ -9,8 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useInit } from "@/context/InitContext"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
-import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useDebouncedCallback } from 'use-debounce';
 import { useAuth } from "@/context/AuthContext"
 import { Icons } from "@/components/icons"
@@ -19,6 +18,7 @@ import MultiAttachmentUploadButton from "@/components/MultiAttachmentUploadButto
 import { SortOptionsComboBox } from "@/components/SortComboBox"
 import { StatusFilterComboBox } from "@/components/StatusFilterComboBox"
 import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
 
 export const statusConfig = {
   "OPEN": {
@@ -52,7 +52,6 @@ export const statusConfig = {
 };
 
 const PostList = ({ posts, setPosts, params, setTempPosts }) => {
-  const router = useRouter();
   const { user, verifyLoginOrPrompt } = useAuth()
 
   const upVote = (upvote, id) => {
@@ -98,68 +97,70 @@ const PostList = ({ posts, setPosts, params, setTempPosts }) => {
   return (
     <div className="flex flex-col gap-2 px-4 pt-0 w-full">
       {posts && posts.length > 0 && posts.map((item) => (
-        <button
+        <Link
+          href={`/b/${params.slug}/p/${item.slug}`}
           key={item.id}
-          className={cn(
-            "flex items-center justify-between space-x-8 rounded-lg border dark:border-white p-3 text-left text-sm transition-all hover:bg-accent"
-          )}
-          onClick={() => {
-            router.push(`/b/${params.slug}/p/${item.slug}`)
-          }}
         >
-          <div>
-            <div className={cn(item.selfVoted && "bg-indigo-600 text-white",
-              "flex items-center flex-col justify-center border dark:border-white px-4 py-2  text-lg rounded-xl cursor-pointer font-bold",
-              "hover:shadow-indigo-600 dark:hover:shadow-red-600 hover:shadow"
-            )}
-              onClick={(e) => {
-                e.stopPropagation()
-                upVote(!item.selfVoted, item.id)
-              }}
-            >
-              <ChevronUp />
-              {item.votes}
-            </div>
-          </div>
-          <div
+          <button
             className={cn(
-              "flex flex-col items-start gap-2 text-left w-full"
+              "flex items-center justify-between space-x-8 rounded-lg border dark:border-white p-3 text-left text-sm transition-all hover:bg-accent",
+              "w-full"
             )}
           >
-            <div className="flex w-full flex-col gap-1">
-              <div className="flex items-center" >
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold">
-                    {(() => {
-                      const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
-                      return st.icon
-                    })()
-                    }
-                    {item.title}
-                  </div>
-                </div>
-                <div
-                  className={cn(
-                    "ml-auto text-xs",
-                    "text-muted-foreground"
-                  )}
-                >
-                  {formatDistanceToNow(new Date(item.createdAt), {
-                    addSuffix: true,
-                  })}
-                  {/* <Badge className="ml-2">{item.votes}</Badge> */}
-                </div>
+            <div>
+              <div className={cn(item.selfVoted && "bg-indigo-600 text-white",
+                "flex items-center flex-col justify-center border dark:border-white px-4 py-2  text-lg rounded-xl cursor-pointer font-bold",
+                "hover:shadow-indigo-600 dark:hover:shadow-red-600 hover:shadow"
+              )}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  upVote(!item.selfVoted, item.id)
+                }}
+              >
+                <ChevronUp />
+                {item.votes}
               </div>
             </div>
-            <div className="line-clamp-2 text-xs text-muted-foreground">
-              {item.description.substring(0, 300)}
+            <div
+              className={cn(
+                "flex flex-col items-start gap-2 text-left w-full"
+              )}
+            >
+              <div className="flex w-full flex-col gap-1">
+                <div className="flex items-center" >
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold">
+                      {(() => {
+                        const st = statusConfig[item.status || 'OPEN'] || statusConfig['OPEN'];
+                        return st.icon
+                      })()
+                      }
+                      {item.title}
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      "ml-auto text-xs",
+                      "text-muted-foreground"
+                    )}
+                  >
+                    {formatDistanceToNow(new Date(item.createdAt), {
+                      addSuffix: true,
+                    })}
+                    {/* <Badge className="ml-2">{item.votes}</Badge> */}
+                  </div>
+                </div>
+              </div>
+              <div className="line-clamp-2 text-xs text-muted-foreground">
+                {item.description.substring(0, 300)}
+              </div>
+              <div className="flex items-center justify-end w-full text-xs text-muted-foreground">
+                <MessageSquare className="w-3 h-3 inline-block mr-1 text-muted-foreground" />
+                {item.commentCount}
+              </div>
             </div>
-            <div className="flex items-center justify-end w-full text-xs text-muted-foreground">
-              <MessageSquare className="w-3 h-3 inline-block mr-1 text-muted-foreground" />
-              {item.commentCount}
-            </div>
-          </div>
-        </button>
+          </button>
+        </Link>
       ))}
     </div>
   )

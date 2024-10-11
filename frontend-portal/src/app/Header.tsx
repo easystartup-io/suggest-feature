@@ -5,10 +5,11 @@ import { useInit } from "@/context/InitContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ArrowLeft, History } from "lucide-react";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
+import Link from 'next/link';
 
 function Custom404() {
   return (
@@ -34,7 +35,6 @@ export default function Header({ params, initMetadata }) {
   const boards = initMetadata.boards;
   const [error, setError] = useState(false);
   const { setOrg: setInitOrg, setBoards: setInitBoards } = useInit();
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams()
 
@@ -59,30 +59,6 @@ export default function Header({ params, initMetadata }) {
   }, [])
 
   useEffect(() => {
-    const updateFavicon = async () => {
-      const linkElements = document.getElementsByTagName('link');
-      for (let i = 0; i < linkElements.length; i++) {
-        const link = linkElements[i];
-        if (link.rel === 'icon' || link.rel === 'shortcut icon') {
-          link.href = org.favicon;
-        }
-      }
-
-      // If no existing favicon link, create a new one
-      if (!document.querySelector("link[rel*='icon']")) {
-        const newLink = document.createElement('link');
-        newLink.rel = 'icon';
-        newLink.href = org.favicon;
-        document.head.appendChild(newLink);
-      }
-    };
-
-    if (org && org.favicon) {
-      updateFavicon();
-    }
-  }, [org, pathname]);
-
-  useEffect(() => {
     setInitOrg(initMetadata.org)
     setInitBoards(initMetadata.boards)
   }, [initMetadata]);
@@ -96,20 +72,24 @@ export default function Header({ params, initMetadata }) {
   }
 
   return (
-    <div className="w-full px-4 md:px-10" ref={mainContentRef}>
+    <div className="w-full px-4 md:px-10"
+      ref={mainContentRef}
+    >
       <header className="flex h-16 items-center justify-between gap-4 w-full">
-        <div onClick={() => {
-          router.push('/')
-        }} className="cursor-pointer flex items-center">
-          {org.logo ? <img
-            className="h-12 mr-2"
-            src={org.logo}
-          /> : null}
-          {
-            org.hideOrgName ? null :
-              <h1 className="text-xl font-semibold">{org.name}</h1>
-          }
-        </div>
+        <Link href={'/'}>
+          <div
+            className="cursor-pointer flex items-center"
+          >
+            {org.logo ? <img
+              className="h-12 mr-2"
+              src={org.logo}
+            /> : null}
+            {
+              org.hideOrgName ? null :
+                <h1 className="text-xl font-semibold">{org.name}</h1>
+            }
+          </div>
+        </Link>
         {!loading ?
           <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
 
@@ -129,14 +109,13 @@ export default function Header({ params, initMetadata }) {
             }
             {
               (!org.changelogSettings || (org.changelogSettings && org.changelogSettings.enabled)) &&
-              <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg"
-                onClick={() => {
-                  router.push('/changelog')
-                }}
-              >
-                <History className="mr-1" />
-                Changelog
-              </div>
+              <Link href="/changelog">
+                <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg"
+                >
+                  <History className="mr-1" />
+                  Changelog
+                </div>
+              </Link>
             }
             <ModeToggle />
             {user && user.name ?
@@ -171,9 +150,15 @@ export default function Header({ params, initMetadata }) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/settings')} >Settings</DropdownMenuItem>
+                  <Link
+                    href="/settings"
+                  >
+                    <DropdownMenuItem className="cursor-pointer">
+                      Settings
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">Logout</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               :

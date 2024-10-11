@@ -1,10 +1,8 @@
 "use client"
 import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
-
 import { PostCard } from "@/components/PostCard"
 import { useInit } from "@/context/InitContext"
-import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 
 export const statusConfig = {
@@ -41,9 +39,8 @@ export const statusConfig = {
 export default function Dashboard({ params }) {
   const [post, setPost] = useState([]);
   const { org, boards } = useInit()
-  const router = useRouter();
   const [board, setBoard] = useState({})
-  const { user, loading, verifyLoginOrPrompt } = useAuth()
+  const { user, loading } = useAuth()
 
   function refetchPost() {
     const host = window.location.host
