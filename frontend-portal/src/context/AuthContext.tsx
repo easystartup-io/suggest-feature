@@ -106,7 +106,7 @@ export const AuthProvider = ({ children, userData }: { children: ReactNode }) =>
       const { token, user } = await response.json();
       Cookies.set('token', token);
       setUser(user);
-      router.refresh();
+      window.location.reload
       return user;
     } else {
       console.error('Login failed');
@@ -151,6 +151,7 @@ export const AuthProvider = ({ children, userData }: { children: ReactNode }) =>
     await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
     Cookies.remove('token');
     setUser(null);
+    window.location.reload
     router.push('/');
   };
 
