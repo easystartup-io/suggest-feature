@@ -92,7 +92,7 @@ const navigationItems = [
   { href: 'all-posts', icon: MessagesSquare, label: 'All posts' },
   { href: 'boards', icon: Clipboard, label: 'Boards' },
   { href: 'roadmap', icon: Map, label: 'Roadmap' },
-  { href: 'changelog', icon: ScrollText, label: 'Changelog (🚀 beta)' },
+  { href: 'changelog', icon: ScrollText, label: 'Changelog' },
   { href: 'customers', icon: Users, label: 'Customers' },
   { type: 'label', label: 'ORGANIZATION' },
   { href: 'page', icon: BookOpenText, label: 'Page Settings' },
