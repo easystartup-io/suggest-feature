@@ -82,8 +82,7 @@ async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const parsedData = await (await getInitMetadata());
-  const userData = await fetchLoggedInUserDetails();
+  const [parsedData, userData] = await Promise.all([await getInitMetadata(), fetchLoggedInUserDetails()])
 
   return (
     <html lang="en" className="">
