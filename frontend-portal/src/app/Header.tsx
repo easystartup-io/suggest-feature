@@ -100,9 +100,9 @@ export default function Header({ params, initMetadata, userData }) {
           {
             (!org.changelogSettings || (org.changelogSettings && org.changelogSettings.enabled)) &&
             <Link href="/changelog">
-              <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg"
+              <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg text-sm"
               >
-                <History className="mr-1" />
+                <History className="mr-1 h-5 w-5" />
                 Changelog
               </div>
             </Link>
