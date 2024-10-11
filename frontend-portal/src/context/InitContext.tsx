@@ -8,12 +8,12 @@ interface InitContextType {
 
 const InitContext = createContext<InitContextType | undefined>(undefined);
 
-export const InitContextProvider = ({ children }: { children: ReactNode }) => {
-  const [org, setOrg] = useState(null);
-  const [boards, setBoards] = useState(null);
+export const InitContextProvider = ({ children, initMetadata }: { children: ReactNode }) => {
+  const org = initMetadata.org;
+  const boards = initMetadata.boards;
 
   return (
-    <InitContext.Provider value={{ org, setOrg, boards, setBoards }}>
+    <InitContext.Provider value={{ org, boards }}>
       {children}
     </InitContext.Provider>
   );

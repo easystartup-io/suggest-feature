@@ -1,7 +1,6 @@
 "use client"
 import LoginDialog from "@/components/LoginDialog";
 import { useAuth } from "@/context/AuthContext";
-import { useInit } from "@/context/InitContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ArrowLeft, History } from "lucide-react";
@@ -28,13 +27,11 @@ function Custom404() {
 }
 
 
-export default function Header({ params, initMetadata }) {
+export default function Header({ params, initMetadata, userData }) {
 
-  const { user, loading, logout, registerSetOpenLoginDialog } = useAuth()
+  const { user: clientUser, loading, logout, registerSetOpenLoginDialog } = useAuth()
+  const user = userData || clientUser;
   const org = initMetadata.org
-  const boards = initMetadata.boards;
-  const [error, setError] = useState(false);
-  const { setOrg: setInitOrg, setBoards: setInitBoards } = useInit();
   const pathname = usePathname();
   const searchParams = useSearchParams()
 
@@ -58,12 +55,7 @@ export default function Header({ params, initMetadata }) {
     registerSetOpenLoginDialog(setOpenLoginDialog)
   }, [])
 
-  useEffect(() => {
-    setInitOrg(initMetadata.org)
-    setInitBoards(initMetadata.boards)
-  }, [initMetadata]);
-
-  if (!org || error) {
+  if (!org) {
     return <Custom404 />
   }
 
@@ -92,7 +84,6 @@ export default function Header({ params, initMetadata }) {
         </Link>
         {!loading ?
           <div className="flex items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
-
             {
               org.enableReturnToSiteUrl && org.returnToSiteUrl &&
               <Button

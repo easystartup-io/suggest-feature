@@ -20,8 +20,8 @@ async function getInitialPosts() {
   return res.json()
 }
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }) {
   const initialPosts = await getInitialPosts()
 
-  return <DashboardClient initialPosts={initialPosts} />
+  return <DashboardClient initialPosts={initialPosts} searchParams={searchParams} />
 }

@@ -9,11 +9,11 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import SuspenseProvider from "./SuspenseProviderResizeIfEmbedded";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
-async function getInitMetadata() {
+export async function getInitMetadata() {
   const headersList = headers();
   const host = headersList.get('host') || 'localhost:3000';
   const protocol = 'https:';
@@ -23,6 +23,29 @@ async function getInitMetadata() {
   }
   return resp.json();
 }
+
+async function fetchLoggedInUserDetails() {
+  const cookieStore = cookies()
+  const token = cookieStore.get('token');
+
+  const headersList = headers();
+  const host = headersList.get('host') || 'localhost:3000';
+  const protocol = 'https:';
+
+  if (token) {
+    const response = await fetch(`${protocol}//${host}/api/auth/user`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+
+    if (response.ok) {
+      return await response.json();
+    }
+  }
+  return null;
+};
+
 
 export async function generateMetadata(
   { searchParams }: Props,
@@ -60,9 +83,10 @@ async function RootLayout({
 }>) {
 
   const parsedData = await (await getInitMetadata());
+  const userData = await fetchLoggedInUserDetails();
 
   return (
-    <html lang="en">
+    <html lang="en" className="">
       <title>{parsedData?.org?.name}</title>
       {
         parsedData?.org?.favicon &&
@@ -77,12 +101,12 @@ async function RootLayout({
         >
 
           <div className="flex h-full w-full flex-col items-center justify-center">
-            <AuthProvider>
-              <InitContextProvider>
+            <AuthProvider userData={userData}>
+              <InitContextProvider initMetadata={parsedData}>
                 <div className="w-full bg-background flex items-center justify-center">
                   <Suspense>
                     <SuspenseProvider >
-                      <Header params={params} initMetadata={parsedData} />
+                      <Header params={params} initMetadata={parsedData} userData={userData} />
                     </SuspenseProvider>
                   </Suspense>
                 </div>

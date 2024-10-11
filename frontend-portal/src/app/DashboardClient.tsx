@@ -1,15 +1,11 @@
-"use client"
-
 import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useInit } from "@/context/InitContext"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
-import { useSearchParams } from "next/navigation"
-import { useEffect } from "react"
-import { useTheme } from "next-themes"
 import Link from 'next/link';
+import SetThemeAtuomatically from "./SetThemeAutomatically"
+import { getInitMetadata } from "./layout"
 
 export const statusConfig = {
   "OPEN": {
@@ -98,23 +94,17 @@ const PostList = ({ posts }) => {
   )
 }
 
-export default function DashboardClient({ initialPosts }) {
+export default async function DashboardClient({ initialPosts, searchParams }) {
   const posts = initialPosts;
-  const { org, boards } = useInit()
+  const parsedData = await (await getInitMetadata())
+  const org = parsedData.org
+  const boards = parsedData.boards
 
-  const searchParams = useSearchParams()
-  const roadmapOnly = searchParams.get('roadmapOnly')
-  const theme = searchParams.get('theme')
-  const { setTheme } = useTheme()
-
-  useEffect(() => {
-    if (theme) {
-      setTheme(theme)
-    }
-  }, [theme, setTheme])
+  const roadmapOnly = searchParams.roadmapOnly
 
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-6 w-full">
+      <SetThemeAtuomatically searchParams={searchParams} />
       <div className="w-full items-center justify-center flex">
         <div className="w-full">
           <div className="w-full">

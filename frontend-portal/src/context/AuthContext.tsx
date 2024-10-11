@@ -25,9 +25,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({ children, userData }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(userData);
+  const [loading, setLoading] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(null);
   const router = useRouter();
 
