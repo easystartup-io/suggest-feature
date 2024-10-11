@@ -59,7 +59,7 @@ export async function generateMetadata(
 
   // You can get the title or other metadata from searchParams or any other source
   const title = 'Feedback';
-  const company = resp?.org?.name || 'Feedback';
+  const company = resp?.org?.name || 'Suggest Feature';
   const logo = resp?.org?.logo || 'https://suggestfeature.com/logo-light.jpeg';
 
   const baseUrl = `${protocol}://${host}`;
@@ -70,7 +70,7 @@ export async function generateMetadata(
 
   return {
     openGraph: {
-      title,
+      title: company + ' - Feedback',
       type: 'website',
       images: [
         {
