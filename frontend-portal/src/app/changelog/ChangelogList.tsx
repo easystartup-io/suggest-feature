@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { headers } from 'next/headers';
 import Link from 'next/link'
+import { StickyDate } from './StickyDate';
 
 
 interface ChangelogItem {
@@ -35,11 +36,15 @@ export default async function ChangelogList() {
       {changelogItems.map((item, index) => (
         <div key={index} className="border-b">
           <div className='border-0 shadow-none'>
-            <div className='grid grid-cols-6 my-4'>
-              <div className="text-sm font-medium col-span-1">
-                {format(new Date(item.changelogDate), 'MMMM d, yyyy')}
+            <div className='grid md:grid-cols-6 my-4'>
+              <div className="text-sm font-medium md:col-span-1">
+                <StickyDate
+                  date={format(new Date(item.changelogDate), 'MMMM d, yyyy')}
+                  title={item.title}
+                  index={index}
+                />
               </div>
-              <div className='col-span-5'>
+              <div className='md:col-span-5'>
                 <div className="flex justify-between items-center"
                 >
                   <div className="text-xl font-semibold">
