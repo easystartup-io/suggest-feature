@@ -102,8 +102,10 @@ export default function Header({ params, initMetadata, userData }) {
             <Link href="/changelog">
               <div className="flex cursor-pointer hover:bg-gray-100 px-2 hover:py-4 hover:text-indigo-400 rounded-lg text-sm"
               >
-                <History className="mr-1 h-5 w-5" />
-                Changelog
+                <History className="md:mr-1 h-5 w-5" />
+                <div className="hidden md:block">
+                  Changelog
+                </div>
               </div>
             </Link>
           }
