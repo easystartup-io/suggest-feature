@@ -250,7 +250,7 @@ const Dashboard: React.FC = ({ params }) => {
         setReturnToSiteUrl(respData.returnToSiteUrl)
         setReturnToSiteUrlText(respData.returnToSiteUrlText)
 
-        setSsoSettings(resp.ssoSettings || {});
+        setSsoSettings(respData.ssoSettings || {});
 
         toast({
           title: 'Updated successfully',

@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +25,10 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -165,14 +165,50 @@ public class PublicPortalOpenGraphGenerator {
         }
     }
 
-    private BufferedImage convertSvgToPng(String svgUrl) throws Exception {
-        PNGTranscoder t = new PNGTranscoder();
-        TranscoderInput input = new TranscoderInput(new URL(svgUrl).openStream());
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        TranscoderOutput output = new TranscoderOutput(outputStream);
-        t.transcode(input, output);
-        byte[] imgData = outputStream.toByteArray();
-        return ImageIO.read(new ByteArrayInputStream(imgData));
+    private static BufferedImage convertSvgToPng(String svgUrl) throws Exception {
+        // Fetch SVG from the URL
+        InputStream svgInputStream = downloadSvgFromUrl(svgUrl);
+
+        // Custom ImageTranscoder to store the BufferedImage
+        final BufferedImage[] imagePointer = new BufferedImage[1];
+
+        ImageTranscoder transcoder = new ImageTranscoder() {
+            @Override
+            public BufferedImage createImage(int width, int height) {
+                return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            }
+
+            @Override
+            public void writeImage(BufferedImage bufferedImage, TranscoderOutput output) {
+                imagePointer[0] = bufferedImage;
+            }
+        };
+
+        // Create TranscoderInput from the InputStream
+        TranscoderInput input = new TranscoderInput(svgInputStream);
+
+        // Perform the transcoding
+        transcoder.transcode(input, null);
+
+        // Close the InputStream
+        svgInputStream.close();
+
+        // Return the generated BufferedImage
+        return imagePointer[0];
+    }
+
+    private static InputStream downloadSvgFromUrl(String svgUrl) throws Exception {
+        URL url = new URL(svgUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        // Check if the request is successful
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new RuntimeException("Failed to download SVG: HTTP error code " + responseCode);
+        }
+
+        return connection.getInputStream();
     }
 
     private BufferedImage readWebpImage(String webpUrl) throws Exception {

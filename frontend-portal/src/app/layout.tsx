@@ -58,14 +58,22 @@ export async function generateMetadata(
   const resp = await (await getInitMetadata());
 
   // You can get the title or other metadata from searchParams or any other source
-  const title = resp?.org?.name || 'Feedback';
+  const title = 'Feedback';
+  const company = resp?.org?.name || 'Feedback';
+  const logo = resp?.org?.logo || 'https://suggestfeature.com/logo-light.jpeg';
+
+  const baseUrl = `${protocol}://${host}`;
+  const url = new URL(`/api/og`, baseUrl);
+  url.searchParams.append('title', title);
+  url.searchParams.append('company', company);
+  url.searchParams.append('logo', logo);
 
   return {
     openGraph: {
       title,
       images: [
         {
-          url: `${protocol}://${host}/api/portal/unauth/og/get-company?title=${encodeURIComponent(title)}`,
+          url: url.toString(),
           width: 1200,
           height: 630,
           alt: title + ' - Feedback page'
