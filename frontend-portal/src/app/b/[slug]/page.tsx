@@ -114,6 +114,7 @@ const PostList = ({ posts, setPosts, params, setTempPosts }) => {
               )}
                 onClick={(e) => {
                   e.stopPropagation()
+                  e.preventDefault()
                   upVote(!item.selfVoted, item.id)
                 }}
               >

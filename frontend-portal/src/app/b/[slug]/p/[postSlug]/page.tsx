@@ -46,6 +46,8 @@ async function fetchPost(user, boardSlug, postSlug) {
     headers: {
       Authorization: user ? cookiesList?.get('token')?.value : null
     },
+    // Need to set no store to avoid caching issues. When upvoting and going to post, its not showing the upvoted post
+    cache: 'no-store'
   });
   if (!resp.ok) {
     return null;

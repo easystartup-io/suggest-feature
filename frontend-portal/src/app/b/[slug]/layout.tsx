@@ -2,16 +2,9 @@
 
 import { useInit } from "@/context/InitContext";
 import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
-import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select"
+import { ChevronDown, Home } from "lucide-react";
 import Link from "next/link";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function Layout({
   children, params
@@ -20,8 +13,6 @@ export default function Layout({
   const { boards } = useInit();
 
   const currentBoard = boards && boards.find((item) => item.slug === params.slug);
-
-  const router = useRouter();
 
   return (<div>
     <main className="flex flex-col gap-4 pl-4 pt-4 md:gap-8 md:pl-10 md:pt-6 w-full">
@@ -41,31 +32,33 @@ export default function Layout({
                 </div>
               </Button>
             </Link>
-            <Select
-              onValueChange={(val) => {
-                router.push('/b/' + val)
-              }}
-            >
-              <SelectTrigger className="w-[40px] px-2 flex items-center justify-center rounded-l-none ">
-                {""}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {boards && boards.map((item) => {
-                    return <Link
-                      href={`/b/${item.slug}`}
-                      key={item.slug}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon"
+                  className="rounded-l-none "
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent >
+                {boards && boards.map((item) => {
+                  return <Link
+                    href={`/b/${item.slug}`}
+                    key={item.slug}
+                  >
+                    <DropdownMenuItem
+                      className="cursor-pointer"
                     >
-                      <SelectItem value={item.slug}>{item.name}</SelectItem>
-                    </Link>
-                  })}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+                      {item.name}
+                    </DropdownMenuItem>
+                  </Link>
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
-    </main>
+    </main >
     {children}
-  </div>)
+  </div >)
 }
