@@ -48,7 +48,7 @@ export async function fetchLoggedInUserDetails() {
 
 
 export async function generateMetadata(
-  { searchParams }: Props,
+  { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const headersList = headers()
@@ -71,6 +71,7 @@ export async function generateMetadata(
   return {
     openGraph: {
       title,
+      type: 'website',
       images: [
         {
           url: url.toString(),
