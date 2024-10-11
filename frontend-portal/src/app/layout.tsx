@@ -24,7 +24,7 @@ export async function getInitMetadata() {
   return resp.json();
 }
 
-async function fetchLoggedInUserDetails() {
+export async function fetchLoggedInUserDetails() {
   const cookieStore = cookies()
   const token = cookieStore.get('token');
 
@@ -32,10 +32,10 @@ async function fetchLoggedInUserDetails() {
   const host = headersList.get('host') || 'localhost:3000';
   const protocol = 'https:';
 
-  if (token) {
+  if (token && token.value) {
     const response = await fetch(`${protocol}//${host}/api/auth/user`, {
       headers: {
-        Authorization: `${token}`,
+        Authorization: `${token.value}`,
       },
     });
 

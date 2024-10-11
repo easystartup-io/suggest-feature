@@ -106,6 +106,7 @@ export const AuthProvider = ({ children, userData }: { children: ReactNode }) =>
       const { token, user } = await response.json();
       Cookies.set('token', token);
       setUser(user);
+      router.refresh();
       return user;
     } else {
       console.error('Login failed');

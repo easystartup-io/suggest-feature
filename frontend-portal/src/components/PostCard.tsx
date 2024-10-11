@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Calendar, CheckCircle, ChevronUp, Circle, Eye, Flag, Loader, Play, Reply, Star, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Icons } from './icons';
 import Voters from './Voters';
 import AutoLink from './AutoLink';
@@ -198,6 +198,10 @@ function PostContent({ data, refetch, params }) {
 
   const [openReplyComment, setOpenReplyComment] = useState(false);
   const { verifyLoginOrPrompt } = useAuth()
+  const [browserLoaded, setBrowserLoaded] = useState(false);
+  useEffect(() => {
+    setBrowserLoaded(true)
+  }, [])
 
   return (
     <div >
@@ -226,7 +230,7 @@ function PostContent({ data, refetch, params }) {
               "text-xs text-muted-foreground flex items-center",
             )}
           >
-            {formatDistanceToNow(new Date(data.createdAt), {
+            {formatDistanceToNow(new Date(data.createdAt || new Date().getTime()), {
               addSuffix: true,
             })}
           </div>
@@ -362,11 +366,31 @@ function NewCommentInputOld({ data, params, refetch, inReplyToComment, postSubmi
   </div>)
 }
 
-export const PostCard = ({ post, params, disableExpand = false, refetch }) => {
+export const PostCard = ({ existingPost, params }) => {
+  const [post, setPost] = useState(existingPost);
+  const { user } = useAuth()
+
+  function refetch() {
+    const host = window.location.host
+    const protocol = window.location.protocol // http: or https:
+    const path = user ? 'api/portal/auth/posts/fetch-post' : 'api/portal/unauth/posts/fetch-post';
+
+    fetch(`${protocol}//${host}/${path}?boardSlug=${params.slug}&postSlug=${params.postSlug}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.priority) {
+          data.priority = "Medium"
+        }
+        setPost(data)
+      }).catch((e) => {
+        console.log(e)
+      })
+  }
 
   if (post.length === 0 || Object.keys(post).length === 0) {
     return (null)
   }
+
   return (
     <div className='grid md:grid-cols-3 gap-2'>
       <div className='md:col-span-2 md:border-r order-2 md:order-1'>
@@ -376,7 +400,6 @@ export const PostCard = ({ post, params, disableExpand = false, refetch }) => {
           <PostContent data={post} refetch={refetch} params={params} />
           <NewCommentInputOld data={post} params={params} refetch={refetch} inReplyToComment={false} />
           <Separator className='my-6' />
-          {/* <ActionButtons data={post} /> */}
           <CommentSection comments={post.comments} refetch={refetch} params={params} />
         </div>
       </div>

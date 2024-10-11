@@ -1,8 +1,7 @@
-"use client"
 import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
 import { PostCard } from "@/components/PostCard"
-import { useEffect, useState } from "react"
-import { useAuth } from "@/context/AuthContext"
+import { fetchLoggedInUserDetails } from "@/app/layout"
+import { headers, cookies } from "next/headers"
 
 export const statusConfig = {
   "OPEN": {
@@ -35,38 +34,41 @@ export const statusConfig = {
   }
 };
 
+async function fetchPost(user, boardSlug, postSlug) {
+  const headersList = headers();
+  const cookiesList = cookies();
+  const host = headersList.get('host') || 'localhost:3000';
+  const protocol = 'https:';
 
-export default function Dashboard({ params }) {
-  const [post, setPost] = useState([]);
-  const { user } = useAuth()
+  const path = user ? 'api/portal/auth/posts/fetch-post' : 'api/portal/unauth/posts/fetch-post';
 
-  function refetchPost() {
-    const host = window.location.host
-    const protocol = window.location.protocol // http: or https:
-    const path = user ? 'api/portal/auth/posts/fetch-post' : 'api/portal/unauth/posts/fetch-post';
-
-    fetch(`${protocol}//${host}/${path}?boardSlug=${params.slug}&postSlug=${params.postSlug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.priority) {
-          data.priority = "Medium"
-        }
-        setPost(data)
-      }).catch((e) => {
-        console.log(e)
-      })
+  const resp = await fetch(`${protocol}//${host}/${path}?boardSlug=${boardSlug}&postSlug=${postSlug}`, {
+    headers: {
+      Authorization: user ? cookiesList?.get('token')?.value : null
+    },
+  });
+  if (!resp.ok) {
+    return null;
   }
+  const data = await resp.json()
+  if (!data.priority) {
+    data.priority = "Medium"
+  }
+  return data
+}
 
-  useEffect(() => {
-    if (params.postSlug) {
-      refetchPost()
-    }
-  }, [params.postSlug, user])
+export default async function Dashboard({ params }) {
+  const loggedInUser = await fetchLoggedInUserDetails()
+  const post = await fetchPost(loggedInUser, params.slug, params.postSlug);
+
+  if (!post) {
+    return <div className="flex items-center justify-center w-full  h-[50vh] font-bold text-xl">Post not found</div>
+  }
 
   return (
     <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-2 w-full">
       <div className="w-full">
-        <PostCard params={params} post={post} refetch={refetchPost} />
+        <PostCard params={params} existingPost={post} />
       </div>
     </main>
   )

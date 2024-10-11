@@ -158,6 +158,9 @@ public class PublicPortalPostRestApi {
         }
         Criteria criteriaDefinition = Criteria.where(Post.FIELD_BOARD_ID).is(board.getId()).and(Post.FIELD_SLUG).is(postSlug).and(Post.FIELD_ORGANIZATION_ID).is(org.getId());
         Post post = mongoConnection.getDefaultMongoTemplate().findOne(new Query(criteriaDefinition), Post.class);
+        if (post == null) {
+            return Response.ok().entity("{}").build();
+        }
         post.setBoardSlug(boardSlug);
         populatePost(post, org.getId(), null, false);
 

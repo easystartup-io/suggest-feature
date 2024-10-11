@@ -15,8 +15,8 @@ const getInitials = (name) => {
 };
 
 const Voters = ({ voters }) => {
-  const displayedVoters = voters.slice(0, 3);
-  const remainingVoters = voters.length - 3;
+  const displayedVoters = voters?.slice(0, 3);
+  const remainingVoters = voters?.length - 3;
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
