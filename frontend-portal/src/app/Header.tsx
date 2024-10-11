@@ -88,7 +88,7 @@ export default function Header({ params, initMetadata, userData }) {
             <Button
               variant="ghost"
               type="button"
-              className="text-xs text-muted-foreground"
+              className="text-xs text-muted-foreground hidden md:block"
               onClick={() => {
                 window.open(org.returnToSiteUrl, '_blank');
               }}
