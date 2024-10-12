@@ -1,7 +1,8 @@
 "use client";
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function OgImagePage() {
+function OgImagePage() {
   const searchParams = useSearchParams();
   const logo = searchParams.get('logo') || 'https://suggestfeature.com/logo-light.jpeg';
   const company = searchParams.get('company') || 'Suggest Feature';
@@ -29,3 +30,11 @@ export default function OgImagePage() {
   );
 }
 
+export default function Page() {
+  return (
+    // You could have a loading skeleton as the `fallback` too
+    <Suspense>
+      <OgImagePage />
+    </Suspense>
+  )
+}
