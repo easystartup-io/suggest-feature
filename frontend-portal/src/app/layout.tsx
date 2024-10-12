@@ -71,13 +71,14 @@ export async function generateMetadata(
   return {
     openGraph: {
       title: company + ' - Feedback',
+      description: 'Suggest new features or improvements for ' + company,
       type: 'website',
       images: [
         {
           url: url.toString(),
           width: 1200,
           height: 630,
-          alt: title + ' - Feedback page'
+          alt: company + ' - Feedback page'
         }
       ],
     },
