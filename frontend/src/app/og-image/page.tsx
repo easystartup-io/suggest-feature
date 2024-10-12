@@ -9,7 +9,7 @@ function OgImagePage() {
   const title = searchParams.get('title') || 'Feedback';
 
   return (
-    <div className="flex flex-col justify-between p-12 bg-white w-[1200px] h-[630px] border border-gray-300">
+    <div className="flex flex-col justify-between p-12 bg-white w-[1200px] h-[630px]">
       <div className="flex flex-col items-start">
         {logo && (
           <img
@@ -32,7 +32,6 @@ function OgImagePage() {
 
 export default function Page() {
   return (
-    // You could have a loading skeleton as the `fallback` too
     <Suspense>
       <OgImagePage />
     </Suspense>

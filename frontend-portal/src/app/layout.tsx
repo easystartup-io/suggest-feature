@@ -66,7 +66,7 @@ export async function generateMetadata(
   const logo = resp?.org?.logo || 'https://suggestfeature.com/logo-light.jpeg';
 
   const baseUrl = `${protocol}://${host}`;
-  const url = new URL(`/api/og`, baseUrl);
+  const url = new URL(`/api/portal/unauth/og/get-ss`, baseUrl);
   url.searchParams.append('title', title);
   url.searchParams.append('company', company);
   url.searchParams.append('logo', logo);

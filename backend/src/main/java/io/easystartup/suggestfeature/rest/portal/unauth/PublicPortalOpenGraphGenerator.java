@@ -1,45 +1,38 @@
 package io.easystartup.suggestfeature.rest.portal.unauth;
 
-
-import com.ibm.icu.text.SimpleDateFormat;
-import com.luciad.imageio.webp.WebPReadParam;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.easystartup.suggestfeature.beans.Organization;
+import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.loggers.Logger;
 import io.easystartup.suggestfeature.loggers.LoggerFactory;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.KeyValueStore;
-import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.easystartup.suggestfeature.utils.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.UUID;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.SimpleFormatter;
 
 /*
  * @author indianBond
@@ -48,100 +41,89 @@ import java.util.logging.SimpleFormatter;
 @Component
 public class PublicPortalOpenGraphGenerator {
 
-    private final MongoTemplateFactory mongoConnection;
     private final AuthService authService;
     private final KeyValueStore keyValueStore;
     private static final Logger LOGGER = LoggerFactory.getLogger(PublicPortalOpenGraphGenerator.class);
+    private final String SCREENSHOT_SERVICE_URL;
+    private final String OG_IMAGE_BASE_URL;
 
     @Autowired
-    public PublicPortalOpenGraphGenerator(MongoTemplateFactory mongoConnection, AuthService authService, KeyValueStore keyValueStore) {
-        this.mongoConnection = mongoConnection;
+    public PublicPortalOpenGraphGenerator(AuthService authService, KeyValueStore keyValueStore) {
         this.authService = authService;
         this.keyValueStore = keyValueStore;
+        SCREENSHOT_SERVICE_URL = Util.getEnvVariable("SCREENSHOT_SERVICE_URL", "http://localhost:9191/screenshot");
+        OG_IMAGE_BASE_URL = Util.getEnvVariable("OG_IMAGE_BASE_URL", "http://localhost:8080/og-image");
     }
 
     @GET
-    @Path("/get-company")
-    public Response getOpenGraph(@Context HttpServletRequest request) {
-        String host = request.getHeader("host");
-        String orgIdFromHost = authService.getOrgIdFromHost(host);
-
-        String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost);
-        String finalUrl = keyValueStore.get(cacheKeyForCompany);
-        if (finalUrl != null) {
-            return Response.temporaryRedirect(URI.create(finalUrl)).build();
-        }
-
-        Organization org = authService.getOrgById(orgIdFromHost);
-        if (org == null) {
-            return Response.ok().entity(Collections.emptyList()).build();
-        }
-        String name = org.getName();
-        String logo = org.getLogo();
-        if (logo == null) {
-            logo = "https://suggestfeature.com/logo-light.jpeg";
-        }
-        String uploadedUrl = generateAndUploadOpenGraphImage(logo, name, null, org.getId());
-        if (uploadedUrl != null) {
-            keyValueStore.save(cacheKeyForCompany, uploadedUrl, TimeUnit.MINUTES.toMillis(30));
-        }
-        return Response.temporaryRedirect(URI.create(uploadedUrl)).build();
-    }
-
-    public String generateAndUploadOpenGraphImage(String logoUrl, String orgName, String userId, String orgId) {
-        int width = 1200;
-        int height = 630;
+    @Path("/get-ss")
+    public Response getScreenshot(
+            @Context HttpServletRequest httpServletRequest,
+            @QueryParam("title") String title,
+            @QueryParam("company") String company,
+            @QueryParam("logo") String logo) {
         File tempFile = null;
-
         try {
-            // Create a high-quality buffered image
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = image.createGraphics();
+            String host = httpServletRequest.getHeader("host");
+            String orgIdFromHost = authService.getOrgIdFromHost(host);
 
-            // Enable anti-aliasing for smoother rendering
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-
-            // Set background
-            g2d.setColor(Color.WHITE);
-            g2d.fillRect(0, 0, width, height);
-
-            // Load and draw logo
-            int logoX = 50;
-            int logoY = 50;
-            int logoHeight = height / 10;
-            try {
-                BufferedImage logo = loadImage(logoUrl);
-                int logoWidth = (int) ((double) logo.getWidth() / logo.getHeight() * logoHeight);
-                g2d.drawImage(logo, logoX, logoY, logoWidth, logoHeight, null);
-            } catch (Throwable e) {
-                LOGGER.error("Failed to load logo", e);
+            String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost);
+            String finalUrl = keyValueStore.get(cacheKeyForCompany);
+            if (finalUrl != null) {
+                return Response.temporaryRedirect(URI.create(finalUrl)).build();
             }
 
-            // Add organization name
-            g2d.setColor(Color.BLACK);
-            g2d.setFont(new Font("Arial", Font.BOLD, 60));
-            FontMetrics fm = g2d.getFontMetrics();
-            int textY = logoY + logoHeight + 50 + fm.getAscent();
-            g2d.drawString(orgName, logoX, textY);
+            Organization org = authService.getOrgById(orgIdFromHost);
+            if (org == null) {
+                return Response.ok().entity(Collections.emptyList()).build();
+            }
 
-            // Add "Feedback" text
-            g2d.setFont(new Font("Arial", Font.PLAIN, 48));
-            fm = g2d.getFontMetrics();
-            int feedbackY = textY + fm.getHeight() + 20;
-            g2d.drawString("Feedback", logoX, feedbackY);
 
-            // Add "Powered by Suggest Feature" text at the bottom
-            g2d.setFont(new Font("Arial", Font.PLAIN, 24));
-            g2d.setColor(new Color(136, 136, 136)); // Light grey color for the text
-            int poweredByY = height - 50;
-            g2d.drawString("Powered by Suggest Feature", logoX, poweredByY);
+            String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
+            String encodedCompany = URLEncoder.encode(company, StandardCharsets.UTF_8);
+            String encodedLogo = URLEncoder.encode(logo, StandardCharsets.UTF_8);
 
-            g2d.dispose();
+            String ogImageUrl = String.format("%s?title=%s&company=%s&logo=%s",
+                    OG_IMAGE_BASE_URL, encodedTitle, encodedCompany, encodedLogo);
 
-            // Create temp file with high-quality PNG encoding
+            ObjectMapper mapper;
+            HttpResponse<String> response;
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                mapper = new ObjectMapper();
+
+                String jsonInputString = mapper.writeValueAsString(Map.of(
+                        "url", ogImageUrl,
+                        "height", "630"
+                ));
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(SCREENSHOT_SERVICE_URL))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonInputString))
+                        .build();
+
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            }
+
+            if (response.statusCode() != 200) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("Failed to get screenshot: " + response.body())
+                        .build();
+            }
+
+            JsonNode jsonNode = mapper.readTree(response.body());
+            String base64Image = jsonNode.get("image").asText();
+
+            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+            InputStream is = new ByteArrayInputStream(imageBytes);
+            BufferedImage image = ImageIO.read(is);
+
+            if (image == null) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("Failed to decode image")
+                        .build();
+            }
+
             tempFile = File.createTempFile(UUID.randomUUID().toString(), ".png");
             ImageIO.write(image, "png", tempFile);
 
@@ -150,94 +132,19 @@ public class PublicPortalOpenGraphGenerator {
             String format = simpleDateFormat.format(new Date());
 
             // Upload to S3 using the provided method
-            return Util.uploadCopyOfLocalFile(userId, orgId, tempFile.getAbsolutePath(), "og-image/" + format);
+            String uploadedUrl = Util.uploadCopyOfLocalFile(null, org.getId(), tempFile.getAbsolutePath(), "og-image/" + format);
+
+            if (uploadedUrl == null) {
+                throw new UserVisibleException("Failed to upload image for : " + host);
+            }
+
+            keyValueStore.save(cacheKeyForCompany, uploadedUrl, TimeUnit.MINUTES.toMillis(30));
+            return Response.temporaryRedirect(URI.create(uploadedUrl)).build();
         } catch (Exception e) {
-            LOGGER.error("Failed to generate and upload Open Graph image", e);
-            return null;
+            LOGGER.error("Failed to get screenshot", e);
+            throw new UserVisibleException("Failed to get screenshot", e);
         } finally {
-            if (tempFile != null) {
-                try {
-                    Files.deleteIfExists(tempFile.toPath());
-                } catch (IOException e) {
-                    LOGGER.error("Failed to delete temporary file", e);
-                }
-            }
-        }
-    }
-    private BufferedImage loadImage(String imageUrl) throws Exception {
-        if (imageUrl.toLowerCase().endsWith(".svg")) {
-            return convertSvgToPng(imageUrl);
-        } else if (imageUrl.toLowerCase().endsWith(".webp")) {
-            return readWebpImage(imageUrl);
-        } else {
-            return ImageIO.read(new URL(imageUrl));
-        }
-    }
-
-    private static BufferedImage convertSvgToPng(String svgUrl) throws Exception {
-        // Fetch SVG from the URL
-        InputStream svgInputStream = downloadSvgFromUrl(svgUrl);
-
-        // Custom ImageTranscoder to store the BufferedImage
-        final BufferedImage[] imagePointer = new BufferedImage[1];
-
-        ImageTranscoder transcoder = new ImageTranscoder() {
-            @Override
-            public BufferedImage createImage(int width, int height) {
-                return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            }
-
-            @Override
-            public void writeImage(BufferedImage bufferedImage, TranscoderOutput output) {
-                imagePointer[0] = bufferedImage;
-            }
-        };
-
-        // Create TranscoderInput from the InputStream
-        TranscoderInput input = new TranscoderInput(svgInputStream);
-
-        // Perform the transcoding
-        transcoder.transcode(input, null);
-
-        // Close the InputStream
-        svgInputStream.close();
-
-        // Return the generated BufferedImage
-        return imagePointer[0];
-    }
-
-    private static InputStream downloadSvgFromUrl(String svgUrl) throws Exception {
-        URL url = new URL(svgUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        // Check if the request is successful
-        int responseCode = connection.getResponseCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new RuntimeException("Failed to download SVG: HTTP error code " + responseCode);
-        }
-
-        return connection.getInputStream();
-    }
-
-    private BufferedImage readWebpImage(String webpUrl) throws Exception {
-        URL url = new URL(webpUrl);
-        ImageReader reader = null;
-        ImageInputStream iis = null;
-        try {
-            iis = ImageIO.createImageInputStream(url.openStream());
-            Iterator<ImageReader> readers = ImageIO.getImageReadersByMIMEType("image/webp");
-            if (!readers.hasNext()) {
-                throw new IllegalStateException("No WebP image reader found");
-            }
-            reader = readers.next();
-            reader.setInput(iis);
-            WebPReadParam readParam = new WebPReadParam();
-            readParam.setBypassFiltering(true);
-            return reader.read(0, readParam);
-        } finally {
-            if (reader != null) reader.dispose();
-            if (iis != null) iis.close();
+            FileUtils.deleteQuietly(tempFile);
         }
     }
 

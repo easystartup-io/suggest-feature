@@ -1,0 +1,13 @@
+{
+  "name": "screenshot-app",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "puppeteer": "^23.5.3"
+  }
+}
