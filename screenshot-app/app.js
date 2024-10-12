@@ -6,6 +6,10 @@ const port = 9191;
 
 app.use(express.json());
 
+app.get('/healthz', async (req, res) => {
+  res.status(200).json({});
+});
+
 app.post('/screenshot', async (req, res) => {
   const { url, height } = req.body;
 
