@@ -10,6 +10,9 @@ import { Suspense } from "react";
 import "./globals.css";
 import SuspenseProvider from "./SuspenseProviderResizeIfEmbedded";
 import { cookies, headers } from "next/headers";
+import { ResolvingMetadata, Metadata } from "next";
+import { Props } from "next/script";
+import PopulateOgUrl from "./PopulateOgUrl";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -101,6 +104,7 @@ async function RootLayout({
         parsedData?.org?.favicon &&
         <link rel="icon" href={parsedData.org.favicon} sizes="any" />
       }
+      <PopulateOgUrl />
       <body className={cn(inter.className, "bg-muted/40")}>
         <ThemeProvider
           attribute="class"

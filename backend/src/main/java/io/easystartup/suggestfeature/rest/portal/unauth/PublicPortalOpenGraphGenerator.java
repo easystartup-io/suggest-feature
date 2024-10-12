@@ -1,6 +1,7 @@
 package io.easystartup.suggestfeature.rest.portal.unauth;
 
 
+import com.ibm.icu.text.SimpleDateFormat;
 import com.luciad.imageio.webp.WebPReadParam;
 import io.easystartup.suggestfeature.beans.Organization;
 import io.easystartup.suggestfeature.loggers.Logger;
@@ -17,6 +18,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,9 +35,11 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.SimpleFormatter;
 
 /*
  * @author indianBond
@@ -105,33 +109,35 @@ public class PublicPortalOpenGraphGenerator {
             g2d.fillRect(0, 0, width, height);
 
             // Load and draw logo
-            BufferedImage logo = loadImage(logoUrl);
-            int logoHeight = height / 3;
-            int logoWidth = (int) ((double) logo.getWidth() / logo.getHeight() * logoHeight);
             int logoX = 50;
             int logoY = 50;
-            g2d.drawImage(logo, logoX, logoY, logoWidth, logoHeight, null);
+            int logoHeight = height / 10;
+            try {
+                BufferedImage logo = loadImage(logoUrl);
+                int logoWidth = (int) ((double) logo.getWidth() / logo.getHeight() * logoHeight);
+                g2d.drawImage(logo, logoX, logoY, logoWidth, logoHeight, null);
+            } catch (Throwable e) {
+                LOGGER.error("Failed to load logo", e);
+            }
 
             // Add organization name
             g2d.setColor(Color.BLACK);
-            g2d.setFont(new Font("Arial", Font.BOLD, 48));
+            g2d.setFont(new Font("Arial", Font.BOLD, 60));
             FontMetrics fm = g2d.getFontMetrics();
             int textY = logoY + logoHeight + 50 + fm.getAscent();
-            g2d.drawString(orgName, 50, textY);
+            g2d.drawString(orgName, logoX, textY);
 
             // Add "Feedback" text
-            g2d.setFont(new Font("Arial", Font.PLAIN, 36));
+            g2d.setFont(new Font("Arial", Font.PLAIN, 48));
             fm = g2d.getFontMetrics();
             int feedbackY = textY + fm.getHeight() + 20;
-            g2d.drawString("Feedback", 50, feedbackY);
+            g2d.drawString("Feedback", logoX, feedbackY);
 
-//            // Add a subtle border
-//            g2d.setColor(new Color(200, 200, 200));
-//            g2d.setStroke(new BasicStroke(2));
-//            g2d.drawRect(10, 10, width - 20, height - 20);
-
-            g2d.scale(1, 1);
-
+            // Add "Powered by Suggest Feature" text at the bottom
+            g2d.setFont(new Font("Arial", Font.PLAIN, 24));
+            g2d.setColor(new Color(136, 136, 136)); // Light grey color for the text
+            int poweredByY = height - 50;
+            g2d.drawString("Powered by Suggest Feature", logoX, poweredByY);
 
             g2d.dispose();
 
@@ -139,8 +145,12 @@ public class PublicPortalOpenGraphGenerator {
             tempFile = File.createTempFile(UUID.randomUUID().toString(), ".png");
             ImageIO.write(image, "png", tempFile);
 
+            // Create year/month/day folder structure
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            String format = simpleDateFormat.format(new Date());
+
             // Upload to S3 using the provided method
-            return Util.uploadCopyOfLocalFile(userId, orgId, tempFile.getAbsolutePath(), "og-image");
+            return Util.uploadCopyOfLocalFile(userId, orgId, tempFile.getAbsolutePath(), "og-image/" + format);
         } catch (Exception e) {
             LOGGER.error("Failed to generate and upload Open Graph image", e);
             return null;
@@ -154,7 +164,6 @@ public class PublicPortalOpenGraphGenerator {
             }
         }
     }
-
     private BufferedImage loadImage(String imageUrl) throws Exception {
         if (imageUrl.toLowerCase().endsWith(".svg")) {
             return convertSvgToPng(imageUrl);
