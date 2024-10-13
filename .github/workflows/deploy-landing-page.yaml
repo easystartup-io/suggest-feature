@@ -1,9 +1,9 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages - (Disabled)
 
 on:
   push:
     branches:
-      - main
+      - custom-disabled-workflow
     # Review gh actions docs if you want to further define triggers, paths, etc
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
 
