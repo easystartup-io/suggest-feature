@@ -26,6 +26,9 @@ export default function Footer() {
                   <a href="https://docs.suggestfeature.com" className="hover:underline">Docs</a>
                 </li>
                 <li className="mb-4">
+                  <a href="https://suggestfeature.com/blog" className="hover:underline">Blog</a>
+                </li>
+                <li className="mb-4">
                   <a href="/contact-us" className="hover:underline">Contact us</a>
                 </li>
                 <li className="mb-4">
@@ -41,6 +44,9 @@ export default function Footer() {
               <ul className="text-gray-600 dark:text-gray-400">
                 <li className="mb-4">
                   <a href="https://github.com/easystartup-io/suggest-feature" target="_blank" className="hover:underline ">Github</a>
+                </li>
+                <li className="mb-4">
+                  <a href="https://x.com/consistentMach" target="_blank" className="hover:underline ">X (Twitter)</a>
                 </li>
               </ul>
             </div>
