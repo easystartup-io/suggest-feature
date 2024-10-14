@@ -110,7 +110,7 @@ export default function Header({ params, initMetadata, userData }) {
             </Link>
           }
           <ModeToggle />
-          {user && user.name ?
+          {user && user.id ?
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="rounded-full">
