@@ -2,8 +2,21 @@ import { Suspense } from 'react';
 import ChangelogList from './ChangelogList';
 import Loading from './loading';
 import SubscribeToChangelog from './SubscribeToChangelog';
+import { ResolvingMetadata, Metadata } from 'next';
+import { Props } from 'next/script';
+import { defaultMetadata } from '../layout';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const category = 'Changelog';
+  const title = 'Changelog';
+
+  return await defaultMetadata(category, title)
+}
 
 export default function ChangelogPage() {
   return (

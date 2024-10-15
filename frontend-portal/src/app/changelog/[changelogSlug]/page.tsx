@@ -4,6 +4,9 @@ import { headers } from 'next/headers';
 import { ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { defaultMetadata } from '@/app/layout';
+import { ResolvingMetadata, Metadata } from 'next';
+import { Props } from 'next/script';
 
 interface ChangelogItem {
   title: string;
@@ -11,6 +14,17 @@ interface ChangelogItem {
   coverImage: string;
   changelogDate: number;
   tags: string[];
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const category = 'Changelog';
+  const item = await getChangelogItems(params);
+  const title = item?.title || category
+
+  return await defaultMetadata(category, title)
 }
 
 async function getChangelogItems(params): Promise<ChangelogItem[]> {

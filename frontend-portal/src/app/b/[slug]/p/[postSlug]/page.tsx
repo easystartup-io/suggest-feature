@@ -1,7 +1,9 @@
 import { Calendar, CheckCircle, Circle, Eye, Loader, Play, XCircle } from "lucide-react"
 import { PostCard } from "@/components/PostCard"
-import { fetchLoggedInUserDetails } from "@/app/layout"
+import { defaultMetadata, fetchLoggedInUserDetails } from "@/app/layout"
 import { headers, cookies } from "next/headers"
+import { ResolvingMetadata, Metadata } from "next";
+import { Props } from "next/script";
 
 export const statusConfig = {
   "OPEN": {
@@ -57,6 +59,19 @@ async function fetchPost(user, boardSlug, postSlug) {
     data.priority = "Medium"
   }
   return data
+}
+
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const category = 'Feedback';
+  const loggedInUser = await fetchLoggedInUserDetails()
+  const post = await fetchPost(loggedInUser, params.slug, params.postSlug);
+  const title = post?.title || category
+
+  return await defaultMetadata(category, title)
 }
 
 export default async function Dashboard({ params }) {

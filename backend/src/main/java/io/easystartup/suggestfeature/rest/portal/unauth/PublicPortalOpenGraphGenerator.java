@@ -16,6 +16,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,14 +61,13 @@ public class PublicPortalOpenGraphGenerator {
     public Response getScreenshot(
             @Context HttpServletRequest httpServletRequest,
             @QueryParam("title") String title,
-            @QueryParam("company") String company,
-            @QueryParam("logo") String logo) {
+            @QueryParam("category") String category) {
         File tempFile = null;
         try {
             String host = httpServletRequest.getHeader("host");
             String orgIdFromHost = authService.getOrgIdFromHost(host);
 
-            String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost);
+            String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost, title + category);
             String finalUrl = keyValueStore.get(cacheKeyForCompany);
             if (finalUrl != null) {
                 return Response.temporaryRedirect(URI.create(finalUrl)).build();
@@ -78,9 +78,17 @@ public class PublicPortalOpenGraphGenerator {
                 return Response.ok().entity(Collections.emptyList()).build();
             }
 
+            String logo = org.getLogo();
+            if (StringUtils.isEmpty(logo)) {
+                logo = "https://suggestfeature.com/logo-light.jpeg";
+            }
+
+            if (StringUtils.isEmpty(title)) {
+                title = category;
+            }
 
             String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8);
-            String encodedCompany = URLEncoder.encode(company, StandardCharsets.UTF_8);
+            String encodedCompany = URLEncoder.encode(org.getName(), StandardCharsets.UTF_8);
             String encodedLogo = URLEncoder.encode(logo, StandardCharsets.UTF_8);
 
             String ogImageUrl = String.format("%s?title=%s&company=%s&logo=%s",
@@ -148,7 +156,7 @@ public class PublicPortalOpenGraphGenerator {
         }
     }
 
-    private static String getCacheKeyForCompany(String orgId) {
-        return "og-company-image-" + orgId;
+    private static String getCacheKeyForCompany(String orgId, String title) {
+        return "og-company-image-" + orgId + "-" + title;
     }
 }

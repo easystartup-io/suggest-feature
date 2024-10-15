@@ -49,11 +49,7 @@ export async function fetchLoggedInUserDetails() {
   return null;
 };
 
-
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function defaultMetadata(category, title) {
   const headersList = headers()
   const host = headersList.get('host') || 'localhost:3000'
   const protocol = 'https';
@@ -61,31 +57,38 @@ export async function generateMetadata(
   const resp = await (await getInitMetadata());
 
   // You can get the title or other metadata from searchParams or any other source
-  const title = 'Feedback';
   const company = resp?.org?.name || 'Suggest Feature';
-  const logo = resp?.org?.logo || 'https://suggestfeature.com/logo-light.jpeg';
 
   const baseUrl = `${protocol}://${host}`;
   const url = new URL(`/api/portal/unauth/og/get-ss`, baseUrl);
+  url.searchParams.append('category', category);
   url.searchParams.append('title', title);
-  url.searchParams.append('company', company);
-  url.searchParams.append('logo', logo);
 
   return {
     openGraph: {
-      title: company + ' - Feedback',
-      description: 'Suggest new features or improvements for ' + company,
+      title: `${company} - ${category}`,
+      description: `${title} | ${category} for ${company}`,
       type: 'website',
       images: [
         {
           url: url.toString(),
           width: 1200,
           height: 630,
-          alt: company + ' - Feedback page'
+          alt: `${company} - ${category} page`
         }
       ],
     },
   }
+}
+
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const title = 'Feedback';
+
+  return await defaultMetadata('Feedback', title);
 }
 
 
