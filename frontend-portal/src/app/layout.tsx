@@ -63,6 +63,10 @@ export async function defaultMetadata(category, title) {
   const url = new URL(`/api/portal/unauth/og/get-ss`, baseUrl);
   url.searchParams.append('category', category);
   url.searchParams.append('title', title);
+  // Add random url to avoid caching at socialMedia
+  // valid string
+  url.searchParams.append('v', Math.random().toString(36).substring(7))
+
 
   return {
     openGraph: {

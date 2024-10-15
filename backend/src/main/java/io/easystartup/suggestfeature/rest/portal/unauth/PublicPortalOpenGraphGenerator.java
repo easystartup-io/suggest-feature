@@ -15,12 +15,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -59,23 +57,23 @@ public class PublicPortalOpenGraphGenerator {
             @Context HttpServletRequest httpServletRequest,
             @QueryParam("title") String title,
             @QueryParam("category") String category) {
-        File tempFile = null;
         try {
             String host = httpServletRequest.getHeader("host");
             String orgIdFromHost = authService.getOrgIdFromHost(host);
 
-            String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost, title + category);
+            Organization org = authService.getOrgById(orgIdFromHost);
+            if (org == null) {
+                return Response.ok().entity(Collections.emptyList()).build();
+            }
+
+            String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost, title + category + org.getLogo() + org.getName());
+            // If any of these things change then the cache should be invalidated
             String base64EncodedString = keyValueStore.get(cacheKeyForCompany);
             if (base64EncodedString != null) {
                 byte[] imageBytes = Base64.getDecoder().decode(base64EncodedString);
                 return Response.ok(imageBytes)
                         .header("Content-Type", "image/png")
                         .build();
-            }
-
-            Organization org = authService.getOrgById(orgIdFromHost);
-            if (org == null) {
-                return Response.ok().entity(Collections.emptyList()).build();
             }
 
             String logo = org.getLogo();
@@ -123,15 +121,13 @@ public class PublicPortalOpenGraphGenerator {
             String base64Image = jsonNode.get("image").asText();
 
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-            keyValueStore.save(cacheKeyForCompany, base64Image, TimeUnit.MINUTES.toMillis(30));
+            keyValueStore.save(cacheKeyForCompany, base64Image, TimeUnit.DAYS.toMillis(30));
             return Response.ok(imageBytes)
                     .header("Content-Type", "image/png")
                     .build();
         } catch (Exception e) {
             LOGGER.error("Failed to get screenshot", e);
             throw new UserVisibleException("Failed to get screenshot", e);
-        } finally {
-            FileUtils.deleteQuietly(tempFile);
         }
     }
 
