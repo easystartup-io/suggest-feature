@@ -19,7 +19,12 @@ app.post('/screenshot', async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
-      headless: "new"
+      headless: "new",
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined // Set Chromium path for ARM compatibility
     });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle0' });
