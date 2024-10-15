@@ -106,7 +106,10 @@ export const AuthProvider = ({ children, userData }: { children: ReactNode }) =>
       const { token, user } = await response.json();
       Cookies.set('token', token);
       setUser(user);
-      window.location.reload()
+      // If name was not set, then don't reload. Beacuse you need to prompt the user for filling name
+      if (user && user.name) {
+        window.location.reload()
+      }
       return user;
     } else {
       console.error('Login failed');

@@ -1,3 +1,4 @@
+"use client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,15 +19,15 @@ import { Icons } from "./icons"
 import { useAuth } from "@/context/AuthContext"
 import { useInit } from "@/context/InitContext"
 
-function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
-  const { verifyCode, updateUserName } = useAuth()
+function AuthDialog({ openLoginDialog, setOpenLoginDialog, userData }) {
+  const { verifyCode, updateUserName, user } = useAuth()
   const { org } = useInit();
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
-  const [currentState, setCurrentState] = useState("email")
+  const [currentState, setCurrentState] = useState(((userData && !userData.name) || user && !user.name) ? "name" : "email")
   const [verificationCode, setVerificationCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
@@ -79,7 +80,7 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
         const name = lastName ? `${firstName} ${lastName}` : firstName;
         await updateUserName(name)
         // User updated successfully
-        setOpenLoginDialog(false)
+        setOpenLoginDialog(false, true)
       }
     } catch (e) {
       toast({
@@ -114,13 +115,13 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog }) {
         <Button variant="outline"
           onClick={() => {
             setOpenLoginDialog(true)
-            // Reset all
-            setIsLogin(true);
-            setLastName('')
-            setFirstName('')
-            setCurrentState('email')
-            setVerificationCode('')
-            setEmail('')
+            // // Reset all
+            // setIsLogin(true);
+            // setLastName('')
+            // setFirstName('')
+            // setCurrentState('email')
+            // setVerificationCode('')
+            // setEmail('')
             setIsLoading(false)
           }}
         >Log in</Button>

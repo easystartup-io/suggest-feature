@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
 import Link from 'next/link';
+import { useToast } from "@/components/ui/use-toast"
 
 function Custom404() {
   return (
@@ -37,9 +38,10 @@ export default function Header({ params, initMetadata, userData }) {
 
   const hideNavBar = searchParams.get('hideNavBar')
 
-  const [openLoginDialog, setOpenLoginDialog] = useState(false)
+  const [openLoginDialog, setOpenLoginDialog] = useState((userData && !userData.name) || false)
 
   const mainContentRef = useRef(null);
+  const { toast } = useToast()
 
   useEffect(() => {
     if (mainContentRef.current) {
@@ -110,7 +112,7 @@ export default function Header({ params, initMetadata, userData }) {
             </Link>
           }
           <ModeToggle />
-          {user && user.id ?
+          {user && user.name ?
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="rounded-full">
@@ -154,7 +156,23 @@ export default function Header({ params, initMetadata, userData }) {
               </DropdownMenuContent>
             </DropdownMenu>
             :
-            <LoginDialog openLoginDialog={openLoginDialog} setOpenLoginDialog={setOpenLoginDialog} />}
+            <LoginDialog
+              openLoginDialog={openLoginDialog}
+              setOpenLoginDialog={(val, skipValidation = false) => {
+                // prevent closing of dialog box if name not entered
+                if (userData && !userData.name && !skipValidation) {
+                  toast({
+                    title: 'Name is required',
+                    description: 'Please enter your name to continue',
+                    variant: 'destructive',
+                    duration: 5000,
+                  })
+                } else {
+                  setOpenLoginDialog(val)
+                }
+              }}
+              userData={userData}
+            />}
         </div>
       </header>
     </div>
