@@ -20,19 +20,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -68,9 +65,12 @@ public class PublicPortalOpenGraphGenerator {
             String orgIdFromHost = authService.getOrgIdFromHost(host);
 
             String cacheKeyForCompany = getCacheKeyForCompany(orgIdFromHost, title + category);
-            String finalUrl = keyValueStore.get(cacheKeyForCompany);
-            if (finalUrl != null) {
-                return Response.temporaryRedirect(URI.create(finalUrl)).build();
+            String base64EncodedString = keyValueStore.get(cacheKeyForCompany);
+            if (base64EncodedString != null) {
+                byte[] imageBytes = Base64.getDecoder().decode(base64EncodedString);
+                return Response.ok(imageBytes)
+                        .header("Content-Type", "image/png")
+                        .build();
             }
 
             Organization org = authService.getOrgById(orgIdFromHost);
@@ -123,31 +123,10 @@ public class PublicPortalOpenGraphGenerator {
             String base64Image = jsonNode.get("image").asText();
 
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-            InputStream is = new ByteArrayInputStream(imageBytes);
-            BufferedImage image = ImageIO.read(is);
-
-            if (image == null) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                        .entity("Failed to decode image")
-                        .build();
-            }
-
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), ".png");
-            ImageIO.write(image, "png", tempFile);
-
-            // Create year/month/day folder structure
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-            String format = simpleDateFormat.format(new Date());
-
-            // Upload to S3 using the provided method
-            String uploadedUrl = Util.uploadCopyOfLocalFile(null, org.getId(), tempFile.getAbsolutePath(), "og-image/" + format);
-
-            if (uploadedUrl == null) {
-                throw new UserVisibleException("Failed to upload image for : " + host);
-            }
-
-            keyValueStore.save(cacheKeyForCompany, uploadedUrl, TimeUnit.MINUTES.toMillis(30));
-            return Response.temporaryRedirect(URI.create(uploadedUrl)).build();
+            keyValueStore.save(cacheKeyForCompany, base64Image, TimeUnit.MINUTES.toMillis(30));
+            return Response.ok(imageBytes)
+                    .header("Content-Type", "image/png")
+                    .build();
         } catch (Exception e) {
             LOGGER.error("Failed to get screenshot", e);
             throw new UserVisibleException("Failed to get screenshot", e);
