@@ -5,9 +5,10 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Upload, Copy, Download } from 'lucide-react';
+import { Upload, Copy, Download, Lightbulb } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox"; // Add this import
 import { Icons } from './icons';
+import Link from 'next/link';
 
 const backgrounds = [
   { name: "Deca", url: "https://assets.suggestfeature.com/assets/deca.jpg" },
@@ -386,6 +387,17 @@ const ImageEditor = () => {
             {copyingToClipboardText}
           </>}
         </Button>
+
+        <div className='w-full mt-4 flex items-center justify-end'>
+          <Link href='https://feedback.suggestfeature.com/b/screenshot-beautifier'
+            target='_blank'
+          >
+            <Button className="w-full" variant="secondary">
+              {/* <Lightbulb className='h-5 w-5 mr-2' /> */}
+              💡 Suggest a feature
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
