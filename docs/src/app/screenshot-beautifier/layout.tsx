@@ -38,7 +38,7 @@ export default function RootLayout({
         <Footer />
       </body>
 
-      <script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+      <script data-collect-dnt="true" async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
       <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerPolicy="no-referrer-when-downgrade" /></noscript>
     </html>
   );
