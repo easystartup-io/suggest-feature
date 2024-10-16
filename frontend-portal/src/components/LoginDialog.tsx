@@ -183,6 +183,7 @@ function AuthDialog({ openLoginDialog, setOpenLoginDialog, userData }) {
                     id="verificationCode"
                     maxLength={6}
                     pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                    inputMode="text"
                     value={verificationCode}
                     onChange={(value) => setVerificationCode(value.toUpperCase())}
                     disabled={isLoading}
