@@ -219,10 +219,9 @@ function PostContent({ data, refetch, params }) {
                 </div>
               </div>
               :
-              <div className="prose"
-                dangerouslySetInnerHTML={{ __html: <AutoLink text={(data.html || data.description || data.content)} /> }}
-              >
-              </div>
+              (
+                data.html ? <div className="prose" dangerouslySetInnerHTML={{ __html: data.html }} /> : <AutoLink text={(data.html || data.description || data.content)} />
+              )
           }
         </div>
 
