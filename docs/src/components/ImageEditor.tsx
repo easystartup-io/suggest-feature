@@ -373,7 +373,7 @@ const ImageEditor = () => {
             htmlFor="removeWatermark"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Remove watermark (I do not want to give credit)
+            Remove watermark (I am against open source. I am a person who does not give credit where credit is due)
           </label>
         </div>
 
