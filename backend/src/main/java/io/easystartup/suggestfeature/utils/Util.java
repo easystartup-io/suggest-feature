@@ -11,8 +11,10 @@ import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.commonmark.node.Link;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.AttributeProvider;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort;
@@ -36,6 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
@@ -52,6 +56,9 @@ public class Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
     private static LazyService<AuthService> authService = new LazyService<>(AuthService.class);
     private static LazyService<MongoTemplateFactory> mongoConnection = new LazyService<>(MongoTemplateFactory.class);
+
+    private static final String URL_REGEX_TO_CHECK_MARKDOWN_NOT_ENCLOSED = "(?<!\\[\\w{0,100}\\]\\()https?://[\\w-]+(\\.[\\w-]+)+(/[\\w- ./?%&=]*)?(?!\\))";
+    private static final Pattern PATTERN_TO_CHECK_MARKDOWN_URLS_NOT_ENCLOSED_IN_LINK = Pattern.compile(URL_REGEX_TO_CHECK_MARKDOWN_NOT_ENCLOSED);
 
     static {
         // Used to replace $ with dollar
@@ -467,13 +474,44 @@ public class Util {
 
     public static String markdownToHtml(String markdown) {
         try {
+            markdown = convertUrlsToMarkdownLinks(markdown);
             Parser parser = Parser.builder().build();
             Node document = parser.parse(markdown);
             // Render the document to HTML
-            HtmlRenderer renderer = HtmlRenderer.builder().build();
+            HtmlRenderer renderer = HtmlRenderer.builder()
+                    .attributeProviderFactory(context -> new CustomAttributeProvider()) // Register custom attribute provider
+                    .build();
             return renderer.render(document);
         } catch (Throwable throwable) {
             return markdown;
+        }
+    }
+
+    // Method to detect plain URLs (not inside [text](url)) and convert them into markdown-style links
+    // Example input markdown with some URLs not marked as links
+    // "Check out http://example.com or https://www.github.com, but don't convert [GitHub](https://github.com) again.";
+    private static String convertUrlsToMarkdownLinks(String text) {
+        Matcher matcher = PATTERN_TO_CHECK_MARKDOWN_URLS_NOT_ENCLOSED_IN_LINK.matcher(text);
+
+        // Replace plain URLs with markdown-style links
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            String url = matcher.group();
+            String markdownLink = "[" + url + "](" + url + ")";
+            matcher.appendReplacement(result, markdownLink);
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    // Custom AttributeProvider to add target="_blank" to <a> tags
+    private static class CustomAttributeProvider implements AttributeProvider {
+        @Override
+        public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
+            if (node instanceof Link) {
+                attributes.put("target", "_blank"); // Add target="_blank" to all <a> tags
+            }
         }
     }
 }
