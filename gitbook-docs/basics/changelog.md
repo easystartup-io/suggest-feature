@@ -36,7 +36,7 @@ To make your Changelog even more organized, **use tags**! Labels allow you to ca
 
 ## Email Notifications for Updates
 
-<figure><img src="../.gitbook/assets/subscribe-changelog-email.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/subscribe-changelog-email (1).png" alt=""><figcaption></figcaption></figure>
 
 Users can subscribe to get email notifications whenever a new changelog entry is published. Keeping your users in the loop has never been easier. Every time you post an update, your subscribers will be notified right away, driving higher engagement and awareness for your product.
 
