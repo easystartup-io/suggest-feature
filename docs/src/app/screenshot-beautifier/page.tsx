@@ -21,7 +21,19 @@ export const metadata: Metadata = {
     'free online screenshot editor',
     'hd',
     'hd screenshot editor',
-  ]
+  ],
+  openGraph: {
+    title: 'Free Online Screenshot Beautifier - Suggest Feature',
+    description: 'Take your borin screenshots and make them pop with free Suggest Feature Screenshot Beautifier, all features absolutely free. Share them on social media and get more likes and shares. No sign up required. Full HD quality.',
+    images: [
+      {
+        url: 'https://assets.suggestfeature.com/screenshot-beautifier/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Free Online Screenshot Beautifier - Suggest Feature',
+      }
+    ]
+  }
 }
 
 

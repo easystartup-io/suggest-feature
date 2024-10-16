@@ -97,7 +97,7 @@ const ImageEditor = () => {
   useEffect(() => {
     // Load the logo image
     const logo = new Image();
-    logo.src = 'https://suggestfeature.com/logo-light.jpeg';
+    logo.src = 'https://suggestfeature.com/logo.jpeg';
     logo.crossOrigin = "anonymous";
     logo.onload = () => setLogoImage(logo);
   }, []);
