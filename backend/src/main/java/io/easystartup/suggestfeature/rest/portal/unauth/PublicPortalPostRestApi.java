@@ -161,6 +161,7 @@ public class PublicPortalPostRestApi {
         if (post == null) {
             return Response.ok().entity("{}").build();
         }
+        post.setHtml(Util.markdownToHtml(post.getDescription()));
         post.setBoardSlug(boardSlug);
         populatePost(post, org.getId(), null, false);
 

@@ -76,6 +76,10 @@ public class Post {
     @NotBlank
     @Size(max = 5000)
     private String description;
+
+    @Transient
+    private String html;
+
     @Indexed
     private String organizationId;
     private String createdByUserId;
@@ -308,5 +312,13 @@ public class Post {
 
     public void setBoardName(String boardName) {
         this.boardName = boardName;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 }

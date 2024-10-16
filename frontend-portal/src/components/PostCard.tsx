@@ -218,7 +218,12 @@ function PostContent({ data, refetch, params }) {
                   {data.newStatus && statusConfig[data.newStatus].label}
                 </div>
               </div>
-              : <AutoLink text={(data.description || data.content)} />}
+              :
+              <div className="prose"
+                dangerouslySetInnerHTML={{ __html: <AutoLink text={(data.html || data.description || data.content)} /> }}
+              >
+              </div>
+          }
         </div>
 
         <AttachmentComponent

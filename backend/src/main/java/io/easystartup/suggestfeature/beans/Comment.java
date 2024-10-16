@@ -40,6 +40,8 @@ public class Comment {
     @NotBlank
     @Size(max = 5000)
     private String content;
+    @Transient
+    private String html;
     @Indexed
     private String postId;
     private String replyToCommentId;
@@ -178,5 +180,13 @@ public class Comment {
 
     public void setBoardId(String boardId) {
         this.boardId = boardId;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 }

@@ -11,6 +11,9 @@ import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -356,6 +359,7 @@ public class Util {
         Map<String, Comment> commentIdVsComment = comments.stream().collect(Collectors.toMap(Comment::getId, Function.identity()));
         for (Comment comment : comments) {
             comment.setUser(userIdVsSafeUser.get(comment.getCreatedByUserId()));
+            comment.setHtml(Util.markdownToHtml(comment.getContent()));
             if (StringUtils.isBlank(comment.getReplyToCommentId())) {
                 processedComments.add(comment);
                 continue;
@@ -459,5 +463,17 @@ public class Util {
             }
         }
         return rootComment;
+    }
+
+    public static String markdownToHtml(String markdown) {
+        try {
+            Parser parser = Parser.builder().build();
+            Node document = parser.parse(markdown);
+            // Render the document to HTML
+            HtmlRenderer renderer = HtmlRenderer.builder().build();
+            return renderer.render(document);
+        } catch (Throwable throwable) {
+            return markdown;
+        }
     }
 }
