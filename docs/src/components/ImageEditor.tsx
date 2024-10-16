@@ -35,6 +35,7 @@ const ImageEditor = () => {
     const defaultBg = backgrounds.find(bg => bg.name === "Uno");
     if (defaultBg) {
       const img = new Image();
+      img.crossOrigin = "anonymous"; // Add this line
       img.onload = () => setBgImage(img);
       img.src = defaultBg.url;
     }
@@ -77,6 +78,7 @@ const ImageEditor = () => {
 
   const handleBackgroundSelect = (url) => {
     const img = new Image();
+    img.crossOrigin = "anonymous";
     img.onload = () => setBgImage(img);
     img.src = url;
   };
@@ -159,10 +161,17 @@ const ImageEditor = () => {
   };
 
   const handleDownload = () => {
-    const link = document.createElement('a');
-    link.download = 'edited-image.png';
-    link.href = canvasRef.current.toDataURL('image/png');
-    link.click();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = 'edited-image.png';
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
   };
 
   return (
