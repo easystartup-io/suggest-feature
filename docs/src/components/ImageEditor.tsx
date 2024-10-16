@@ -5,7 +5,9 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Upload } from 'lucide-react';
+import { Upload, Copy, Download } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox"; // Add this import
+import { Icons } from './icons';
 
 const backgrounds = [
   { name: "Deca", url: "https://assets.suggestfeature.com/assets/deca.jpg" },
@@ -30,6 +32,15 @@ const ImageEditor = () => {
   const canvasRef = useRef(null);
   const [canvasSize, setCanvasSize] = useState({ width: 3840, height: 2160 });
   const [activeTab, setActiveTab] = useState("preset");
+  const [removeWatermark, setRemoveWatermark] = useState(false);
+  const [logoImage, setLogoImage] = useState(null);
+  const [copyingToClipboard, setCopyingToClipboard] = useState(false);
+  const [copyingToClipboardText, setCopyingToClipboardText] = useState(
+    <div className='flex'>
+      <Copy className='w-5 h-5 mr-2' />
+      Copy to Clipboard
+    </div>
+  );
 
   useEffect(() => {
     const defaultBg = backgrounds.find(bg => bg.name === "Uno");
@@ -84,6 +95,14 @@ const ImageEditor = () => {
   };
 
   useEffect(() => {
+    // Load the logo image
+    const logo = new Image();
+    logo.src = 'https://suggestfeature.com/logo-light.jpeg';
+    logo.crossOrigin = "anonymous";
+    logo.onload = () => setLogoImage(logo);
+  }, []);
+
+  useEffect(() => {
     if (!mainImage) return; // Exit if there's no main image
 
     const canvas = canvasRef.current;
@@ -133,10 +152,43 @@ const ImageEditor = () => {
         ctx.drawImage(mainImage, x, y, width, height);
         ctx.restore();
       }
-    };
 
+      if (!removeWatermark && logoImage) {
+        const watermarkText = 'Created with Suggest Feature';
+        ctx.save();
+
+        // Set font and style
+        ctx.font = 'bold 44px Arial';
+        ctx.fillStyle = '#ffffff';
+
+        // Calculate positions and sizes
+        const padding = 30; // Increased padding
+        const logoSize = 50;
+        const spaceBetween = 20; // Space between logo and text
+        const textWidth = ctx.measureText(watermarkText).width;
+        const totalWidth = logoSize + spaceBetween + textWidth + padding * 2;
+        const totalHeight = Math.max(logoSize, 44) + padding * 2;
+        const x = canvas.width - totalWidth - padding;
+        const y = canvas.height - totalHeight - padding;
+
+        // Draw background rounded rectangle
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.beginPath();
+        ctx.roundRect(x, y, totalWidth, totalHeight, 25); // Increased border radius
+        ctx.fill();
+
+        // Draw logo
+        ctx.drawImage(logoImage, x + padding, y + (totalHeight - logoSize) / 2, logoSize, logoSize);
+
+        // Draw text
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(watermarkText, x + logoSize + spaceBetween + padding, y + totalHeight / 2 + 44 / 3);
+
+        ctx.restore();
+      }
+    };
     render();
-  }, [mainImage, bgImage, bgColor, scale, borderRadius, canvasSize]);
+  }, [mainImage, bgImage, bgColor, scale, borderRadius, canvasSize, removeWatermark]);
 
   const fitImageOnCanvas = (img, canvas, scaleFactor = 1) => {
     const ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
@@ -144,6 +196,27 @@ const ImageEditor = () => {
       width: img.width * ratio * scaleFactor,
       height: img.height * ratio * scaleFactor
     };
+  };
+
+  const handleCopyToClipboard = () => {
+    setCopyingToClipboard(true)
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.toBlob((blob) => {
+      const item = new ClipboardItem({ 'image/png': blob });
+      navigator.clipboard.write([item]);
+      setTimeout(() => {
+        setCopyingToClipboard(false)
+      }, 200)
+      setCopyingToClipboardText(<>Copied!</>)
+      setTimeout(() => {
+        setCopyingToClipboardText(<div className='flex'>
+          <Copy className='w-5 h-5 mr-2' />
+          Copy to Clipboard
+        </div>)
+      }, 2000)
+    });
   };
 
   const roundedImage = (ctx, x, y, width, height, radius) => {
@@ -290,8 +363,28 @@ const ImageEditor = () => {
           <span className="text-sm text-gray-500">{borderRadius}%</span>
         </div>
 
+        <div className="mb-4 flex items-center space-x-2">
+          <Checkbox
+            id="removeWatermark"
+            checked={removeWatermark}
+            onCheckedChange={setRemoveWatermark}
+          />
+          <label
+            htmlFor="removeWatermark"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Remove watermark (I do not want to give credit)
+          </label>
+        </div>
+
         <Button onClick={handleDownload} className="w-full">
+          <Download className='w-5 h-5 mr-2' />
           Download Image
+        </Button>
+        <Button onClick={handleCopyToClipboard} className="w-full mt-2">
+          {copyingToClipboard ? <Icons.spinner className="h-4 w-4 animate-spin" /> : <>
+            {copyingToClipboardText}
+          </>}
         </Button>
       </div>
     </div>

@@ -3,8 +3,8 @@ import { Metadata } from "next";
 
 
 export const metadata: Metadata = {
-  title: 'Screenshot Beautifier - Suggest Feature',
-  description: 'Take your borin screenshots and make them pop with free Suggest Feature Screenshot Beautifier. Share them on social media and get more likes and shares.',
+  title: 'Free Online Screenshot Beautifier - Suggest Feature',
+  description: 'Take your borin screenshots and make them pop with free Suggest Feature Screenshot Beautifier, all features absolutely free. Share them on social media and get more likes and shares. No sign up required. Full HD quality.',
   keywords: [
     'supabase',
     'screenshot',
@@ -12,6 +12,15 @@ export const metadata: Metadata = {
     'beautify screenshot',
     'screenshot beautifier',
     'screenshot enhancer',
+    'free',
+    'high quality',
+    'free online screenshot beautifier',
+    'free screenshot editor',
+    'free screenshot enhancer',
+    'free screenshot beautifier',
+    'free online screenshot editor',
+    'hd',
+    'hd screenshot editor',
   ]
 }
 
