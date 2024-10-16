@@ -393,7 +393,6 @@ const ImageEditor = () => {
             target='_blank'
           >
             <Button className="w-full" variant="secondary">
-              {/* <Lightbulb className='h-5 w-5 mr-2' /> */}
               💡 Suggest a feature
             </Button>
           </Link>

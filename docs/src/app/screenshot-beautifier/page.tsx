@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     url: 'https://suggestfeature.com/screenshot-beautifier',
     images: [
       {
-        url: 'https://assets.suggestfeature.com/screenshot-beautifier/og-image.png',
+        url: 'https://assets.suggestfeature.com/screenshot-beautifier/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Free Online Screenshot Beautifier - Suggest Feature',
