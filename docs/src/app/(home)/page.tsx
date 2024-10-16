@@ -2,7 +2,6 @@ import React from 'react';
 import WistiaEmbed from "@/components/WistiaEmbed";
 import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign, ExternalLink } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { cn } from '@/lib/utils';

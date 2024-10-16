@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import dynamic from 'next/dynamic'
-import Head from "next/head";
 import { HotJar } from "@/components/Hotjar";
 
 const fontSans = FontSans({
@@ -25,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const CrispWithNoSSR = dynamic(
-    () => import('../components/crisp')
+    () => import('@/components/crisp')
   )
   return (
     <html lang="en">

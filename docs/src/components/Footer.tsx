@@ -20,6 +20,14 @@ export default function Footer() {
               </ul>
             </div>
             <div>
+              <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Free tools</h2>
+              <ul className="text-gray-600 dark:text-gray-400">
+                <li className="mb-4">
+                  <a href="/screenshot-beautifier" className="hover:underline">Screenshot beautifier</a>
+                </li>
+              </ul>
+            </div>
+            <div>
               <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
               <ul className="text-gray-600 dark:text-gray-400">
                 <li className="mb-4">
