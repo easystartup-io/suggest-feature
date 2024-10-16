@@ -22,6 +22,7 @@
   * [Enable or disable roadmap](basics/roadmap/enable-or-disable-roadmap.md)
   * [Showcase Specific Statuses on the Roadmap](basics/roadmap/showcase-specific-statuses-on-the-roadmap.md)
   * [Select Specific Boards for the Roadmap](basics/roadmap/select-specific-boards-for-the-roadmap.md)
+* [Changelog](basics/changelog.md)
 * [Adding Team Members](basics/adding-team-members.md)
 * [Custom Domain Setup](basics/custom-domain-setup.md)
 * [Customizing Your Page Branding](basics/customizing-your-page-branding.md)
