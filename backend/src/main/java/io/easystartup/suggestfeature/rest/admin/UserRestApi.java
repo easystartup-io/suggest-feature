@@ -13,7 +13,9 @@ import io.easystartup.suggestfeature.filters.UserVisibleException;
 import io.easystartup.suggestfeature.services.AuthService;
 import io.easystartup.suggestfeature.services.ValidationService;
 import io.easystartup.suggestfeature.services.db.MongoTemplateFactory;
+import io.easystartup.suggestfeature.utils.EmailUtil;
 import io.easystartup.suggestfeature.utils.JacksonMapper;
+import io.easystartup.suggestfeature.utils.Util;
 import io.easystartup.suggestfeature.utils.WebPageExtractorUtil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
@@ -220,7 +222,18 @@ public class UserRestApi {
         } catch (Exception e) {
             throw new UserVisibleException("Slug already exists. Please try a different slug", Response.Status.BAD_REQUEST);
         }
+        informMe(organization);
         return Response.ok(JacksonMapper.toJson(organization)).build();
+    }
+
+    private static void informMe(Organization organization) {
+        if (Util.isSelfHosted() || !Util.isProdEnv()) {
+            return;
+        }
+        new Thread(() -> {
+            String from = Util.getEnvVariable("FROM_EMAIL", "fromEmail");
+            EmailUtil.sendEmail("david@suggestfeature.com", "New org created: " + organization.getName(), "New org created", from);
+        }).start();
     }
 
     @GET
