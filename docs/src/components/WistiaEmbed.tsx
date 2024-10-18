@@ -1,32 +1,46 @@
 "use client"
-import React from 'react';
+import React, { useEffect } from 'react';
 import Script from 'next/script';
 
-const WistiaVideo = () => {
+const WistiaVideo = ({ videoId = 'uhvbidxlu9', title = 'Intro to Suggest Feature Video' }) => {
+  useEffect(() => {
+    if (window.Wistia && window._wq) {
+      window._wq = window._wq || [];
+      window._wq.push({
+        id: videoId,
+        onReady: function (video) {
+          // You can add any custom behavior here when the video is ready
+          console.log("Video " + videoId + " is ready");
+        }
+      });
+    }
+  }, [videoId]);
+
   return (
     <>
-      <Script
-        src="https://fast.wistia.com/embed/medias/uhvbidxlu9.jsonp"
-        strategy="lazyOnload"
-      />
-      <Script
-        src="https://fast.wistia.com/assets/external/E-v1.js"
-        strategy="lazyOnload"
-      />
       <div className="wistia_responsive_padding" style={{ padding: '56.25% 0 0 0', position: 'relative' }}>
         <div className="wistia_responsive_wrapper" style={{ height: '100%', left: 0, position: 'absolute', top: 0, width: '100%' }}>
-          <div className="wistia_embed wistia_async_uhvbidxlu9 seo=true videoFoam=true" style={{ height: '100%', position: 'relative', width: '100%' }}>
-            <div className="wistia_swatch" style={{ height: '100%', left: 0, opacity: 0, overflow: 'hidden', position: 'absolute', top: 0, transition: 'opacity 200ms', width: '100%' }}>
-              <img src="https://fast.wistia.com/embed/medias/uhvbidxlu9/swatch"
-                style={{ filter: 'blur(5px)', height: '100%', objectFit: 'contain', width: '100%' }}
-                alt=""
-                aria-hidden="true"
-                onLoad={(e) => { e.currentTarget.parentNode.style.opacity = 1; }}
-              />
-            </div>
-          </div>
+          <iframe
+            src={`https://fast.wistia.net/embed/iframe/${videoId}?seo=false&videoFoam=true`}
+            title={title}
+            allow="autoplay; fullscreen"
+            allowtransparency="true"
+            frameBorder="0"
+            scrolling="no"
+            className="wistia_embed"
+            name="wistia_embed"
+            width="100%"
+            height="100%"
+          ></iframe>
         </div>
       </div>
+      <Script
+        src="https://fast.wistia.net/assets/external/E-v1.js"
+        strategy="lazyOnload"
+        onLoad={() => {
+          console.log('Wistia script has loaded');
+        }}
+      />
     </>
   );
 };

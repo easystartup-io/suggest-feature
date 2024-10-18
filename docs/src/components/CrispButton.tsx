@@ -12,10 +12,10 @@ function openCrisp({ message = undefined }) {
 
 export default function CrispButton({ }) {
   return (
-    <Button variant="default" className='bg-indigo-500 hover:bg-indigo-500/80'
+    <Button variant="default" className='bg-indigo-700 hover:bg-indigo-700/80'
       onClick={() => openCrisp({ message: { msg: "Hi there! I have some queries." } })}
     >
-      <MessageCircleMore className="w-6 h-6" />
+      <MessageCircleMore className="w-6 h-6 mr-2" />
       Get in touch
     </Button>
   )
