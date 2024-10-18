@@ -1,5 +1,5 @@
 import React from 'react';
-import WistiaEmbed from "@/components/WistiaEmbed";
+import WistiaVideo from "@/components/WistiaEmbed";
 import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign, ExternalLink } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,7 +105,7 @@ const Hero = () => (
           7 days free trial
         </p>
       </div>
-      <WistiaEmbed />
+      <WistiaVideo />
     </div>
   </section>
 );

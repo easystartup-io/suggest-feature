@@ -32,6 +32,12 @@ export default function RootLayout({
         <CrispWithNoSSR />
         <script data-collect-dnt="true" async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
         <HotJar />
+        <link rel="preconnect" href="https://static.hotjar.com" />
+        <link rel="preconnect" href="https://script.hotjar.com" />
+        <link rel="preconnect" href="https://embed-ssl.wistia.com" />
+        <link rel="preconnect" href="https://fast.wistia.com" />
+        <link rel="preconnect" href="https://client.crisp.chat" />
+        <link rel="preconnect" href="https://assets.suggestfeature.com" />
       </head>
       <body
         className={cn(
