@@ -109,7 +109,7 @@ const FAQ = () => {
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">Frequently Asked Questions</h2>
         <p className="text-center text-gray-600">
-          Quick answers to questions you may have about Suggest Feature and billing. Can't find what you're looking for? Check out our <Link href="https://docs.suggestfeature.com/suggest-feature"
+          Quick answers to questions you may have about Suggest Feature and billing. Can&apos;t find what you&apos;re looking for? Check out our <Link href="https://docs.suggestfeature.com/suggest-feature"
             target="_blank"
             className="text-primary-600 hover:underline">full documentation</Link>.
         </p>
