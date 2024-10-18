@@ -27,6 +27,9 @@ export default function RootLayout({
   )
   return (
     <html lang="en">
+      <head>
+        <script data-collect-dnt="true" async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -38,8 +41,6 @@ export default function RootLayout({
         <Footer />
       </body>
 
-      <script data-collect-dnt="true" async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
-      <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerPolicy="no-referrer-when-downgrade" /></noscript>
     </html>
   );
 }
