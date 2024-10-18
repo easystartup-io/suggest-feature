@@ -1,8 +1,9 @@
 import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Zap, Infinity, BookOpen, Headset, CreditCard, Users, Building, Lock, Rocket, PieChart, Puzzle, Globe, ArrowUpCircle, Repeat, DollarSign, RefreshCw } from 'lucide-react';
+import { Zap, Infinity, BookOpen, Headset, CreditCard, Users, Building, Lock, Rocket, PieChart, Puzzle, Globe, ArrowUpCircle, Repeat, DollarSign, RefreshCw, MessageCircleMore } from 'lucide-react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
 const faqData = {
   "General": [
@@ -99,6 +100,10 @@ const faqData = {
 
 const FAQ = () => {
 
+  const CrispButton = dynamic(
+    () => import('@/components/CrispButton')
+  )
+
   return (
     <section className="py-16 px-4 bg-gray-50" id='faq'>
       <div className="max-w-4xl mx-auto">
@@ -116,6 +121,7 @@ const FAQ = () => {
               Documentation
             </Button>
           </Link>
+          <CrispButton />
         </div>
 
         {Object.entries(faqData).map(([category, questions], categoryIndex) => (
