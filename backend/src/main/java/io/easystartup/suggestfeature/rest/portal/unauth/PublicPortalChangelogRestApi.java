@@ -48,7 +48,7 @@ public class PublicPortalChangelogRestApi {
     @GET
     @Path("/get-changelog-posts")
     @Produces("application/json")
-    public Response getChangelog(@Context HttpServletRequest request) {
+    public Response getChangelog(@Context HttpServletRequest request, @QueryParam("limit") Integer limit, @QueryParam("page") Integer page) {
         String host = request.getHeader("host");
         Organization org = getOrg(host);
         if (org == null || (org.getChangelogSettings() != null && !org.getChangelogSettings().isEnabled())) {
@@ -58,6 +58,12 @@ public class PublicPortalChangelogRestApi {
         criteriaDefinition.and(Changelog.FIELD_DRAFT).ne(true);
         Query query = new Query(criteriaDefinition);
         query.with(Sort.by(Sort.Direction.DESC, Changelog.FIELD_CHANGELOG_DATE));
+        if (limit != null) {
+            query.limit(limit);
+        }
+        if (page != null && limit != null) {
+            query.skip((long) page * limit);
+        }
         List<Changelog> changelogs = mongoConnection.getDefaultMongoTemplate().find(query, Changelog.class);
 
         return Response.ok().entity(JacksonMapper.toJson(changelogs)).build();
