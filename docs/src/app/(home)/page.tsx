@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
+import FAQ from './Faq';
 
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
@@ -267,6 +268,7 @@ export default function Home() {
     <div>
       <Hero />
       <Features />
+      <FAQ />
       <Pricing />
     </div>
   );
