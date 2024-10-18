@@ -15,14 +15,8 @@ export default function Home() {
     <div>
       <meta name="robots" content="noindex,nofollow" />
       Hello
-      <script src="http://localhost:3002/js/changelog.js"></script>
-      {/* <button data-sf-changelog */}
-      {/*   style={{ backgroundColor: 'blue', color: 'white', padding: '10px', borderRadius: '5px', cursor: 'pointer' }} */}
-      {/* > */}
-      {/*   View Changelog */}
-      {/* </button> */}
+      <script src="http://localhost:3002/js/changelog.js" async></script>
       <button data-sf-changelog>Changelog</button>
-
     </div>
   );
 }
