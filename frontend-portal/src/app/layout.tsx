@@ -69,6 +69,13 @@ export async function defaultMetadata(category, title) {
 
 
   return {
+    title: `${company} - ${category}`,
+    description: `${title} | ${category} for ${company}`,
+    keywords: 'feedback, suggestions, feature requests, roadmap, product feedback, feature voting, customer feedback',
+    generator: 'Suggest Feature',
+    publisher: company,
+
+
     openGraph: {
       title: `${company} - ${category}`,
       description: `${title} | ${category} for ${company}`,
@@ -106,7 +113,6 @@ async function RootLayout({
 
   return (
     <html lang="en" className="">
-      <title>{parsedData?.org?.name}</title>
       {
         parsedData?.org?.favicon &&
         <link rel="icon" href={parsedData.org.favicon} sizes="any" />

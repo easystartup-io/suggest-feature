@@ -77,6 +77,7 @@ export default function Header({ params, initMetadata, userData }) {
             {org.logo ? <img
               className="h-12 mr-2"
               src={org.logo}
+              alt={`${org?.name} Logo`}
             /> : null}
             {
               org.hideOrgName ? null :
