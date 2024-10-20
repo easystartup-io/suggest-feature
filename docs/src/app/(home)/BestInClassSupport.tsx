@@ -17,7 +17,7 @@ const BestInClassSupport = () => (
             Best in Class Support
           </h2>
           <p className="text-xl text-gray-700 dark:text-gray-300 mb-8">
-            We're committed to providing round-the-clock, top-notch support to answer any query and solve any problem, anytime.
+            We&apos;re committed to providing round-the-clock, top-notch support to answer any query and solve any problem, anytime.
           </p>
           <div className="space-y-6">
             <Feature

@@ -97,7 +97,7 @@ const ChangelogSection = () => {
           Changelog
         </h2>
         <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Our public changelog keeps your users informed about the latest updates, improvements, and new features. Boost engagement and showcase your product's evolution.
+          Our public changelog keeps your users informed about the latest updates, improvements, and new features. Boost engagement and showcase your product&apos;s evolution.
         </p>
       </div>
 
