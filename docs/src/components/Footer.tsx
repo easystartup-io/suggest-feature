@@ -45,6 +45,9 @@ export default function Footer() {
                 <li className="mb-4">
                   <a href="https://feedback.suggestfeature.com/b/bugs" className="hover:underline">Report bugs</a>
                 </li>
+                <li className="mb-4">
+                  <a href="https://feedback.suggestfeature.com/changelog" className="hover:underline">Changelog</a>
+                </li>
               </ul>
             </div>
             <div>

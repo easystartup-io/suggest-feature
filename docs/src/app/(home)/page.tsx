@@ -1,12 +1,14 @@
 import React from 'react';
 import WistiaVideo from "@/components/WistiaEmbed";
-import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign, ExternalLink } from "lucide-react";
+import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign, ExternalLink, Clock, MessageSquare, ThumbsUp } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 import FAQ from './Faq';
+import BestInClassSupport from './BestInClassSupport';
+import ChangelogSection from './ChangelogSection';
 
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
@@ -268,6 +270,8 @@ export default function Home() {
     <div>
       <Hero />
       <Features />
+      <ChangelogSection />
+      <BestInClassSupport />
       <FAQ />
       <Pricing />
     </div>

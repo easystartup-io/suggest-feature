@@ -43,7 +43,7 @@ const faqData = {
   "Integration & Support": [
     {
       question: "What kind of support do you offer?",
-      answer: "We pride ourselves on providing best-in-class support. Our dedicated team is always available to assist you, whether you need help with setup, have questions about features, or need strategic advice on managing user feedback. We're committed to your success!",
+      answer: "We pride ourselves on providing best-in-class support. Our dedicated team is always available to assist you, whether you need help with setup, have questions about features, or need strategic advice on managing user feedback. We're committed to your success! Anything you need, we're here to help.",
       icon: <Headset className="w-6 h-6 text-primary-600" />
     },
     {
@@ -53,7 +53,7 @@ const faqData = {
     },
     {
       question: "Can I migrate data from other platforms to Suggest Feature?",
-      answer: "Certainly! We offer comprehensive migration support to help you transition smoothly from other platforms. Our team will assist you in importing your existing feature requests, user data, and other relevant information, ensuring you don't lose any valuable feedback during the switch. We can import data from popular platforms like Canny, Productboard and any other tool that provides an export feature.",
+      answer: "Certainly! We offer comprehensive migration support to help you transition smoothly from other platforms. Our team will assist you in importing your existing feature requests, user data, and other relevant information, ensuring you don't lose any valuable feedback during the switch. We can import data from popular platforms like Canny, Productboard and any other tool that provides an export feature. We will try our best to do a 1:1 migration.",
       icon: <Repeat className="w-6 h-6 text-primary-600" />
     },
   ],

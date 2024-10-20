@@ -46,10 +46,12 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="mb-10">
-      <a href="/" className="flex items-center p-4">
-        <img src="/logo-light.jpeg" className="mr-3 h-6 md:h-9" alt="Suggest Feature Logo" />
-        <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Suggest Feature - Screenshot Beautifier</span>
-      </a>
+      <div className="flex items-center">
+        <a href="/" className="flex items-center p-4">
+          <img src="/logo-light.jpeg" className="mr-3 h-6 md:h-9" alt="Suggest Feature Logo" />
+          <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Suggest Feature - Screenshot Beautifier</span>
+        </a>
+      </div>
       <ImageEditor />
     </div >
   );
