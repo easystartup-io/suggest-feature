@@ -9,6 +9,7 @@ import { Metadata } from 'next';
 import FAQ from './Faq';
 import BestInClassSupport from './BestInClassSupport';
 import ChangelogSection from './ChangelogSection';
+import DarkModeSection from './DarkModeSection';
 
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
@@ -271,6 +272,7 @@ export default function Home() {
       <Hero />
       <Features />
       <ChangelogSection />
+      <DarkModeSection />
       <BestInClassSupport />
       <FAQ />
       <Pricing />
