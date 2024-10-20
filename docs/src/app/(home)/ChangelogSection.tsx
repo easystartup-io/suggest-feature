@@ -102,21 +102,28 @@ const ChangelogSection = () => {
       </div>
 
       {/* Scrolling Content */}
-      <div className="flex">
-        <div className="w-1/2 sticky top-0 h-screen flex items-center justify-center">
+      <div className="flex flex-col lg:flex-row">
+        <div className="lg:w-1/2 lg:sticky lg:top-0 lg:h-screen hidden lg:flex items-center justify-center">
           <img
             src={sections[activeSection].image}
             alt={sections[activeSection].title}
             className="rounded-lg shadow-xl max-w-full max-h-full object-contain transition-opacity duration-300"
           />
         </div>
-        <div className="w-1/2">
+        <div className="lg:w-1/2">
           {sections.map((section, index) => (
             <div
               key={index}
               ref={(el) => (sectionRefs.current[index] = el)}
-              className="min-h-screen flex items-center p-8"
+              className="min-h-screen flex flex-col lg:flex-row items-center p-8"
             >
+              <div className="w-full lg:w-auto mb-8 lg:mb-0 lg:hidden">
+                <img
+                  src={section.image}
+                  alt={section.title}
+                  className="rounded-lg shadow-xl max-w-full h-auto object-contain"
+                />
+              </div>
               <div>
                 <div className="flex items-center mb-4">
                   <div className="mr-4 p-2 bg-indigo-100 dark:bg-indigo-800 rounded-full">
