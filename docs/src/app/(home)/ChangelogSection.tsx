@@ -34,55 +34,55 @@ const ChangelogSection = () => {
   const sections = [
     {
       title: "Share updates",
-      description: "Build a changelog to keep everyone engaged",
+      description: "Keep everyone engaged with your product's evolution",
       details: [
-        "Publish detailed release notes linked to your feature requests",
-        "Automatically notify users who voted on those feature requests",
-        "Boost customer engagement, retention, and feature adoption"
+        "Publish detailed release notes linked to feature requests",
+        "Automatically notify users of updates they care about",
+        "Boost customer engagement and feature adoption"
       ],
       icon: <Bell className="w-6 h-6" />,
       image: "/img/changelog/share-updates.png"
     },
     {
       title: "Public changelog page",
-      description: "Showcase your progress to the world",
+      description: "Showcase your progress and build trust",
       details: [
-        "Create a dedicated public page for your changelog",
-        "Customizable design to match your brand",
-        "Categorize updates for easy navigation"
+        "Create a dedicated, SEO-friendly page for your changelog",
+        "Customize the design to match your brand identity",
+        "Demonstrate your commitment to continuous improvement"
       ],
       icon: <Globe className="w-6 h-6" />,
       image: "/img/changelog/public-page.png"
     },
     {
       title: "In-app changelog widgets",
-      description: "Bring updates directly to your users",
+      description: "Bring updates directly to your users' workflow",
       details: [
-        "Embed changelog widgets within your application",
-        "Show unread updates in real-time",
-        "Increase feature discovery and adoption"
+        "Embed customizable changelog widgets in your application",
+        "Highlight unread updates to ensure visibility",
+        "Improve feature discovery and reduce support queries"
       ],
       icon: <LayoutList className="w-6 h-6" />,
       image: "/img/changelog/widget.png"
     },
     {
-      title: "Best-in-class changelog editor",
-      description: "Create compelling update narratives",
+      title: "Powerful changelog editor",
+      description: "Create compelling update narratives effortlessly",
       details: [
-        "Rich text editor for formatted changelogs",
-        "Embed images and videos to showcase new features",
-        "Link directly to updated features or documentation"
+        "Use our rich text editor to format changelogs beautifully",
+        "Embed images and videos to showcase new features effectively",
+        "Link updates to documentation for seamless user education"
       ],
       icon: <Edit className="w-6 h-6" />,
       image: "/img/changelog/editor.png"
     },
     {
-      title: "Tagging and notifications",
-      description: "Keep users informed and engaged",
+      title: "Smart tagging and notifications",
+      description: "Deliver relevant updates to the right audience",
       details: [
-        "Add tags to categorize your updates",
-        "Set up automated email notifications for new changelogs",
-        "Allow users to subscribe to specific update types"
+        "Categorize updates with tags for easy navigation",
+        "Set up automated, targeted email notifications",
+        "Allow users to subscribe to updates that matter to them"
       ],
       icon: <Tag className="w-6 h-6" />,
       image: "/img/changelog/email.png"
