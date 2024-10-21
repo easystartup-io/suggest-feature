@@ -133,7 +133,7 @@ const Features = () => {
     },
     {
       icon: <Megaphone className="w-6 h-6 text-primary-600 dark:text-primary-300" />,
-      title: "Dynamic Changelog (🚀 Coming Soon)",
+      title: "Dynamic Changelog",
       description: "Communicate your latest launches and updates in a beautiful, automated feed."
     },
     {

@@ -55,17 +55,6 @@ const ChangelogSection = () => {
       image: "/img/changelog/public-page.png"
     },
     {
-      title: "In-app changelog widgets",
-      description: "Bring updates directly to your users' workflow",
-      details: [
-        "Embed customizable changelog widgets in your application",
-        "Highlight unread updates to ensure visibility",
-        "Improve feature discovery and reduce support queries"
-      ],
-      icon: <LayoutList className="w-6 h-6" />,
-      image: "/img/changelog/widget.png"
-    },
-    {
       title: "Powerful changelog editor",
       description: "Create compelling update narratives effortlessly",
       details: [
@@ -75,6 +64,17 @@ const ChangelogSection = () => {
       ],
       icon: <Edit className="w-6 h-6" />,
       image: "/img/changelog/editor.png"
+    },
+    {
+      title: "In-app changelog widgets",
+      description: "Bring updates directly to your users' workflow",
+      details: [
+        "Embed customizable changelog widgets in your application",
+        "Highlight unread updates to ensure visibility",
+        "Improve feature discovery and reduce support queries"
+      ],
+      icon: <LayoutList className="w-6 h-6" />,
+      image: "/img/changelog/widget.png"
     },
     {
       title: "Smart tagging and notifications",
