@@ -2,7 +2,7 @@ import React from 'react';
 import { Headset, Clock, CheckCircle } from 'lucide-react';
 
 const BestInClassSupport = () => (
-  <section className="py-24 bg-gradient-to-r from-indigo-100 to-blue-100 dark:from-indigo-900 dark:to-blue-900">
+  <section className="py-24 ">
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row items-center">
         <div className="lg:w-1/2 lg:pr-10 mb-10 lg:mb-0">

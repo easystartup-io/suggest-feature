@@ -39,7 +39,7 @@ const DarkModeSection = () => {
   return (
     <section
       ref={sectionRef}
-      className={`min-h-screen flex items-center justify-center transition-colors duration-500 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'
+      className={`min-h-screen flex items-center justify-center transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'
         }`}
     >
       <div className="container mx-auto px-4">

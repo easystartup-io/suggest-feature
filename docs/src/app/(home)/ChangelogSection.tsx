@@ -90,7 +90,7 @@ const ChangelogSection = () => {
   ];
 
   return (
-    <section ref={containerRef} className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-900">
+    <section ref={containerRef} className="">
       {/* Main Changelog Header */}
       <div className="text-center py-16 px-4">
         <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
