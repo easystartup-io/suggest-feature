@@ -11,7 +11,7 @@ import Pricing from './Pricing';
 
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
-  description: "Suggest Feature is a platform for sharing and voting on feature requests.",
+  description: "Suggest Feature is a platform for sharing and voting on feature requests. Open source alternative to Canny, Productboard, and UserVoice.",
   metadataBase: new URL('https://suggestfeature.com'),
 };
 
