@@ -51,7 +51,7 @@ const EnterpriseTier = () => (
     <div className="flex flex-col lg:flex-row items-center justify-between">
       <div className="text-left mb-4 lg:mb-0">
         <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">Enterprise</h3>
-        <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">Contact us and we'll help you figure out the perfect plan for your organization</p>
+        <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">Contact us and we&apos;ll help you figure out the perfect plan for your organization</p>
       </div>
       <div className="flex items-center space-x-4">
         <ul className="flex-shrink-0 space-y-2 text-gray-500 dark:text-gray-400">
@@ -129,7 +129,7 @@ const Pricing = () => {
             Build the best features together with your customers
           </h2>
           <p className="mb-5 font-light text-gray-500 sm:text-xl dark:text-gray-400">
-            Prioritize what's important to increase MRR and reduce churn. Know what really matters to your customers and make everyone happy
+            Prioritize what&apos;s important to increase MRR and reduce churn. Know what really matters to your customers and make everyone happy
           </p>
         </div>
         <div className="space-y-6 lg:grid lg:grid-cols-3 sm:gap-6 xl:gap-8 lg:space-y-0">
