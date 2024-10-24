@@ -68,6 +68,8 @@ const EnterpriseTier = () => (
             On-premise deployment
           </li>
         </ul>
+      </div>
+      <div className='mt-4 lg:mt-0'>
         <CrispButton msg='I have some Enterprise query' />
       </div>
     </div>
