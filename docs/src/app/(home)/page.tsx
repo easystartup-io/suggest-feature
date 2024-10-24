@@ -1,15 +1,13 @@
-import React from 'react';
-import WistiaVideo from "@/components/WistiaEmbed";
-import { ArrowRight, Code, Headset, Check, MousePointerClick, Lightbulb, Map, Megaphone, Vote, UserCheck, Shield, Paintbrush, Globe, AtSign, ExternalLink, Clock, MessageSquare, ThumbsUp } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import WistiaVideo from "@/components/WistiaEmbed";
+import { ArrowRight, AtSign, Code, ExternalLink, Headset, Lightbulb, Map, Megaphone, Paintbrush, UserCheck, Vote } from "lucide-react";
 import { Metadata } from 'next';
-import FAQ from './Faq';
+import Link from 'next/link';
 import BestInClassSupport from './BestInClassSupport';
 import ChangelogSection from './ChangelogSection';
 import DarkModeSection from './DarkModeSection';
+import FAQ from './Faq';
+import Pricing from './Pricing';
 
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
@@ -29,50 +27,6 @@ const Feature = ({ icon, title, description }) => (
     <h3 className="mb-2 text-xl font-bold dark:text-white">{title}</h3>
     <p className="text-gray-500 dark:text-gray-400">{description}</p>
   </div>
-);
-
-const PricingTier = ({ title, price, description, features, highlight, popular }) => (
-  <Card className={cn(
-    "flex flex-col p-6 mx-auto max-w-lg text-center text-gray-900 bg-white rounded-lg border shadow dark:border-gray-600 dark:bg-gray-800 dark:text-white transition-all duration-300 hover:scale-105",
-    highlight ? "border-indigo-500 dark:border-indigo-600 border-2 transform scale-105" : "border-gray-200",
-    popular ? "bg-gradient-to-br from-indigo-500 to-blue-600 text-white" : ""
-  )}>
-    <CardHeader className="relative">
-      {popular && (
-        <div className="absolute top-0 right-0 px-3 py-1 text-xs font-semibold tracking-wide bg-yellow-300 rounded-bl rounded-tr text-indigo-700">
-          🔥 Most Popular
-        </div>
-      )}
-      <h3 className="mb-4 text-2xl font-semibold">{title}</h3>
-      <p className={cn("font-light sm:text-lg", popular ? "text-indigo-100" : "text-gray-500 dark:text-gray-400")}>{description}</p>
-    </CardHeader>
-    <CardContent>
-      <div className="flex justify-center items-baseline my-8">
-        <span className={cn("mr-2 text-5xl font-extrabold", price === "Custom" ? "text-4xl" : "")}>
-          {price === "Custom" ? price : `$${price}`}
-        </span>
-        {price !== "Custom" && (
-          <span className={cn("text-gray-500 dark:text-gray-400", popular ? "text-indigo-100" : "")}>/month</span>
-        )}
-      </div>
-      <ul role="list" className="mb-8 space-y-4 text-left">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-center space-x-3">
-            <Check className={cn("flex-shrink-0 w-5 h-5", popular ? "text-indigo-200" : "text-green-500 dark:text-green-400")} />
-            <span className={popular ? "text-indigo-100" : ""}>{feature}</span>
-          </li>
-        ))}
-      </ul>
-      <Link href="https://app.suggestfeature.com/sign-up" passHref={true}>
-        <Button size="lg"
-          className={cn("w-full font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors duration-300",
-            popular ? "bg-white text-indigo-600 hover:bg-indigo-100" : "bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700"
-          )}>
-          {price === "Custom" ? "Contact Us" : "Get Started"}
-        </Button>
-      </Link>
-    </CardContent>
-  </Card>
 );
 
 const Hero = () => (
@@ -173,92 +127,6 @@ const Features = () => {
         <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-12 md:space-y-0">
           {featureData.map((feature, index) => (
             <Feature key={index} {...feature} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Pricing = () => {
-  const pricingData = [
-    {
-      title: "Basic",
-      description: "Best option for personal use & for your next project",
-      price: 9,
-      features: [
-        "3 project boards",
-        "Up to 10 team members",
-        "Unlimited feature requests/bugs",
-        "End user custom SSO",
-        "Custom domain",
-        "Email support"
-      ],
-      buttonText: "Get started"
-    },
-    {
-      title: "Pro",
-      description: "Relevant for multiple users & extended support",
-      price: 29,
-      highlight: true,
-      popular: true,
-      features: [
-        "10 project boards",
-        "Unlimited team members",
-        "Unlimited feature requests/bugs",
-        "End user custom SSO",
-        "Custom domain",
-        "Email and chat support",
-      ],
-      buttonText: "Get started"
-    },
-    {
-      title: "Team",
-      description: "Best for small to medium sized businesses",
-      price: 49,
-      features: [
-        "Unlimited project boards",
-        "Unlimited team members",
-        "Unlimited feature requests/bugs",
-        "End user custom SSO",
-        "Custom domain",
-        "Custom fields",
-        "Priority support",
-        "Integrations with popular tools"
-      ],
-      buttonText: "Get started"
-    },
-    {
-      title: "Enterprise",
-      description: "Contact us and we'll help you figure it out",
-      price: "Custom",
-      features: [
-        "Unlimited project boards",
-        "Unlimited team members",
-        "All features from Team plan",
-        "End user custom SSO",
-        "Custom domain",
-        "Advanced security features (Admin SSO, audit logs)",
-        "Custom integrations",
-        "Authentication integrations",
-        "White label",
-        "On-premise deployment option",
-        "SLA guarantees"
-      ],
-      buttonText: "Contact us"
-    }
-  ];
-
-  return (
-    <section className="bg-white dark:bg-gray-900" id="pricing">
-      <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
-        <div className="mx-auto max-w-screen-md text-center mb-8 lg:mb-12">
-          <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">Build the best features together with your customers</h2>
-          <p className="mb-5 font-light text-gray-500 sm:text-xl dark:text-gray-400">Prioritize what&apos;s important to increase MRR and reduce churn. Know what really matters to your customers and make everyone happy</p>
-        </div>
-        <div className="space-y-6 lg:grid lg:grid-cols-4 sm:gap-4 lg:space-y-0">
-          {pricingData.map((tier, index) => (
-            <PricingTier key={index} {...tier} />
           ))}
         </div>
       </div>
