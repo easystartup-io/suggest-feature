@@ -8,6 +8,7 @@ import ChangelogSection from './ChangelogSection';
 import DarkModeSection from './DarkModeSection';
 import FAQ from './Faq';
 import Pricing from './Pricing';
+import OpenSourceSection from "./OpenSourceSection";
 
 export const metadata: Metadata = {
   title: "Suggest Feature - Share and Vote on Feature Requests",
@@ -141,6 +142,7 @@ export default function Home() {
       <Features />
       <ChangelogSection />
       <DarkModeSection />
+      <OpenSourceSection />
       <BestInClassSupport />
       <FAQ />
       <Pricing />
