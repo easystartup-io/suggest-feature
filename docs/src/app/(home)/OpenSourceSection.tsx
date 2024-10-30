@@ -26,7 +26,7 @@ const OpenSourceSection = () => {
                 variant="outline"
                 className="py-3 px-5 text-base font-medium text-center rounded-lg border hover:bg-gray-900/10 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
               >
-                Check us GitHub
+                Check our GitHub
               </Button>
             </Link>
           </div>
