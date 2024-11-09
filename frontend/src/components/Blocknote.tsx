@@ -38,7 +38,7 @@ export default function Blocknote({ setHtml, setContent, html, content, theme })
   );
 
   const onChange = async () => {
-    const html = await editor.blocksToHTMLLossy(editor.document);
+    const html = await editor.blocksToFullHTML(editor.document);
     setHtml(html);
     setContent(editor.document);
   };
