@@ -140,7 +140,7 @@ public class NotificationService {
                 createdByUserId = notification.getUserId();
             }
             comment.setUser(Util.getSafeUser(userMap.get(createdByUserId), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
-            
+
             Post post = postMap.get(comment.getPostId());
             if (post == null) {
                 notification.setData(Map.of("comment", comment));
