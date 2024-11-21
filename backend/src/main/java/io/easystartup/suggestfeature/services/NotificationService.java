@@ -119,7 +119,7 @@ public class NotificationService {
         Set<String> commentIds = value.stream().map(notification -> (String) notification.getData().get("commentId")).collect(Collectors.toSet());
         Query query = new Query(Criteria.where(Comment.FIELD_ID).in(commentIds));
         List<Comment> comments = mongoConnection.getDefaultMongoTemplate().find(query, Comment.class);
-        Set<String> postIds = comments.stream().map(comment -> comment.getPostId()).collect(Collectors.toSet());
+        Set<String> postIds = comments.stream().map(Comment::getPostId).collect(Collectors.toSet());
         Map<String, Post> postMap = getPosts(postIds);
 
         Set<String> allUserIdsToFetch = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toSet());
@@ -132,14 +132,22 @@ public class NotificationService {
         for (Notification notification : value) {
             Comment comment = commentMap.get((String) notification.getData().get("commentId"));
             if (comment == null) {
-                continue;
+                comment = new Comment();
             }
-            comment.setUser(Util.getSafeUser(userMap.get(comment.getCreatedByUserId()), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
+            String createdByUserId;
+            createdByUserId = comment.getCreatedByUserId();
+            if (createdByUserId == null) {
+                createdByUserId = notification.getUserId();
+            }
+            comment.setUser(Util.getSafeUser(userMap.get(createdByUserId), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
+            
             Post post = postMap.get(comment.getPostId());
             if (post == null) {
+                notification.setData(Map.of("comment", comment));
                 continue;
-            }
+            } else {
             post.setUser(Util.getSafeUser(userMap.get(post.getCreatedByUserId()), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
+            }
             notification.setData(Map.of("comment", comment, "post", post));
         }
     }

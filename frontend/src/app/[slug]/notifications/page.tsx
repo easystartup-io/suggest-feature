@@ -70,17 +70,21 @@ const NotificationItem = ({ notification }) => {
               New reply on <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment?.content}&apos;
             </>
           );
+        } else if (!data.comment?.content) {
+          return (<div className='text-red'>
+            Comment deleted by {actionUser?.name}
+          </div>)
         } else {
           return (
             <>
-              New comment on <strong>&quot;{data.post?.title}&quot;</strong> by {actionUser.name}: &quot;{data.comment?.content}&quot;
+              New comment on <strong>&quot;{data.post?.title}&quot;</strong> by {actionUser?.name}: &quot;{data.comment?.content}&quot;
             </>
           );
         }
       case 'POST_STATUS_UPDATE':
         return (
           <>
-            Status update for <strong>&apos;{data.post?.title}&apos;</strong>: {data.status} (by {actionUser.name})
+            Status update for <strong>&apos;{data.post?.title}&apos;</strong>: {data.status} (by {actionUser?.name})
           </>
         );
       case 'UPVOTE':
@@ -129,7 +133,7 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
-  const actionUser = notification.data.comment ? notification.data.comment.user : notification.data?.post?.user;
+  const actionUser = notification.data.comment ? notification.data.comment?.user : notification.data?.post?.user;
 
   return (
     <Card className="mb-4">

@@ -38,8 +38,10 @@ public class SearchUtil {
         if (StringUtils.isBlank(req.getQuery())) {
             throw new UserVisibleException("Search query is required");
         }
-        req.setQuery(req.getQuery().trim().substring(0, Math.min(150, req.getQuery().length())));
-        req.setBoardSlug(req.getBoardSlug().trim().substring(0, Math.min(150, req.getBoardSlug().length())));
+        String trimmedQuery = req.getQuery().trim();
+        String trimmedBoardSlug = req.getBoardSlug().trim();
+        req.setQuery(trimmedQuery.substring(0, Math.min(150, trimmedQuery.length())));
+        req.setBoardSlug(trimmedBoardSlug.substring(0, Math.min(150, trimmedBoardSlug.length())));
         if (StringUtils.isBlank(req.getBoardSlug())) {
             throw new UserVisibleException("Slug is required");
         }
