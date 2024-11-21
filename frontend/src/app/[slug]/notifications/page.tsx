@@ -59,7 +59,7 @@ const NotificationItem = ({ notification }) => {
         );
       case 'POST':
         if (!data.post?.createdByUserId) {
-          return (<div className='text-red'>
+          return (<div className='text-red-800'>
             Post deleted by {actionUser?.name}
           </div>)
         } else {
@@ -77,7 +77,7 @@ const NotificationItem = ({ notification }) => {
             </>
           );
         } else if (!data.comment?.content) {
-          return (<div className='text-red'>
+          return (<div className='text-red-800'>
             Comment deleted by {actionUser?.name}
           </div>)
         } else {
