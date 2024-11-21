@@ -60,14 +60,14 @@ const NotificationItem = ({ notification }) => {
       case 'POST':
         return (
           <>
-            New post: <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}
+            New post: <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser?.name}
           </>
         );
       case 'COMMENT':
         if (data.comment?.replyToCommentId) {
           return (
             <>
-              New reply on <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment?.content}&apos;
+              New reply on <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser?.name}: &apos;{data.comment?.content}&apos;
             </>
           );
         } else if (!data.comment?.content) {
@@ -96,13 +96,13 @@ const NotificationItem = ({ notification }) => {
       case 'FOLLOW':
         return (
           <>
-            <strong>&apos;{data.post?.title}&apos;</strong> is now followed by {actionUser.name}
+            <strong>&apos;{data.post?.title}&apos;</strong> is now followed by {actionUser?.name}
           </>
         );
       case 'MENTION':
         return (
           <>
-            You were mentioned in <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment?.content}&apos;
+            You were mentioned in <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser?.name}: &apos;{data.comment?.content}&apos;
           </>
         );
       default:
