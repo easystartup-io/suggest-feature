@@ -220,7 +220,7 @@ function PostContent({ data, refetch, params }) {
               </div>
               :
               (
-                data.html ? <div className="prose" dangerouslySetInnerHTML={{ __html: data.html }} /> : <AutoLink text={(data.html || data.description || data.content)} />
+                data.html ? <div className="prose dark:prose-invert" dangerouslySetInnerHTML={{ __html: data.html }} /> : <AutoLink text={(data.html || data.description || data.content)} />
               )
           }
         </div>
