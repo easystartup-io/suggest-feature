@@ -124,6 +124,7 @@ public class NotificationService {
 
         Set<String> allUserIdsToFetch = comments.stream().map(Comment::getCreatedByUserId).collect(Collectors.toSet());
         postMap.values().forEach(post -> allUserIdsToFetch.add(post.getCreatedByUserId()));
+        value.forEach(notification -> allUserIdsToFetch.add(notification.getUserId()));
 
         List<User> users = authService.getUsersByUserIds(allUserIdsToFetch);
         Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
@@ -173,15 +174,20 @@ public class NotificationService {
         Set<String> postIds = value.stream().map(notification -> (String) notification.getData().get("postId")).collect(Collectors.toSet());
         Set<String> allUserIdsToFetch = new HashSet<>();
         Map<String, Post> postMap = getPosts(postIds);
+        value.forEach(notification -> allUserIdsToFetch.add(notification.getUserId()));
         postMap.values().forEach(post -> allUserIdsToFetch.add(post.getCreatedByUserId()));
         List<User> users = authService.getUsersByUserIds(allUserIdsToFetch);
         Map<String, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
         for (Notification notification : value) {
             Post post = postMap.get((String) notification.getData().get("postId"));
             if (post == null) {
-                continue;
+                post = new Post();
             }
-            post.setUser(Util.getSafeUser(userMap.get(post.getCreatedByUserId()), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
+            String createdByUserId = post.getCreatedByUserId();
+            if (createdByUserId == null) {
+                createdByUserId = notification.getUserId();
+            }
+            post.setUser(Util.getSafeUser(userMap.get(createdByUserId), false, "TEAM_MEMBER".equals(notification.getCreatedByUserType())));
             String status = (String) notification.getData().get("status");
             status = status == null ? post.getStatus() : status;
             Long upVoteCount = (Long) notification.getData().get("upVoteCount");

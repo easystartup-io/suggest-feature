@@ -58,11 +58,17 @@ const NotificationItem = ({ notification }) => {
           </>
         );
       case 'POST':
-        return (
-          <>
-            New post: <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser?.name}
-          </>
-        );
+        if (!data.post?.createdByUserId) {
+          return (<div className='text-red'>
+            Post deleted by {actionUser?.name}
+          </div>)
+        } else {
+          return (
+            <>
+              New post: <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser?.name}
+            </>
+          );
+        }
       case 'COMMENT':
         if (data.comment?.replyToCommentId) {
           return (

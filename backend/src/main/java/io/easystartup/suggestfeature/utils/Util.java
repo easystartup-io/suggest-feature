@@ -326,6 +326,9 @@ public class Util {
     }
 
     public static User getSafeUser(User user, boolean adminPortalRequest, boolean member) {
+        if (user == null){
+            return null;
+        }
         User safeUser = new User();
         safeUser.setId(user.getId());
         safeUser.setName(user.getName());
