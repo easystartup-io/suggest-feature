@@ -103,7 +103,7 @@ export default async function DashboardClient({ initialPosts, searchParams }) {
   const roadmapOnly = searchParams.roadmapOnly
 
   return (
-    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-6 w-full">
+    <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-col gap-4 p-4 pt-2 md:gap-8 md:p-10 md:pt-0 w-full">
       <SetThemeAtuomatically searchParams={searchParams} />
       <div className="w-full items-center justify-center flex">
         <div className="w-full">
