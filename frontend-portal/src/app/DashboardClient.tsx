@@ -142,7 +142,7 @@ export default async function DashboardClient({ initialPosts, searchParams }) {
                 <div className="grid md:grid-cols-3 gap-6 mt-6">
                   {
                     posts && Object.keys(posts).map((key) => {
-                      return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,24rem))]">
+                      return (<div key={key} className="bg-white dark:bg-background border border-gray-100 dark:border-0 rounded-lg p-4 flex flex-1 flex-col h-[calc(max(100vh/2,28rem))]">
                         <div className="flex items-center justify-center font-semibold pb-4">
                           {key} {posts[key].length > 0 ? `(${posts[key].length})` : ''}
                         </div>
