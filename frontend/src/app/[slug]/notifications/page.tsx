@@ -48,7 +48,7 @@ const UserBadge = ({ user }) => (
 const NotificationItem = ({ notification }) => {
   const getNotificationContent = () => {
     const { type, data } = notification;
-    const actionUser = data.comment ? data.comment.user : data.changelog ? data.changelog?.user : data.post?.user;
+    const actionUser = data.comment ? data.comment?.user : data.changelog ? data.changelog?.user : data.post?.user;
 
     switch (type) {
       case 'CHANGELOG':
@@ -64,16 +64,16 @@ const NotificationItem = ({ notification }) => {
           </>
         );
       case 'COMMENT':
-        if (data.comment.replyToCommentId) {
+        if (data.comment?.replyToCommentId) {
           return (
             <>
-              New reply on <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
+              New reply on <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment?.content}&apos;
             </>
           );
         } else {
           return (
             <>
-              New comment on <strong>&quot;{data.post?.title}&quot;</strong> by {actionUser.name}: &quot;{data.comment.content}&quot;
+              New comment on <strong>&quot;{data.post?.title}&quot;</strong> by {actionUser.name}: &quot;{data.comment?.content}&quot;
             </>
           );
         }
@@ -86,7 +86,7 @@ const NotificationItem = ({ notification }) => {
       case 'UPVOTE':
         return (
           <>
-            Upvote milestone <strong>{data.upVoteCount}</strong> reached for <strong>&apos;{data.post.title}&apos;</strong>
+            Upvote milestone <strong>{data.upVoteCount}</strong> reached for <strong>&apos;{data.post?.title}&apos;</strong>
           </>
         );
       case 'FOLLOW':
@@ -98,7 +98,7 @@ const NotificationItem = ({ notification }) => {
       case 'MENTION':
         return (
           <>
-            You were mentioned in <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment.content}&apos;
+            You were mentioned in <strong>&apos;{data.post?.title}&apos;</strong> by {actionUser.name}: &apos;{data.comment?.content}&apos;
           </>
         );
       default:
@@ -115,7 +115,7 @@ const NotificationItem = ({ notification }) => {
       case 'POST':
         return 'bg-blue-500 hover:bg-blue-600';
       case 'COMMENT':
-        return notification.data.comment.replyToCommentId ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
+        return notification.data.comment?.replyToCommentId ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
       case 'POST_STATUS_UPDATE':
         return 'bg-purple-500 hover:bg-purple-600';
       case 'UPVOTE':
